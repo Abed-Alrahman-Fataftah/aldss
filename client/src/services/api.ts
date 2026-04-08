@@ -1,72 +1,81 @@
-import axios from 'axios'
+import axios from "axios";
 
-const BASE_URL = 'http://localhost:3001/api'
+const BASE_URL = "http://localhost:3001/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
-  headers: { 'Content-Type': 'application/json' }
-})
+  headers: { "Content-Type": "application/json" },
+});
 
 // Automatically attach JWT token to every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('aldss_token')
+  const token = localStorage.getItem("aldss_token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 
 // Auth
 export const authAPI = {
-  register: (data: RegisterData) => api.post('/auth/register', data),
-  login: (data: LoginData) => api.post('/auth/login', data),
-  getMe: () => api.get('/auth/me')
-}
+  register: (data: RegisterData) => api.post("/auth/register", data),
+  login: (data: LoginData) => api.post("/auth/login", data),
+  getMe: () => api.get("/auth/me"),
+};
 
 // Events
 export const eventAPI = {
-  log: (data: EventData) => api.post('/events/log', data),
-  getMyEvents: () => api.get('/events/my-events')
-}
+  log: (data: EventData) => api.post("/events/log", data),
+  getMyEvents: () => api.get("/events/my-events"),
+};
 
 // Survey
 export const surveyAPI = {
-  submit: (data: SurveyData) => api.post('/surveys/submit', data)
-}
+  submit: (data: SurveyData) => api.post("/surveys/submit", data),
+};
 
 // Types
 export interface RegisterData {
-  email: string
-  password: string
-  fullName: string
-  consentGiven: boolean
-  ageRange?: string
-  studyLevel?: string
-  fieldOfStudy?: string
-  weeklyStudyHours?: number
+  email: string;
+  password: string;
+  fullName: string;
+  consentGiven: boolean;
+  ageRange?: string;
+  studyLevel?: string;
+  fieldOfStudy?: string;
+  weeklyStudyHours?: number;
 }
 
 export interface LoginData {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 export interface EventData {
-  eventType: string
-  contentId?: string
-  trackId?: string
-  depthScore?: number
-  metadata?: Record<string, any>
+  eventType: string;
+  contentId?: string;
+  trackId?: string;
+  depthScore?: number;
+  metadata?: Record<string, any>;
 }
 
 export interface SurveyData {
-  surveyType: string
-  weekNumber?: number
-  perceivedProgress?: number
-  motivationScore?: number
-  studyHours?: number
-  mainChallenge?: string
-  responses?: Record<string, any>
+  surveyType: string;
+  weekNumber?: number;
+  perceivedProgress?: number;
+  motivationScore?: number;
+  studyHours?: number;
+  mainChallenge?: string;
+  responses?: Record<string, any>;
 }
-
-export default api
+export const contentAPI = {
+  getTracks: () => api.get("/content/tracks"),
+  getModules: (trackId: string) =>
+    api.get(`/content/tracks/${trackId}/modules`),
+  getModule: (moduleId: string) => api.get(`/content/modules/${moduleId}`),
+  submitQuiz: (moduleId: string, answers: Record<string, number>) =>
+    api.post(`/content/modules/${moduleId}/quiz`, { answers }),
+  logPathSwitch: (fromTrackId: string, toTrackId: string) =>
+    api.post("/content/path-switch", { fromTrackId, toTrackId }),
+};
+export default api;

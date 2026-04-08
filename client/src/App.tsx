@@ -5,6 +5,8 @@ import LoginPage from './pages/auth/LoginPage'
 import ConsentPage from './pages/onboarding/ConsentPage'
 import BaselineSurveyPage from './pages/onboarding/BaselineSurveyPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
+import TrackPage from './pages/dashboard/TrackPage'
+import ModulePage from './pages/dashboard/ModulePage'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth()
@@ -21,9 +23,9 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/consent" element={<ConsentPage />} />
       <Route path="/onboarding/survey" element={<BaselineSurveyPage />} />
-      <Route path="/dashboard" element={
-        <ProtectedRoute><DashboardPage /></ProtectedRoute>
-      } />
+      <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+      <Route path="/track/:trackId" element={<ProtectedRoute><TrackPage /></ProtectedRoute>} />
+      <Route path="/module/:moduleId" element={<ProtectedRoute><ModulePage /></ProtectedRoute>} />
     </Routes>
   )
 }
