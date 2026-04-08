@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Group {
+  CONTROL
+  INTERVENTION
+}
+
+enum TrajectoryType {
+  IMPROVING
+  STAGNATING
+  DECLINING
+}
+
+enum EventType {
+  CONTENT_VIEW
+  QUIZ_ATTEMPT
+  QUIZ_COMPLETE
+  PATH_SWITCH
+  GOAL_EDIT
+  IDLE_DETECTED
+  INTERVENTION_SHOWN
+  INTERVENTION_ACCEPTED
+  INTERVENTION_DISMISSED
+  SESSION_START
+  SESSION_END
+}
+
+enum SurveyType {
+  BASELINE
+  WEEKLY
+  EXIT
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  passwordHash     String
+  fullName         String
+  group            Group    @default(CONTROL)
+  consentGiven     Boolean  @default(false)
+  enrolledAt       DateTime @default(now())
+  isActive         Boolean  @default(true)
+  ageRange         String?
+  studyLevel       String?
+  fieldOfStudy     String?
+  weeklyStudyHours Int?
+
+  sessions       Session[]
+  events         BehavioralEvent[]
+  dqdSnapshots   DQDSnapshot[]
+  interventions  Intervention[]
+  surveys        SurveyResponse[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Session {
+  id              String    @id @default(uuid())
+  userId          String
+  startedAt       DateTime  @default(now())
+  endedAt         DateTime?
+  durationSeconds Int?
+  idleSeconds     Int       @default(0)
+  daysSinceLast   Int?
+
+  user   User              @relation(fields: [userId], references: [id])
+  events BehavioralEvent[]
+
+  createdAt DateTime @default(now())
+}
+
+model BehavioralEvent {
+  id         String    @id @default(uuid())
+  sessionId  String
+  userId     String
+  eventType  EventType
+  contentId  String?
+  trackId    String?
+  depthScore Float?
+  metadata   Json?
+  timestamp  DateTime  @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+}
+
+model DQDSnapshot {
+  id               String          @id @default(uuid())
+  userId           String
+  weekNumber       Int
+  dqdIndex         Float
+  consistencyScore Float
+  dropoutRisk      Float
+  trajectoryType   TrajectoryType?
+  featureVector    Json
+  computedAt       DateTime        @default(now())
+
+  user          User           @relation(fields: [userId], references: [id])
+  interventions Intervention[]
+}
+
+model Intervention {
+  id              String   @id @default(uuid())
+  userId          String
+  dqdSnapshotId   String
+  triggeredAt     DateTime @default(now())
+  guidanceText    String
+  explanationText String
+  accepted        Boolean?
+  dismissed       Boolean  @default(false)
+  explanationRating Int?
+
+  user        User        @relation(fields: [userId], references: [id])
+  dqdSnapshot DQDSnapshot @relation(fields: [dqdSnapshotId], references: [id])
+}
+
+model SurveyResponse {
+  id               String     @id @default(uuid())
+  userId           String
+  surveyType       SurveyType
+  weekNumber       Int        @default(0)
+  perceivedProgress Int?
+  motivationScore  Int?
+  studyHours       Float?
+  mainChallenge    String?
+  responses        Json?
+  submittedAt      DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Track {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  orderIndex  Int
+  isActive    Boolean  @default(true)
+  modules     Module[]
+  createdAt   DateTime @default(now())
+}
+
+model Module {
+  id          String  @id @default(uuid())
+  trackId     String
+  title       String
+  description String
+  content     String
+  orderIndex  Int
+  isActive    Boolean @default(true)
+
+  track   Track    @relation(fields: [trackId], references: [id])
+  quizzes Quiz[]
+
+  createdAt DateTime @default(now())
+}
+
+model Quiz {
+  id       String         @id @default(uuid())
+  moduleId String
+  question String
+  options  Json
+  correct  Int
+  explanation String
+
+  module Module @relation(fields: [moduleId], references: [id])
+}

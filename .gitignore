@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment files
+.env
+**/.env
+
+# Python
+ai/venv/
+ai/__pycache__/
+*.pyc
+
+# Build outputs
+dist/
+client/dist/
+
+# Prisma
+server/prisma/migrations/
+
+# OS
+.DS_Store
+Thumbs.db
