@@ -1,0 +1,3249 @@
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+async function addModule(
+  trackTitle: string,
+  moduleData: {
+    title: string;
+    description: string;
+    orderIndex: number;
+    content: string;
+    quizzes: {
+      question: string;
+      options: string[];
+      correct: number;
+      explanation: string;
+    }[];
+  },
+) {
+  // Find the track
+  const track = await prisma.track.findFirst({
+    where: { title: trackTitle },
+  });
+
+  if (!track) {
+    console.log(`Track not found: ${trackTitle}`);
+    return;
+  }
+
+  // Check if module already exists
+  const existing = await prisma.module.findFirst({
+    where: { trackId: track.id, title: moduleData.title },
+  });
+
+  if (existing) {
+    console.log(`Already exists — skipping: ${moduleData.title}`);
+    return;
+  }
+
+  // Create the module with its quizzes
+  await prisma.module.create({
+    data: {
+      trackId: track.id,
+      title: moduleData.title,
+      description: moduleData.description,
+      orderIndex: moduleData.orderIndex,
+      content: moduleData.content,
+      quizzes: {
+        create: moduleData.quizzes.map((q) => ({
+          question: q.question,
+          options: JSON.stringify(q.options),
+          correct: q.correct,
+          explanation: q.explanation,
+        })),
+      },
+    },
+  });
+
+  console.log(`Created: ${moduleData.title}`);
+}
+
+async function main() {
+  console.log("Adding new modules...");
+
+  // ════════════════════════════════════════════════════════
+  // PASTE NEW MODULES BELOW THIS LINE
+  // Each module follows the addModule() pattern shown below
+  // ════════════════════════════════════════════════════════
+
+  await addModule("Python for Beginners", {
+    title: "Control Flow — If Statements, Loops, and Logic",
+    description:
+      "Learn how to make decisions and repeat actions in Python using if/elif/else statements, for loops, while loops, and boolean logic — the core tools that bring programs to life.",
+    orderIndex: 3,
+    content: `## What Is Control Flow?
+
+When you write a Python program, code normally runs line by line from top to bottom. **Control flow** is how you change that — making your program *decide* what to do, or *repeat* actions automatically. Think of it like a choose-your-own-adventure book: the story branches depending on your choices, and sometimes you loop back to the same page.
+
+## If / Elif / Else — Making Decisions
+
+An **if statement** lets your program ask a question and act on the answer.
+
+\`\`\`python
+temperature = 30
+
+if temperature > 25:
+    print("It's hot outside!")
+elif temperature > 15:
+    print("It's a nice day.")
+else:
+    print("Bring a jacket.")
+\`\`\`
+
+- **if** checks the first condition. If it's true, that block runs and the rest is skipped.
+- **elif** (short for "else if") checks a second condition — only reached if the first was false.
+- **else** is the fallback — it runs when *none* of the above conditions were true.
+
+You can have as many \`elif\` blocks as you need, but only one \`if\` and one \`else\` per chain.
+
+## Boolean Logic — True, False, and Comparisons
+
+Every condition in an if statement evaluates to either **True** or **False** — that's called a **boolean** value. Python gives you several comparison operators: \`==\` (equal to), \`!=\` (not equal to), \`>\` / \`<\` (greater / less than), and \`>=\` / \`<=\` (greater or equal / less or equal).
+
+You can also combine conditions with **and**, **or**, and **not**:
+
+\`\`\`python
+age = 20
+has_id = True
+
+if age >= 18 and has_id:
+    print("Entry allowed.")
+else:
+    print("Sorry, you cannot enter.")
+\`\`\`
+
+Use **and** when both conditions must be True, **or** when at least one must be True, and **not** to flip a boolean value.
+
+## For Loops — Repeating a Fixed Number of Times
+
+A **for loop** repeats a block of code once for each item in a sequence. The most common use is with \`range()\`, which generates a sequence of numbers.
+
+\`\`\`python
+for i in range(5):
+    print("Step", i)
+\`\`\`
+
+This prints Step 0 through Step 4 — five times total. You can also loop directly over a list:
+
+\`\`\`python
+fruits = ["apple", "banana", "cherry"]
+
+for fruit in fruits:
+    print("I like", fruit)
+\`\`\`
+
+Each time the loop runs, the variable \`fruit\` automatically holds the next item from the list.
+
+## While Loops — Repeating Until a Condition Changes
+
+A **while loop** keeps running as long as its condition stays True. It's useful when you don't know in advance how many repetitions you need.
+
+\`\`\`python
+count = 0
+
+while count < 3:
+    print("Counting:", count)
+    count = count + 1
+\`\`\`
+
+This prints 0, 1, then 2 — and stops when \`count\` reaches 3. **Important:** always make sure the condition will eventually become False, or your loop will run forever — this is called an **infinite loop** and is one of the most common beginner mistakes.
+
+## Putting It Together
+
+Control flow is the backbone of almost every program. A quiz app checks your answer with **if/else**, counts questions with a **for loop**, and keeps asking until you quit with a **while loop**. Master these three tools and you can write programs that genuinely *think* and *react*.`,
+    quizzes: [
+      {
+        question:
+          "What does the `elif` keyword do in a Python if-statement chain?",
+        options: [
+          "It ends the if-statement and starts a new one",
+          "It checks a second condition only if the first condition was False",
+          "It always runs, regardless of the if condition",
+          "It repeats the if condition in a loop",
+        ],
+        correct: 1,
+        explanation:
+          "`elif` is only evaluated when the preceding `if` (or `elif`) condition was False, allowing multiple distinct conditions to be checked in sequence.",
+      },
+      {
+        question:
+          "What will this code print?\n\nx = 10\nif x > 20:\n    print('A')\nelif x > 5:\n    print('B')\nelse:\n    print('C')",
+        options: ["A", "A and B", "B", "C"],
+        correct: 2,
+        explanation:
+          "x = 10 is not greater than 20 so the first branch is skipped; it is greater than 5 so the `elif` branch runs and prints 'B'.",
+      },
+      {
+        question:
+          "How many times will `print('Hello')` run?\n\nfor i in range(4):\n    print('Hello')",
+        options: ["3", "4", "5", "1"],
+        correct: 1,
+        explanation:
+          "`range(4)` generates the sequence 0, 1, 2, 3 — four values — so the loop body executes exactly four times.",
+      },
+      {
+        question: "Which expression evaluates to True when `age = 16`?",
+        options: [
+          "age >= 18 and age < 30",
+          "age == 18 or age == 21",
+          "not (age < 18)",
+          "age > 10 and age < 18",
+        ],
+        correct: 3,
+        explanation:
+          "16 is greater than 10 AND less than 18, so both sides of the `and` are True, making the whole expression True.",
+      },
+      {
+        question:
+          "What happens if a `while` loop's condition never becomes False?",
+        options: [
+          "Python automatically exits after 100 repetitions",
+          "The loop causes a syntax error before running",
+          "The program runs forever — an infinite loop",
+          "The else block runs instead",
+        ],
+        correct: 2,
+        explanation:
+          "If the while condition stays True indefinitely, Python has no built-in stopping point and will keep executing the loop body until the program is forcibly terminated.",
+      },
+    ],
+  });
+  await addModule("Python for Beginners", {
+    title: "Functions — Writing Reusable Code",
+    description:
+      "Learn how to define and call your own functions in Python, pass in data with parameters, get results back with return values, and understand why reusable code is a cornerstone of good programming.",
+    orderIndex: 4,
+    content: `## What Is a Function?
+
+Imagine you had to write instructions for making a cup of tea every single time someone wanted one. That would be exhausting. Instead, you'd write the instructions once, give them a name — "make tea" — and just refer to that name whenever you need it. That's exactly what a **function** is in Python: a named, reusable block of code that you write once and can run as many times as you like.
+
+## Defining a Function with \`def\`
+
+To create a function in Python, you use the \`def\` keyword, followed by a name, parentheses, and a colon. The code inside must be indented.
+
+\`\`\`python
+def greet():
+    print("Hello, welcome to Python!")
+\`\`\`
+
+Defining a function doesn't run it — it just saves the instructions. To actually execute it, you **call** it by writing its name followed by parentheses:
+
+\`\`\`python
+greet()
+greet()
+greet()
+\`\`\`
+
+This prints the greeting three times without you having to rewrite the \`print\` line each time.
+
+## Parameters and Arguments
+
+Functions become far more powerful when you can pass data into them. A **parameter** is a variable you declare inside the function's parentheses — it acts as a placeholder. An **argument** is the actual value you supply when you call the function.
+
+\`\`\`python
+def greet(name):
+    print("Hello,", name)
+
+greet("Alice")
+greet("Bob")
+\`\`\`
+
+Here, \`name\` is the parameter and \`"Alice"\` / \`"Bob"\` are the arguments. The same function now works for any name you give it.
+
+You can also define multiple parameters:
+
+\`\`\`python
+def add(a, b):
+    print(a + b)
+
+add(3, 5)   # prints 8
+add(10, 20) # prints 30
+\`\`\`
+
+## Return Values
+
+So far our functions just print things. But often you want a function to **compute a result and hand it back** to the rest of your program. You do this with the \`return\` keyword.
+
+\`\`\`python
+def add(a, b):
+    return a + b
+
+result = add(3, 5)
+print(result)        # prints 8
+print(add(10, 20))   # prints 30
+\`\`\`
+
+Once Python hits \`return\`, the function immediately stops and sends the value back to wherever it was called. You can store that value in a variable, use it in a calculation, or pass it straight into another function.
+
+## Default Parameter Values
+
+You can give a parameter a default value so the function still works even if the caller doesn't supply that argument:
+
+\`\`\`python
+def greet(name="stranger"):
+    print("Hello,", name)
+
+greet("Alice")   # prints: Hello, Alice
+greet()          # prints: Hello, stranger
+\`\`\`
+
+## Why Reusable Code Matters
+
+Without functions, every time you needed the same logic you'd copy and paste it. That creates three big problems: your code gets long and hard to read, fixing a bug means hunting down every copy, and small differences between copies cause subtle errors.
+
+Functions solve all three. You write the logic once, give it a meaningful name, and call it wherever you need it. If something needs to change, you update one place and every call benefits instantly.
+
+This principle — writing code once and reusing it — is one of the most important habits in programming. Professional codebases are essentially large collections of well-named, well-organised functions working together. Learning to think in functions now will make every future topic, from data structures to web development, significantly easier to understand.`,
+    quizzes: [
+      {
+        question: "What keyword do you use to define a function in Python?",
+        options: ["func", "define", "def", "function"],
+        correct: 2,
+        explanation:
+          "Python uses the `def` keyword to declare a function, followed by the function name and parentheses.",
+      },
+      {
+        question:
+          "What is the difference between a parameter and an argument?",
+        options: [
+          "They are two different names for the same thing",
+          "A parameter is the placeholder in the function definition; an argument is the actual value passed when calling it",
+          "An argument is the placeholder in the function definition; a parameter is the actual value passed when calling it",
+          "Parameters are only used with `return`, arguments are used with `print`",
+        ],
+        correct: 1,
+        explanation:
+          "A parameter is the variable name declared in the `def` line, while an argument is the concrete value you supply at the call site.",
+      },
+      {
+        question:
+          "What does the `return` keyword do inside a function?",
+        options: [
+          "It prints the result to the screen",
+          "It restarts the function from the beginning",
+          "It stops the function and sends a value back to the caller",
+          "It defines a new variable inside the function",
+        ],
+        correct: 2,
+        explanation:
+          "`return` immediately exits the function and passes the specified value back to wherever the function was called, allowing the result to be stored or used further.",
+      },
+      {
+        question:
+          "What will this code output?\n\ndef multiply(x, y=2):\n    return x * y\n\nprint(multiply(5))",
+        options: ["5", "2", "10", "Error — missing argument"],
+        correct: 2,
+        explanation:
+          "Since `y` has a default value of 2, calling `multiply(5)` uses x=5 and y=2, returning 5 * 2 = 10.",
+      },
+      {
+        question:
+          "Which of the following is the best reason to use functions in your code?",
+        options: [
+          "Functions make the program run faster by skipping lines",
+          "Functions allow you to write logic once and reuse it, making code shorter and easier to maintain",
+          "Functions are required by Python — you cannot write a program without them",
+          "Functions prevent variables from being created inside a program",
+        ],
+        correct: 1,
+        explanation:
+          "The core benefit of functions is reusability — write the logic once, call it anywhere, and update it in a single place if anything changes.",
+      },
+    ],
+  })
+  await addModule("Python for Beginners", {
+    title: "Lists and Collections — Storing Multiple Values",
+    description:
+      "Learn how to store and manage multiple values in Python using lists, access items by index, use built-in list methods like append and remove, and loop through a list with a for loop.",
+    orderIndex: 5,
+    content: `## The Problem with Single Variables
+
+So far, every variable you've seen holds exactly one value — a number, a string, a boolean. But what if you need to store a whole class of student names? Or the prices of every item in a shopping cart? Creating a separate variable for each one would be impractical and messy. Python solves this with **lists**.
+
+## What Is a List?
+
+A list is an ordered collection of values stored under a single variable name. You create one using square brackets, with each item separated by a comma:
+
+\`\`\`python
+fruits = ["apple", "banana", "cherry"]
+scores = [88, 92, 75, 100, 64]
+mixed  = ["Alice", 21, True]
+\`\`\`
+
+Lists can hold any data type — strings, numbers, booleans, or even a mix. The order is preserved exactly as you write it.
+
+## Accessing Items by Index
+
+Every item in a list has a numbered position called an **index**, starting at **0**. To retrieve an item, write the list name followed by the index in square brackets:
+
+\`\`\`python
+fruits = ["apple", "banana", "cherry"]
+
+print(fruits[0])   # apple
+print(fruits[1])   # banana
+print(fruits[2])   # cherry
+\`\`\`
+
+Python also supports **negative indexing** — \`-1\` always refers to the last item, \`-2\` to the second-last, and so on:
+
+\`\`\`python
+print(fruits[-1])  # cherry
+print(fruits[-2])  # banana
+\`\`\`
+
+Trying to access an index that doesn't exist (e.g. \`fruits[5]\` on a 3-item list) will cause an **IndexError**, so always be mindful of your list's length.
+
+## Common List Methods
+
+Python gives you a set of built-in **methods** — actions you can call directly on a list using dot notation.
+
+**Adding items:**
+\`\`\`python
+fruits.append("mango")
+print(fruits)  # ["apple", "banana", "cherry", "mango"]
+\`\`\`
+\`append()\` adds one item to the **end** of the list.
+
+**Removing items:**
+\`\`\`python
+fruits.remove("banana")
+print(fruits)  # ["apple", "cherry", "mango"]
+\`\`\`
+\`remove()\` deletes the **first occurrence** of the value you specify. If the value doesn't exist, Python raises an error.
+
+**Inserting at a position:**
+\`\`\`python
+fruits.insert(1, "grape")
+print(fruits)  # ["apple", "grape", "cherry", "mango"]
+\`\`\`
+\`insert(index, value)\` places the new item at the given index, shifting everything else to the right.
+
+**Checking the length:**
+\`\`\`python
+print(len(fruits))  # 4
+\`\`\`
+\`len()\` returns the total number of items in the list — essential whenever you need to know how big a list is before working with it.
+
+## Iterating Over a List with a For Loop
+
+One of the most common things you'll do with a list is go through every item one by one. A **for loop** handles this cleanly:
+
+\`\`\`python
+scores = [88, 92, 75, 100, 64]
+
+for score in scores:
+    print("Score:", score)
+\`\`\`
+
+On each iteration, the variable \`score\` holds the next item from the list automatically. You can also use \`range(len())\` if you need the index alongside the value:
+
+\`\`\`python
+for i in range(len(fruits)):
+    print(i, fruits[i])
+\`\`\`
+
+## Why Lists Matter
+
+Lists are the foundation of almost every real-world program. A contact list, a leaderboard, a shopping cart, a set of quiz questions — all of these are lists under the hood. Once you're comfortable creating, modifying, and looping through lists, you'll have the tools to build programs that work with data at any scale.`,
+    quizzes: [
+      {
+        question:
+          "Given `colors = ['red', 'green', 'blue']`, what does `colors[1]` return?",
+        options: ["'red'", "'green'", "'blue'", "An IndexError"],
+        correct: 1,
+        explanation:
+          "List indexing starts at 0, so index 1 refers to the second item in the list, which is 'green'.",
+      },
+      {
+        question:
+          "Which method adds a new item to the end of an existing list?",
+        options: ["insert()", "add()", "append()", "push()"],
+        correct: 2,
+        explanation:
+          "`append()` is Python's built-in method for adding a single item to the end of a list without affecting any other items.",
+      },
+      {
+        question:
+          "What will `len(['a', 'b', 'c', 'd'])` return?",
+        options: ["3", "4", "5", "0"],
+        correct: 1,
+        explanation:
+          "`len()` counts the total number of items in the list. The list has four elements — 'a', 'b', 'c', and 'd' — so it returns 4.",
+      },
+      {
+        question:
+          "What will this code print?\n\nitems = ['x', 'y', 'z']\nprint(items[-1])",
+        options: ["'x'", "'y'", "'z'", "An IndexError"],
+        correct: 2,
+        explanation:
+          "Negative indexing counts from the end of the list, so -1 always refers to the last item, which is 'z'.",
+      },
+      {
+        question:
+          "What does `remove()` do if the value you specify does not exist in the list?",
+        options: [
+          "It does nothing and silently skips",
+          "It removes the item at index 0 instead",
+          "It raises a ValueError",
+          "It removes the last item in the list",
+        ],
+        correct: 2,
+        explanation:
+          "If the specified value is not found, Python raises a `ValueError` — so it's good practice to check whether an item exists before calling `remove()`.",
+      },
+    ],
+  })
+  await addModule("Python for Beginners", {
+    title: "Dictionaries — Storing Key-Value Data",
+    description:
+      "Learn how to store and retrieve data using named keys with Python dictionaries, update and add entries, loop through keys and values, and know when a dictionary is the right tool over a list.",
+    orderIndex: 6,
+    content: `## The Limits of Lists
+
+Lists are great when you have an ordered collection of similar items — a row of scores, a queue of names. But imagine storing a student's profile: their name, age, course, and GPA. In a list you'd have to remember that index 0 is the name, index 1 is the age, and so on. That's fragile and hard to read. Python's **dictionary** solves this by letting you label every piece of data with a meaningful name.
+
+## What Is a Dictionary?
+
+A dictionary stores data as **key-value pairs**. Instead of a numbered position, each value has a descriptive **key** you choose yourself. You create a dictionary with curly braces:
+
+\`\`\`python
+student = {
+    "name": "Alice",
+    "age": 20,
+    "course": "Computer Science",
+    "gpa": 3.8
+}
+\`\`\`
+
+Each entry is written as \`key: value\`, separated by commas. Keys are almost always strings, and values can be any data type — numbers, strings, booleans, even other lists or dictionaries.
+
+## Accessing Values
+
+To retrieve a value, write the dictionary name followed by the key in square brackets:
+
+\`\`\`python
+print(student["name"])    # Alice
+print(student["gpa"])     # 3.8
+\`\`\`
+
+If you use a key that doesn't exist, Python raises a **KeyError**. A safer alternative is the \`.get()\` method, which returns \`None\` instead of crashing:
+
+\`\`\`python
+print(student.get("grade"))     # None
+print(student.get("grade", "N/A"))  # N/A
+\`\`\`
+
+The second argument to \`.get()\` is an optional default value returned when the key is missing.
+
+## Adding and Updating Values
+
+Dictionaries are **mutable** — you can change them after creation. Assigning to an existing key updates it; assigning to a new key creates it:
+
+\`\`\`python
+student["gpa"] = 3.9          # update existing value
+student["year"] = 2            # add a new key-value pair
+
+print(student["gpa"])          # 3.9
+print(student["year"])         # 2
+\`\`\`
+
+To remove an entry entirely, use the \`del\` keyword:
+
+\`\`\`python
+del student["year"]
+\`\`\`
+
+## Looping Through a Dictionary
+
+You can iterate over a dictionary in several ways depending on what you need.
+
+**Loop through keys only (default):**
+\`\`\`python
+for key in student:
+    print(key)
+\`\`\`
+
+**Loop through values only:**
+\`\`\`python
+for value in student.values():
+    print(value)
+\`\`\`
+
+**Loop through both keys and values together:**
+\`\`\`python
+for key, value in student.items():
+    print(key, ":", value)
+\`\`\`
+
+The \`.items()\` method is the most commonly used — it gives you both pieces of information on every iteration, which is usually what you need.
+
+## Dictionary vs List — When to Use Which
+
+The choice comes down to one question: **does the order and position of the data matter, or does the label matter?**
+
+Use a **list** when you have a sequence of similar items where position is meaningful — exam scores, a queue of tasks, a playlist.
+
+Use a **dictionary** when each piece of data has a distinct identity and you want to look it up by name — a user profile, a product catalogue entry, configuration settings.
+
+A practical rule of thumb: if you find yourself writing comments like \`# index 0 is the name, index 2 is the age\` to keep track of a list, that data belongs in a dictionary.
+
+## Why Dictionaries Matter
+
+Dictionaries are one of the most widely used data structures in real-world Python. Web APIs return data as dictionaries (called JSON), databases map column names to values, and configuration files are structured as key-value pairs. Getting comfortable with dictionaries now means you'll be ready to work with real data the moment you move beyond the basics.`,
+    quizzes: [
+      {
+        question:
+          "How do you access the value associated with the key `'age'` in a dictionary called `person`?",
+        options: [
+          "person(age)",
+          "person.age",
+          "person['age']",
+          "person->age",
+        ],
+        correct: 2,
+        explanation:
+          "Dictionary values are accessed using square bracket notation with the key name as a string, i.e. `person['age']`.",
+      },
+      {
+        question:
+          "What happens if you assign a value to a key that already exists in a dictionary?",
+        options: [
+          "Python raises a KeyError",
+          "A duplicate entry is created alongside the original",
+          "The existing value is overwritten with the new one",
+          "Python ignores the assignment silently",
+        ],
+        correct: 2,
+        explanation:
+          "Dictionaries do not allow duplicate keys — assigning to an existing key simply replaces its current value with the new one.",
+      },
+      {
+        question:
+          "What does the `.get()` method return when the specified key does not exist in the dictionary?",
+        options: [
+          "It raises a KeyError",
+          "It returns 0",
+          "It returns an empty string",
+          "It returns None by default",
+        ],
+        correct: 3,
+        explanation:
+          "Unlike square bracket access, `.get()` returns `None` when the key is missing (or a custom default if you provide one), avoiding a KeyError crash.",
+      },
+      {
+        question:
+          "Which method lets you loop through both keys and values of a dictionary at the same time?",
+        options: [".keys()", ".values()", ".items()", ".pairs()"],
+        correct: 2,
+        explanation:
+          "`.items()` returns each entry as a (key, value) tuple, allowing you to unpack both in a single `for` loop with `for key, value in dict.items()`.",
+      },
+      {
+        question:
+          "A student record stores a name, age, and GPA under labelled fields. Which data structure is most appropriate?",
+        options: [
+          "A list, because lists can store multiple values",
+          "A dictionary, because each value has a distinct label and is looked up by name",
+          "A list, because the data is ordered by importance",
+          "A dictionary is only suitable for numeric data",
+        ],
+        correct: 1,
+        explanation:
+          "When each piece of data has a meaningful name and is accessed by that label rather than by position, a dictionary is the right choice over a list.",
+      },
+    ],
+  })
+  await addModule("Python for Beginners", {
+    title: "Working with Files — Reading and Writing Data",
+    description:
+      "Learn how to make your Python programs interact with the file system — opening, reading, and writing text files using open(), read(), readlines(), write(), and the with statement for safe file handling.",
+    orderIndex: 7,
+    content: `## Why File Handling Matters
+
+Every program you've written so far forgets everything the moment it stops running. Variables live in memory — when the program ends, they disappear. **File handling** is how you give your program a lasting memory. Whether it's saving a user's high score, reading a list of names from a spreadsheet, or logging errors for later review, files are how data survives beyond a single run.
+
+## Opening a File with \`open()\`
+
+Before you can read from or write to a file, you need to open it. Python's built-in \`open()\` function takes two main arguments: the **filename** and the **mode**.
+
+\`\`\`python
+f = open("notes.txt", "r")
+\`\`\`
+
+The mode tells Python what you intend to do with the file:
+
+- \`"r"\` — **read** an existing file (default if you omit the mode)
+- \`"w"\` — **write** to a file, creating it if it doesn't exist and erasing it if it does
+- \`"a"\` — **append** new content to the end of an existing file without erasing it
+- \`"x"\` — **create** a new file, failing if it already exists
+
+Choosing the wrong mode is a common mistake — opening with \`"w"\` when you meant \`"a"\` will silently wipe your file.
+
+## Reading Files
+
+Once a file is open in read mode, you have two main options.
+
+**Read the entire file as one string:**
+\`\`\`python
+f = open("notes.txt", "r")
+content = f.read()
+print(content)
+f.close()
+\`\`\`
+
+**Read line by line into a list:**
+\`\`\`python
+f = open("notes.txt", "r")
+lines = f.readlines()
+for line in lines:
+    print(line)
+f.close()
+\`\`\`
+
+\`read()\` is convenient when you want the whole file at once. \`readlines()\` is better when the file has structured rows — like a list of names or CSV data — and you want to process each line separately. Note that each line will include a \`\\n\` newline character at the end; you can strip it with \`line.strip()\`.
+
+## Writing to Files
+
+Opening a file in write mode and calling \`write()\` lets you save data permanently:
+
+\`\`\`python
+f = open("output.txt", "w")
+f.write("Hello, file!\\n")
+f.write("Second line.\\n")
+f.close()
+\`\`\`
+
+Unlike \`print()\`, \`write()\` does not add a newline automatically — you must include \`\\n\` yourself wherever you want a line break. If you want to add to an existing file without overwriting it, use \`"a"\` (append) mode instead.
+
+## Closing Files and the \`with\` Statement
+
+Calling \`f.close()\` after you're done is important — it flushes any unwritten data and frees up the system resource. Forgetting to close a file can cause data loss or lock the file from other programs.
+
+Python offers a cleaner, safer approach with the **\`with\` statement**, which closes the file automatically when the block ends — even if an error occurs:
+
+\`\`\`python
+with open("notes.txt", "r") as f:
+    content = f.read()
+    print(content)
+# file is automatically closed here
+\`\`\`
+
+The \`with\` statement is the recommended way to handle files in Python. It eliminates the risk of forgetting \`close()\` and makes your code shorter and easier to read. Whenever you work with files, default to \`with\` — only fall back to manual \`open()\` and \`close()\` if you have a specific reason.
+
+## Putting It Together
+
+File handling bridges your Python programs to the real world. Reading a file lets you load data that was saved earlier or prepared by someone else. Writing to a file lets your program produce results that outlast the session. Combined with what you already know about loops and lists, you can now read a file of names, process each one, and write the results to a new file — a pattern that appears constantly in data processing, automation, and software development.`,
+    quizzes: [
+      {
+        question:
+          "Which mode should you use with `open()` to add new content to an existing file without erasing what is already there?",
+        options: ['"r"', '"w"', '"a"', '"x"'],
+        correct: 2,
+        explanation:
+          'Append mode `"a"` adds new content to the end of the file while preserving everything already in it, whereas `"w"` would overwrite the file from scratch.',
+      },
+      {
+        question:
+          "What is the key advantage of using a `with` statement when working with files?",
+        options: [
+          "It makes the file read faster",
+          "It automatically closes the file when the block ends, even if an error occurs",
+          "It allows you to open multiple files with a single line",
+          "It converts the file content to a list automatically",
+        ],
+        correct: 1,
+        explanation:
+          "The `with` statement acts as a context manager — it guarantees the file is closed as soon as the indented block exits, preventing data loss or resource leaks.",
+      },
+      {
+        question:
+          "What does `readlines()` return when called on an open file?",
+        options: [
+          "A single string containing the entire file content",
+          "The number of lines in the file",
+          "A list where each element is one line from the file",
+          "Only the first line of the file",
+        ],
+        correct: 2,
+        explanation:
+          "`readlines()` reads the entire file and returns it as a list of strings, one string per line, each typically ending with a `\\n` newline character.",
+      },
+      {
+        question:
+          "You run this code twice in a row:\n\nf = open('log.txt', 'w')\nf.write('Entry\\n')\nf.close()\n\nWhat does `log.txt` contain after the second run?",
+        options: [
+          "Two lines — 'Entry' written twice",
+          "One line — 'Entry', because write mode overwrites the file each time",
+          "An error, because the file already exists",
+          "An empty file, because write mode clears without writing",
+        ],
+        correct: 1,
+        explanation:
+          'Opening a file in `"w"` mode erases all existing content before writing, so the second run replaces the first entry rather than appending to it.',
+      },
+      {
+        question:
+          "Why must you include `'\\n'` manually when using `write()`?",
+        options: [
+          "Because `write()` does not add a newline character automatically, unlike `print()`",
+          "Because `\\n` is required syntax for all Python string operations",
+          "Because files cannot store spaces, only newline characters",
+          "Because `write()` only accepts single characters at a time",
+        ],
+        correct: 0,
+        explanation:
+          "`print()` automatically appends a newline at the end of its output, but `write()` writes exactly what you give it — no newline is added unless you explicitly include `\\n` in the string.",
+      },
+    ],
+  })
+  await addModule("Python for Beginners", {
+    title: "Putting It All Together — Your First Real Python Program",
+    description:
+      "Apply everything you've learned — dictionaries, functions, loops, and file handling — to plan and build a complete student grade tracker that stores names and scores, calculates averages, and saves results to a file.",
+    orderIndex: 8,
+    content: `## From Exercises to Real Programs
+
+Every concept you've learned so far — variables, control flow, functions, lists, dictionaries, and file handling — was a individual tool. Real programs are what happen when those tools work together. In this module you'll build a complete, working Python program from scratch: a **student grade tracker** that stores names and scores, calculates averages, and saves a report to a file.
+
+The goal isn't just to produce working code. It's to practice the way programmers actually think: plan first, build in layers, and make deliberate decisions at each step.
+
+## Step 1 — Plan Before You Type
+
+Before writing a single line, ask: *what does this program need to do?*
+
+1. Store student names and their list of scores
+2. Calculate each student's average score
+3. Print a summary to the screen
+4. Save that summary to a text file
+
+This gives us a clear checklist. We know we'll need a **dictionary** (names mapped to score lists), a **function** (to calculate averages), a **loop** (to process every student), and **file handling** (to save the report).
+
+## Step 2 — Store the Data
+
+A dictionary where each key is a student name and each value is a list of scores is the natural fit here:
+
+\`\`\`python
+grades = {
+    "Alice": [88, 92, 79, 95],
+    "Bob":   [70, 65, 80, 74],
+    "Carol": [95, 98, 100, 92]
+}
+\`\`\`
+
+We chose a dictionary over a list because each dataset belongs to a named student — label matters more than position.
+
+## Step 3 — Write a Function to Calculate the Average
+
+Rather than repeating the calculation for every student, we write it once as a function:
+
+\`\`\`python
+def calculate_average(scores):
+    return sum(scores) / len(scores)
+\`\`\`
+
+\`sum()\` adds all the numbers in a list. \`len()\` counts how many there are. Dividing one by the other gives the mean. Wrapping this in a function means we can call it cleanly for every student without rewriting the logic.
+
+## Step 4 — Loop Through Every Student
+
+Now we combine the dictionary and the function inside a loop to produce a result for each student:
+
+\`\`\`python
+for name, scores in grades.items():
+    avg = calculate_average(scores)
+    print(f"{name}: {avg:.1f}")
+\`\`\`
+
+The \`f"..."\` syntax is called an **f-string** — it lets you embed variables directly inside a string. The \`:.1f\` part formats the number to one decimal place, keeping the output clean and readable.
+
+## Step 5 — Save the Report to a File
+
+Finally, we write the same results to a text file so the report persists after the program ends:
+
+\`\`\`python
+with open("grade_report.txt", "w") as f:
+    f.write("Student Grade Report\\n")
+    f.write("=" * 24 + "\\n")
+    for name, scores in grades.items():
+        avg = calculate_average(scores)
+        f.write(f"{name}: {avg:.1f}\\n")
+\`\`\`
+
+We use \`"w"\` mode because we want a fresh report every run. The \`with\` statement ensures the file closes safely. The \`"=" * 24\` is a quick trick — multiplying a string by a number repeats it, producing a clean divider line.
+
+## The Complete Program
+
+\`\`\`python
+grades = {
+    "Alice": [88, 92, 79, 95],
+    "Bob":   [70, 65, 80, 74],
+    "Carol": [95, 98, 100, 92]
+}
+
+def calculate_average(scores):
+    return sum(scores) / len(scores)
+
+with open("grade_report.txt", "w") as f:
+    f.write("Student Grade Report\\n")
+    f.write("=" * 24 + "\\n")
+    for name, scores in grades.items():
+        avg = calculate_average(scores)
+        line = f"{name}: {avg:.1f}"
+        print(line)
+        f.write(line + "\\n")
+\`\`\`
+
+Twenty lines. No module imports. No advanced concepts. Just the fundamentals working together.
+
+## What You've Proven
+
+This program is small, but it's real. It takes structured input, processes it with logic, and produces a persistent output — the same pattern used in data pipelines, reporting tools, and backend systems at any scale. The concepts don't change as programs grow larger; the programs just have more of them.`,
+    quizzes: [
+      {
+        question:
+          "Why is a dictionary used to store student grades instead of a plain list in this program?",
+        options: [
+          "Because dictionaries are faster than lists in Python",
+          "Because each set of scores belongs to a named student, making label-based lookup more meaningful than positional indexing",
+          "Because lists cannot store other lists inside them",
+          "Because dictionaries automatically sort the data alphabetically",
+        ],
+        correct: 1,
+        explanation:
+          "When data has a natural label — like a student's name — a dictionary makes the structure self-documenting and avoids the fragility of remembering which index corresponds to which student.",
+      },
+      {
+        question:
+          "What does `sum(scores) / len(scores)` calculate?",
+        options: [
+          "The highest score in the list",
+          "The total number of scores multiplied by the first score",
+          "The arithmetic mean (average) of all scores in the list",
+          "The difference between the largest and smallest score",
+        ],
+        correct: 2,
+        explanation:
+          "`sum()` adds all values in the list and `len()` counts how many there are — dividing the total by the count gives the arithmetic mean, which is the average.",
+      },
+      {
+        question:
+          "What does the `:.1f` format specifier do inside an f-string?",
+        options: [
+          "It converts the number to an integer by removing the decimal",
+          "It formats the number to exactly one decimal place",
+          "It multiplies the number by 1.0 before printing",
+          "It left-aligns the number in a field of width 1",
+        ],
+        correct: 1,
+        explanation:
+          "In Python f-strings, `:.1f` is a format code meaning 'fixed-point notation with 1 digit after the decimal point', keeping output consistent and readable.",
+      },
+      {
+        question:
+          "The program opens `grade_report.txt` in `'w'` mode on every run. What is the consequence of this?",
+        options: [
+          "Each run appends a new report below the previous one",
+          "The file is locked after the first run and cannot be written again",
+          "Each run overwrites the file with a fresh report, discarding the previous one",
+          "Python raises an error if the file already exists",
+        ],
+        correct: 2,
+        explanation:
+          "Write mode `'w'` erases all existing content each time the file is opened, so every run of the program produces a clean, current report rather than accumulating old ones.",
+      },
+      {
+        question:
+          "What is the result of `'=' * 24` in Python?",
+        options: [
+          "The number 24 multiplied by the ASCII value of '='",
+          "A syntax error — strings cannot be multiplied",
+          "The integer 24 converted to the string '24='",
+          "A string of 24 equals signs: '========================'",
+        ],
+        correct: 3,
+        explanation:
+          "Python's string repetition operator `*` repeats a string a given number of times, so `'=' * 24` produces a string of exactly 24 equals signs — a convenient way to draw a divider line.",
+      },
+    ],
+  })
+  await addModule("Productivity and Learning Systems", {
+    title: "The Science of Spaced Repetition",
+    description:
+      "Understand why you forget information and how spaced repetition systematically fights back — using the forgetting curve, optimal review intervals, and a practical schedule you can follow without any special software.",
+    orderIndex: 2,
+    content: `## Why You Forget Almost Everything
+
+You study hard for a lecture, understand the material, and feel confident. Three days later, you can barely recall half of it. A week later, most of it is gone. This isn't a personal failing — it's a predictable biological process, and understanding it is the first step to defeating it.
+
+In the 1880s, German psychologist Hermann Ebbinghaus conducted experiments on his own memory and plotted what he found as the **forgetting curve**: a graph showing that memory retention drops rapidly after initial learning, then levels off. Without any review, you forget roughly 50% of new information within a day, and up to 70–80% within a week. The curve is steep, but it has one crucial property — it flattens every time you successfully recall the information.
+
+## What Spaced Repetition Does
+
+**Spaced repetition** is a study technique that exploits the forgetting curve by scheduling reviews at the exact moments your memory is starting to fade. Instead of reviewing material every day (wasteful — the memory is still strong) or never reviewing it at all (fatal — the memory disappears), you review it just before you would forget it.
+
+Each successful review does two things: it restores your retention back toward 100%, and it makes the forgetting curve shallower for that piece of information going forward. In practical terms, this means the gaps between reviews can grow progressively longer. Something you just learned needs review tomorrow. Something you've reviewed four times successfully might not need another review for a month.
+
+This is why spaced repetition is dramatically more efficient than massed practice — the colloquial "cramming." Cramming concentrates all your study into one session, which produces strong short-term recall but almost no long-term retention. Spaced repetition distributes the same total study time across weeks, producing retention that lasts for months or years.
+
+## The Optimal Review Intervals
+
+Research into spaced repetition suggests a general pattern for new information that you want to retain long-term:
+
+- **First review:** 1 day after initial learning
+- **Second review:** 3 days after the first review
+- **Third review:** 1 week after the second review
+- **Fourth review:** 2 weeks after the third review
+- **Fifth review:** 1 month after the fourth review
+
+These intervals are not rigid rules — they are starting points. If you struggle to recall something during a review, shorten the next interval. If recall is effortless, you can safely extend it. The principle is consistent: space the reviews out, and let successful recall be the signal to increase the gap.
+
+## Applying Spaced Repetition Without Software
+
+You do not need an app to use spaced repetition. A simple paper-based system works well for most students.
+
+**The index card method:** Write one concept per card — question on the front, answer on the back. Organise cards into five labelled sections or boxes: *Today, 3 Days, 1 Week, 2 Weeks, 1 Month*. When you answer a card correctly, move it to the next box. When you answer incorrectly, move it back to the *Today* box. Each study session, you only review the cards due in that day's box.
+
+**The calendar method:** After each lecture, write the topic in your calendar on the review dates — tomorrow, in 3 days, in a week, in two weeks. When the date arrives, spend 10 minutes actively recalling the material before checking your notes.
+
+The key word in both methods is **active** — you must try to recall the information before looking at the answer. Passive re-reading does not trigger the memory strengthening that makes spaced repetition work.
+
+## Why This Changes How You Study
+
+Most students treat studying as a single event before an exam. Spaced repetition reframes it as an ongoing, low-effort maintenance process. Ten minutes of active recall spread across five sessions over a month requires less total effort than two hours of cramming — and produces retention that survives well past the exam. Start applying review schedules from the first week of semester, and by the time exams arrive, most of the work is already done.`,
+    quizzes: [
+      {
+        question:
+          "What does the forgetting curve describe?",
+        options: [
+          "The relationship between study time and exam grades",
+          "The rate at which memory retention drops after initial learning",
+          "The number of repetitions needed to memorise a new word",
+          "The difference in retention between visual and verbal learners",
+        ],
+        correct: 1,
+        explanation:
+          "The forgetting curve, plotted by Ebbinghaus, shows that memory retention declines rapidly after learning and then levels off — with roughly 50% forgotten within a day if no review occurs.",
+      },
+      {
+        question:
+          "What happens to the forgetting curve each time you successfully recall a piece of information?",
+        options: [
+          "It resets to the original steep slope as if you just learned it",
+          "It disappears entirely and the information is permanently memorised",
+          "It becomes shallower, meaning retention declines more slowly afterward",
+          "It steepens, making the next review more urgent",
+        ],
+        correct: 2,
+        explanation:
+          "Each successful retrieval flattens the forgetting curve for that item, which is why spaced repetition progressively extends the intervals between reviews — the memory becomes more durable with each successful recall.",
+      },
+      {
+        question:
+          "Why is cramming less effective than spaced repetition for long-term retention?",
+        options: [
+          "Cramming uses more total study hours than spaced repetition",
+          "Cramming only works for visual learners",
+          "Cramming concentrates all study into one session, producing strong short-term but poor long-term retention",
+          "Cramming prevents the formation of new memories due to cognitive overload",
+        ],
+        correct: 2,
+        explanation:
+          "Massed practice (cramming) floods short-term memory and produces high immediate recall, but without spaced reviews the information follows the forgetting curve and is largely lost within days.",
+      },
+      {
+        question:
+          "According to the suggested review schedule, when should you conduct your second review of new material?",
+        options: [
+          "The same day, immediately after the first review",
+          "1 day after the initial learning session",
+          "3 days after the first review",
+          "1 week after the initial learning session",
+        ],
+        correct: 2,
+        explanation:
+          "The recommended schedule places the second review 3 days after the first review (which itself occurs 1 day after initial learning), giving the memory time to weaken slightly before being reinforced.",
+      },
+      {
+        question:
+          "In the index card box method, what should you do with a card you answer incorrectly during a review session?",
+        options: [
+          "Remove it from the system and rewrite it from scratch",
+          "Move it back to the Today box so it is reviewed again soon",
+          "Move it forward two boxes to increase the challenge",
+          "Leave it in its current box and try again next session",
+        ],
+        correct: 1,
+        explanation:
+          "A wrong answer signals that the memory has faded too much — moving the card back to the Today box shortens the interval and schedules an immediate re-review, mimicking the adaptive logic of spaced repetition software.",
+      },
+    ],
+  })
+await addModule("Productivity and Learning Systems", {
+    title: "The Science of Spaced Repetition",
+    description:
+      "Understand why you forget information and how spaced repetition systematically fights back — using the forgetting curve, optimal review intervals, and a practical schedule you can follow without any special software.",
+    orderIndex: 2,
+    content: `## Why You Forget Almost Everything
+
+You study hard for a lecture, understand the material, and feel confident. Three days later, you can barely recall half of it. A week later, most of it is gone. This isn't a personal failing — it's a predictable biological process, and understanding it is the first step to defeating it.
+
+In the 1880s, German psychologist Hermann Ebbinghaus conducted experiments on his own memory and plotted what he found as the **forgetting curve**: a graph showing that memory retention drops rapidly after initial learning, then levels off. Without any review, you forget roughly 50% of new information within a day, and up to 70–80% within a week. The curve is steep, but it has one crucial property — it flattens every time you successfully recall the information.
+
+## What Spaced Repetition Does
+
+**Spaced repetition** is a study technique that exploits the forgetting curve by scheduling reviews at the exact moments your memory is starting to fade. Instead of reviewing material every day (wasteful — the memory is still strong) or never reviewing it at all (fatal — the memory disappears), you review it just before you would forget it.
+
+Each successful review does two things: it restores your retention back toward 100%, and it makes the forgetting curve shallower for that piece of information going forward. In practical terms, this means the gaps between reviews can grow progressively longer. Something you just learned needs review tomorrow. Something you've reviewed four times successfully might not need another review for a month.
+
+This is why spaced repetition is dramatically more efficient than massed practice — the colloquial "cramming." Cramming concentrates all your study into one session, which produces strong short-term recall but almost no long-term retention. Spaced repetition distributes the same total study time across weeks, producing retention that lasts for months or years.
+
+## The Optimal Review Intervals
+
+Research into spaced repetition suggests a general pattern for new information that you want to retain long-term:
+
+- **First review:** 1 day after initial learning
+- **Second review:** 3 days after the first review
+- **Third review:** 1 week after the second review
+- **Fourth review:** 2 weeks after the third review
+- **Fifth review:** 1 month after the fourth review
+
+These intervals are not rigid rules — they are starting points. If you struggle to recall something during a review, shorten the next interval. If recall is effortless, you can safely extend it. The principle is consistent: space the reviews out, and let successful recall be the signal to increase the gap.
+
+## Applying Spaced Repetition Without Software
+
+You do not need an app to use spaced repetition. A simple paper-based system works well for most students.
+
+**The index card method:** Write one concept per card — question on the front, answer on the back. Organise cards into five labelled sections or boxes: *Today, 3 Days, 1 Week, 2 Weeks, 1 Month*. When you answer a card correctly, move it to the next box. When you answer incorrectly, move it back to the *Today* box. Each study session, you only review the cards due in that day's box.
+
+**The calendar method:** After each lecture, write the topic in your calendar on the review dates — tomorrow, in 3 days, in a week, in two weeks. When the date arrives, spend 10 minutes actively recalling the material before checking your notes.
+
+The key word in both methods is **active** — you must try to recall the information before looking at the answer. Passive re-reading does not trigger the memory strengthening that makes spaced repetition work.
+
+## Why This Changes How You Study
+
+Most students treat studying as a single event before an exam. Spaced repetition reframes it as an ongoing, low-effort maintenance process. Ten minutes of active recall spread across five sessions over a month requires less total effort than two hours of cramming — and produces retention that survives well past the exam. Start applying review schedules from the first week of semester, and by the time exams arrive, most of the work is already done.`,
+    quizzes: [
+      {
+        question:
+          "What does the forgetting curve describe?",
+        options: [
+          "The relationship between study time and exam grades",
+          "The rate at which memory retention drops after initial learning",
+          "The number of repetitions needed to memorise a new word",
+          "The difference in retention between visual and verbal learners",
+        ],
+        correct: 1,
+        explanation:
+          "The forgetting curve, plotted by Ebbinghaus, shows that memory retention declines rapidly after learning and then levels off — with roughly 50% forgotten within a day if no review occurs.",
+      },
+      {
+        question:
+          "What happens to the forgetting curve each time you successfully recall a piece of information?",
+        options: [
+          "It resets to the original steep slope as if you just learned it",
+          "It disappears entirely and the information is permanently memorised",
+          "It becomes shallower, meaning retention declines more slowly afterward",
+          "It steepens, making the next review more urgent",
+        ],
+        correct: 2,
+        explanation:
+          "Each successful retrieval flattens the forgetting curve for that item, which is why spaced repetition progressively extends the intervals between reviews — the memory becomes more durable with each successful recall.",
+      },
+      {
+        question:
+          "Why is cramming less effective than spaced repetition for long-term retention?",
+        options: [
+          "Cramming uses more total study hours than spaced repetition",
+          "Cramming only works for visual learners",
+          "Cramming concentrates all study into one session, producing strong short-term but poor long-term retention",
+          "Cramming prevents the formation of new memories due to cognitive overload",
+        ],
+        correct: 2,
+        explanation:
+          "Massed practice (cramming) floods short-term memory and produces high immediate recall, but without spaced reviews the information follows the forgetting curve and is largely lost within days.",
+      },
+      {
+        question:
+          "According to the suggested review schedule, when should you conduct your second review of new material?",
+        options: [
+          "The same day, immediately after the first review",
+          "1 day after the initial learning session",
+          "3 days after the first review",
+          "1 week after the initial learning session",
+        ],
+        correct: 2,
+        explanation:
+          "The recommended schedule places the second review 3 days after the first review (which itself occurs 1 day after initial learning), giving the memory time to weaken slightly before being reinforced.",
+      },
+      {
+        question:
+          "In the index card box method, what should you do with a card you answer incorrectly during a review session?",
+        options: [
+          "Remove it from the system and rewrite it from scratch",
+          "Move it back to the Today box so it is reviewed again soon",
+          "Move it forward two boxes to increase the challenge",
+          "Leave it in its current box and try again next session",
+        ],
+        correct: 1,
+        explanation:
+          "A wrong answer signals that the memory has faded too much — moving the card back to the Today box shortens the interval and schedules an immediate re-review, mimicking the adaptive logic of spaced repetition software.",
+      },
+    ],
+  })
+  await addModule("Productivity and Learning Systems", {
+    title: "Procrastination — Understanding and Overcoming It",
+    description:
+      "Discover what procrastination really is at a psychological level, why willpower fails as a solution, how task aversion and emotional regulation drive delay, and three evidence-based strategies that reliably reduce it.",
+    orderIndex: 4,
+    content: `## What Procrastination Actually Is
+
+Most people think procrastination is a time management problem — a failure to prioritise, schedule, or discipline yourself. This framing leads directly to bad solutions: more to-do lists, tighter schedules, stern self-talk. None of them work reliably, because they misdiagnose the problem.
+
+Procrastination is not a time management problem. It is an **emotion regulation problem**. Research by psychologist Fuschia Sirois and others has consistently shown that procrastination is driven by the desire to avoid negative feelings associated with a task — boredom, anxiety, self-doubt, frustration, or fear of failure. When you delay starting an essay, you are not failing to manage your time. You are successfully — if temporarily — managing your discomfort.
+
+The immediate relief of switching to something easier is real and reinforcing. The cost of that relief is paid later, with interest, in the form of deadline panic and compounded stress.
+
+## Why Willpower Is Not the Solution
+
+The instinctive response to procrastination is to try harder — to force yourself through the discomfort using sheer willpower. This occasionally works in the short term, but it is not a reliable strategy for two reasons.
+
+First, willpower is a **depleting resource**. The more decisions and self-regulatory efforts you make throughout the day, the less capacity you have for the next one. Trying to override task aversion with willpower is drawing from a limited account that other demands are already spending.
+
+Second, willpower does nothing to address the **source** of the problem. If a task triggers anxiety, forcing yourself to sit in front of it while anxious does not reduce the anxiety — it can reinforce the association between the task and discomfort. The next time the task appears, the aversion may be even stronger.
+
+## Task Aversion and Emotional Regulation
+
+The mechanism behind procrastination is straightforward: the brain registers a task as unpleasant, generates a negative emotional signal, and you respond by moving toward something that feels better. This is not laziness — it is the brain doing exactly what it is designed to do, which is move away from discomfort and toward relief.
+
+The factor that best predicts whether someone procrastinates on a task is not how difficult it is or how long it takes — it is how **aversive** it feels. Unpleasant tasks get delayed regardless of their importance. Enjoyable tasks get done regardless of their urgency.
+
+This means the most effective interventions don't target effort or time — they target the emotional experience of starting.
+
+## Three Evidence-Based Strategies
+
+**1. The Two-Minute Start**
+The hardest part of any aversive task is the transition into it. Commit only to working on the task for two minutes — not the whole task, just the beginning. Open the document. Write one sentence. Read one paragraph. The two-minute limit removes the psychological weight of the full task, and in most cases momentum takes over once you have started. This works because task aversion is strongest before you begin and typically weakens once engagement is underway.
+
+**2. Shrink the Task Until It Feels Unthreatening**
+Vague, large tasks generate the most aversion because the brain cannot identify a clear starting point. "Write my assignment" is threatening. "Write the first sentence of my introduction" is not. Break any procrastinated task into the smallest possible concrete next action — not a project, not a goal, but a single physical behaviour that takes less than five minutes. The specificity removes ambiguity, and the smallness removes the emotional charge.
+
+**3. Self-Compassion Over Self-Criticism**
+Research by Kristin Neff and Michael Inzlicht demonstrates that self-criticism after procrastinating makes future procrastination more likely, not less. Guilt and shame increase the negative emotion associated with the task, strengthening the very aversion that caused the delay. Self-compassion — acknowledging that avoidance is a normal human response without harsh judgment — breaks this cycle. Students who forgave themselves for procrastinating on one exam were significantly less likely to procrastinate on the next one. Treating yourself with the same understanding you would offer a friend is not an excuse for poor behaviour; it is a proven mechanism for improving it.
+
+## The Practical Takeaway
+
+Procrastination is not a character flaw to be conquered by force. It is a predictable emotional response to be managed with the right tools. Reduce the aversion at the start, shrink the task to its smallest concrete form, and respond to setbacks with self-compassion rather than self-criticism. These three adjustments address the actual mechanism — and that is why they work when willpower alone does not.`,
+    quizzes: [
+      {
+        question:
+          "According to psychological research, procrastination is best classified as which type of problem?",
+        options: [
+          "A time management problem caused by poor scheduling",
+          "An emotion regulation problem driven by the desire to avoid negative feelings",
+          "A cognitive problem caused by difficulty understanding tasks",
+          "A motivational problem caused by not caring about outcomes",
+        ],
+        correct: 1,
+        explanation:
+          "Research by Sirois and others reframes procrastination as an emotion regulation problem — people delay tasks primarily to escape the discomfort those tasks trigger, not because they fail to manage their time.",
+      },
+      {
+        question:
+          "Why is relying on willpower an unreliable long-term strategy for overcoming procrastination?",
+        options: [
+          "Because willpower only works for physical tasks, not mental ones",
+          "Because willpower is a depleting resource and does not address the emotional source of the avoidance",
+          "Because using willpower increases anxiety and makes tasks harder to start",
+          "Because willpower is only effective when combined with external rewards",
+        ],
+        correct: 1,
+        explanation:
+          "Willpower depletes with use throughout the day and treats only the symptom — it overrides the discomfort temporarily but does nothing to reduce the underlying task aversion that caused the delay.",
+      },
+      {
+        question:
+          "According to the module, what factor best predicts whether someone will procrastinate on a task?",
+        options: [
+          "How long the task is estimated to take",
+          "How important the task is to their final grade",
+          "How aversive — unpleasant or uncomfortable — the task feels",
+          "How recently they completed a similar task",
+        ],
+        correct: 2,
+        explanation:
+          "Task aversion is the strongest predictor of procrastination — unpleasant tasks get delayed regardless of their importance or urgency, while enjoyable tasks get completed regardless of their deadlines.",
+      },
+      {
+        question:
+          "What is the core mechanism behind the Two-Minute Start strategy?",
+        options: [
+          "It trains the brain to associate tasks with short bursts of reward",
+          "It removes the psychological weight of the full task by committing only to beginning, allowing momentum to take over",
+          "It works by making the brain believe the task is already complete",
+          "It eliminates distractions by restricting all other activity to two minutes",
+        ],
+        correct: 1,
+        explanation:
+          "Task aversion peaks before starting and typically fades once engagement begins — committing only to a two-minute start bypasses the emotional barrier of the full task, and momentum usually carries the work forward.",
+      },
+      {
+        question:
+          "What did research by Neff and Inzlicht find about self-criticism following procrastination?",
+        options: [
+          "It motivates students to work harder on the next task to compensate",
+          "It has no measurable effect on future procrastination behaviour",
+          "It increases task aversion and makes future procrastination more likely",
+          "It is only harmful when combined with external pressure from others",
+        ],
+        correct: 2,
+        explanation:
+          "Self-criticism after procrastinating amplifies the negative emotions tied to the task, strengthening the very aversion that caused the delay — whereas self-compassion breaks the cycle and reduces subsequent procrastination.",
+      },
+    ],
+  })
+  await addModule("Productivity and Learning Systems", {
+    title: "Goal Setting That Produces Results",
+    description:
+      "Learn why vague goals fail, how to distinguish outcome goals from process goals, how to write goals that are specific and time-bound, and how to link daily actions to long-term outcomes so your motivation stays consistent.",
+    orderIndex: 5,
+    content: `## Why Vague Goals Fail
+
+At the start of every semester, most students set goals. "I want to do better this year." "I'm going to study more." "I'll get my assignments done early." These feel meaningful in the moment — and fail almost immediately in practice.
+
+The problem is not the intention. The problem is the absence of any information the brain can act on. A vague goal like "study more" cannot be executed because it contains no answer to the questions that actually matter: more than what? Starting when? For how long? On which subject? Without those answers, the goal is not a plan — it is a wish. And wishes do not produce behaviour.
+
+Research on goal setting consistently shows that specificity is the single most important quality of an actionable goal. A goal your brain cannot picture in concrete terms is a goal your brain cannot pursue.
+
+## Outcome Goals vs Process Goals
+
+Before writing better goals, it helps to understand what type of goal you are actually setting.
+
+An **outcome goal** describes a result you want to achieve — a destination. "Pass my statistics exam with a B or higher." "Submit all assignments before their deadlines this semester." Outcome goals are motivating because they give you something meaningful to aim for, but they have a critical weakness: you cannot directly control outcomes. Exam results depend on the paper you're given, the marking scheme, how you feel on the day. Staring at an outcome goal when the outcome feels out of reach is a reliable way to disengage.
+
+A **process goal** describes a behaviour you will perform — a daily or weekly action entirely within your control. "Review my statistics notes for 20 minutes every Tuesday and Thursday." "Draft each assignment at least three days before the deadline." Process goals keep you focused on what you can actually do, regardless of what the outcome turns out to be.
+
+The most effective goal systems use both in combination: outcome goals to set the direction and sustain meaning, process goals to determine what you actually do each day.
+
+## Writing Goals That Are Specific and Time-Bound
+
+A well-formed goal answers five questions: **What** exactly will you do? **How much** or for how long? **When** will you do it? **Where** will you do it? And **by when** does it need to be achieved?
+
+Compare these two versions of the same goal:
+
+**Vague:** "I want to get better at essay writing."
+
+**Specific and time-bound:** "I will write one practice essay introduction every Sunday morning at 9am for the next four weeks, and ask my tutor for feedback on at least two of them by Week 6."
+
+The second version is actionable because every ambiguity has been resolved. There is no decision to make when Sunday morning arrives — the plan is already complete. This is the same principle as implementation intentions from the previous module: the situation triggers the behaviour automatically.
+
+When setting time-bound goals, distinguish between a **deadline** (the date the outcome must be achieved) and a **review date** (an earlier checkpoint to assess whether your process is working). Review dates prevent the common trap of discovering too late that your approach was not producing results.
+
+## Connecting Daily Actions to Long-Term Outcomes
+
+Motivation tends to be high when a goal is new and low when progress is slow or invisible. The gap between daily actions and long-term outcomes is where most people disengage — the work feels disconnected from the reward.
+
+The solution is to make the connection between process and outcome explicit and visible. One practical method is **implementation mapping**: draw a simple chain from your daily action to its immediate result, to its medium-term effect, to the long-term outcome you care about.
+
+For example: *Review notes for 20 minutes → Material stays fresh in memory → Less cramming before exams → Higher exam performance → Stronger academic record → Access to opportunities I want after graduation.*
+
+Writing this chain down and keeping it visible serves two functions. It reminds you why the small daily action is not trivial. And it makes the logic of the goal transparent — so if motivation drops, you can identify exactly where the chain feels weak and address it directly rather than simply pushing harder.
+
+## Goals as a System, Not an Event
+
+Goal setting is not something you do once at the start of the semester. It is a recurring practice: set specific goals, track your process, review whether it is working, and adjust. Students who treat goal setting as a system consistently outperform those who treat it as a one-time declaration of intent. The goal itself matters far less than the habit of returning to it.`,
+    quizzes: [
+      {
+        question:
+          "Why do vague goals like 'study more' reliably fail to produce behaviour change?",
+        options: [
+          "Because they are not written down and therefore not binding",
+          "Because they lack the concrete specifics the brain needs to translate intention into action",
+          "Because they focus on outcomes rather than processes",
+          "Because they are too easy to achieve and provide no challenge",
+        ],
+        correct: 1,
+        explanation:
+          "Vague goals fail because they contain no actionable information — without answers to what, when, how much, and where, the brain has no concrete behaviour to execute.",
+      },
+      {
+        question:
+          "What is the key weakness of relying solely on outcome goals?",
+        options: [
+          "They are too specific and leave no room for adjustment",
+          "They focus on daily behaviour rather than long-term direction",
+          "Outcomes are not fully within your control, so they can cause disengagement when progress feels uncertain",
+          "They require more time to write than process goals",
+        ],
+        correct: 2,
+        explanation:
+          "Outcome goals describe results that depend on factors beyond your control — exam conditions, marking schemes, external circumstances — so anchoring motivation entirely to outcomes makes it fragile.",
+      },
+      {
+        question:
+          "Which of the following is an example of a well-formed process goal?",
+        options: [
+          "Get a distinction in my end-of-year exams",
+          "Do better at time management this semester",
+          "Review my biology notes for 25 minutes every Monday and Wednesday evening",
+          "Finish all my coursework before the holidays",
+        ],
+        correct: 2,
+        explanation:
+          "A process goal specifies a concrete, controllable behaviour with clear frequency and duration — 'review biology notes for 25 minutes every Monday and Wednesday evening' answers what, how long, and when.",
+      },
+      {
+        question:
+          "What is the purpose of setting a review date separate from a deadline?",
+        options: [
+          "To create an earlier submission target that replaces the official deadline",
+          "To provide a checkpoint for assessing whether your current process is working before it is too late to adjust",
+          "To schedule a rest period before the final push toward the deadline",
+          "To remind yourself of the outcome goal so motivation stays high",
+        ],
+        correct: 1,
+        explanation:
+          "A review date is an intermediate checkpoint — earlier than the deadline — that lets you evaluate whether your process is producing the results you need and adjust your approach while there is still time.",
+      },
+      {
+        question:
+          "What is the purpose of implementation mapping in the context of goal setting?",
+        options: [
+          "To break a large goal into smaller sub-goals with individual deadlines",
+          "To identify which tasks can be delegated and which must be done personally",
+          "To make the connection between daily actions and long-term outcomes explicit, sustaining motivation when progress feels invisible",
+          "To replace outcome goals with a purely process-based approach",
+        ],
+        correct: 2,
+        explanation:
+          "Implementation mapping draws a visible chain from small daily actions to long-term outcomes, preventing disengagement by keeping the meaning behind routine behaviour clear and accessible.",
+      },
+    ],
+  })
+  await addModule("Productivity and Learning Systems", {
+    title: "Managing Focus and Eliminating Distraction",
+    description:
+      "Understand how attention works and depletes, why task-switching is more costly than it feels, how to design your environment to reduce distraction, and how to build deep focus sessions into a realistic student schedule.",
+    orderIndex: 6,
+    content: `## How Attention Works — and Why It Runs Out
+
+Focus is not a personality trait. It is a cognitive resource — finite, depletable, and recoverable. The prefrontal cortex, the part of your brain responsible for sustained concentration and complex thinking, consumes significant metabolic energy. The longer you hold focused attention on demanding work, the more that energy is spent, and the harder it becomes to maintain the same quality of thought.
+
+This is why studying for six hours straight rarely produces six hours' worth of useful work. Attention degrades gradually — after 45 to 90 minutes of intense focus, most people experience a measurable drop in performance even if they don't notice it subjectively. Pushing through this depletion doesn't recover your focus; it depletes it further. Scheduled rest does.
+
+Understanding attention as a resource changes how you approach a study session. The question shifts from "how long can I sit here?" to "how do I protect and restore my attention so each hour is actually productive?"
+
+## The Hidden Cost of Task-Switching
+
+Modern student life is full of interruptions — notifications, messages, background noise, open tabs. Each one carries a cost that is far larger than it appears.
+
+When you switch from one task to another — even briefly checking a message mid-paragraph — your brain does not instantly transfer its full attention. Research by cognitive psychologist David Meyer shows that task-switching creates **attention residue**: a portion of your cognitive focus remains stuck on the previous task even after you have nominally moved on. The more complex the interrupted task, the larger and longer-lasting the residue.
+
+The practical consequence is striking. A task that would take 25 minutes of uninterrupted focus can easily take 45 to 60 minutes when performed in a distracted, interrupted state — and the quality of output is lower. Every interruption is not just a brief pause; it is a partial reset of the concentration you spent time building.
+
+Multitasking — the belief that you can genuinely perform two cognitively demanding tasks simultaneously — is largely a myth for complex mental work. What feels like multitasking is rapid task-switching, and it carries the same residue costs at an accelerated rate.
+
+## Environment Design — Remove Distraction Before It Appears
+
+Willpower-based approaches to distraction ("I'll just resist checking my phone") fail for the same reason willpower fails against procrastination — they rely on an unreliable resource applied to a recurring problem. A far more effective strategy is **environment design**: structuring your physical and digital surroundings so that distraction is harder to access than focused work.
+
+Practical environment design for students:
+
+**Phone:** The most reliable strategy is physical distance. A phone in another room reduces usage far more than a phone face-down on the desk. App blockers (such as Freedom or Cold Turkey) remove the option to access distracting sites during a session — removing the decision entirely rather than requiring ongoing self-control.
+
+**Workspace:** A dedicated study space conditions your brain over time to associate that environment with focus. It does not need to be elaborate — a specific chair at a specific desk works. Avoid studying in the same place you relax or sleep, as those associations compete with the focus response.
+
+**Auditory environment:** For many people, consistent low-level background sound (ambient noise, lo-fi music without lyrics, white noise) outperforms silence and unpredictable noise alike. Lyrics activate the language-processing areas your reading and writing depend on, introducing a subtle but real interference. Experiment to find what works for your tasks and your brain.
+
+**Preparation ritual:** A short, consistent sequence before each session — making a drink, writing down the one task you are starting with, silencing notifications — trains your brain to shift into focus mode. The ritual becomes a cue, and cues are powerful.
+
+## Building Deep Focus Sessions Into a Student Schedule
+
+Deep focus — the state of sustained, uninterrupted concentration on a cognitively demanding task — does not happen accidentally. It requires deliberate protection.
+
+A practical framework for students is the **90-60-30 structure**: 90 minutes of deep focus, 60 minutes of lighter tasks or recovery, 30 minutes of rest or physical movement. This cycle aligns with the brain's natural ultradian rhythm and prevents the compounding depletion of back-to-back intense sessions.
+
+You do not need multiple deep focus sessions per day. Research by Cal Newport and others suggests that two to four hours of genuine deep focus per day is sufficient to produce significant academic output — more than most students achieve across entire days of distracted study.
+
+Protect your best hours. Most people have a peak cognitive window — typically mid-morning for early risers, late morning or early afternoon for others. Schedule your hardest, most important work during this window and reserve administrative tasks, emails, and light revision for the lower-energy periods that follow.
+
+## Focus Is Built, Not Found
+
+Students often wait to feel focused before starting difficult work. This reverses the correct order. Focus is not a prerequisite for starting — it is the product of starting under the right conditions. Design the environment, protect the time, begin the work, and the focus follows.`,
+    quizzes: [
+      {
+        question:
+          "Why does studying for six hours straight rarely produce six hours of useful work?",
+        options: [
+          "Because the brain switches to long-term memory storage after two hours, blocking new learning",
+          "Because attention is a finite cognitive resource that degrades with sustained use, reducing output quality over time",
+          "Because studying the same subject for too long causes interference between memories",
+          "Because motivation drops after the first hour and cannot be restored without sleep",
+        ],
+        correct: 1,
+        explanation:
+          "Attention is a depletable resource — sustained focus consumes metabolic energy, and after 45 to 90 minutes of intense work, performance measurably declines even when students feel they are still concentrating.",
+      },
+      {
+        question:
+          "What is 'attention residue' as described in the context of task-switching?",
+        options: [
+          "The portion of a task that remains incomplete after a study session ends",
+          "The background mental noise created by a cluttered study environment",
+          "The cognitive focus that stays partially stuck on a previous task after switching to a new one",
+          "The mental fatigue that builds up after a full day of lectures",
+        ],
+        correct: 2,
+        explanation:
+          "Attention residue, identified by researcher David Meyer, refers to the portion of cognitive focus that lingers on an interrupted task even after nominally moving on — reducing the quality of attention available for the new task.",
+      },
+      {
+        question:
+          "Why is environment design a more reliable strategy against distraction than relying on willpower?",
+        options: [
+          "Because environment design trains focus over time through classical conditioning",
+          "Because willpower only works for physical distractions, not digital ones",
+          "Because environment design removes the need for repeated decisions by making distraction structurally harder to access",
+          "Because willpower requires motivation, which is unavailable during difficult tasks",
+        ],
+        correct: 2,
+        explanation:
+          "Willpower is a depleting resource that must be reapplied every time temptation appears — environment design removes the temptation structurally, eliminating the decision entirely rather than requiring ongoing self-control.",
+      },
+      {
+        question:
+          "According to the module, why should you avoid studying with music that has lyrics?",
+        options: [
+          "Because lyrics increase heart rate, which reduces concentration on complex tasks",
+          "Because lyrics activate the same language-processing areas used for reading and writing, creating subtle cognitive interference",
+          "Because music with lyrics is too emotionally engaging and triggers mind-wandering",
+          "Because the rhythm of lyrics disrupts the brain's natural focus cycle",
+        ],
+        correct: 1,
+        explanation:
+          "Language processing is a shared cognitive resource — lyrics and reading or writing compete for the same mental machinery, introducing interference that degrades performance on verbal tasks even when it goes unnoticed.",
+      },
+      {
+        question:
+          "What does the module suggest about the relationship between feeling focused and starting work?",
+        options: [
+          "You should wait until you feel focused, as starting without it produces low-quality output",
+          "Feeling focused is a sign that your environment is well-designed and work can begin",
+          "Focus is not a prerequisite for starting — it is produced by starting under the right conditions",
+          "Feeling unfocused is a signal to rest before attempting demanding tasks",
+        ],
+        correct: 2,
+        explanation:
+          "The module explicitly reverses the common assumption — focus is not a precondition that must exist before work begins, but rather an outcome that emerges from beginning work in a well-designed environment.",
+      },
+    ],
+  })
+  await addModule("Productivity and Learning Systems", {
+    title: "Designing Your Personal Learning System",
+    description:
+      "Bring together everything from the previous modules — goal setting, routine building, spaced repetition, procrastination management, and distraction control — into one coherent, personalised weekly learning system that fits your actual life.",
+    orderIndex: 7,
+    content: `## From Individual Tools to a Complete System
+
+Every module in this track has given you a tool. You now understand how memory decays and how spaced repetition fights it. You know why routines fail and how habit stacking fixes them. You can write specific, time-bound goals and link daily actions to long-term outcomes. You understand procrastination as an emotional response and focus as a depletable resource.
+
+Tools are only useful when they work together. A spaced repetition schedule means nothing if you never protect time to use it. A distraction-free environment means nothing if you don't know what to work on when you sit down. A goal means nothing if there is no routine built around it. This module is about integration — designing a single, coherent personal learning system that makes all the tools function as one.
+
+## Step 1 — Establish Your Outcomes for the Semester
+
+Begin at the highest level. Before designing any routine or schedule, answer one question clearly: *what does a successful semester look like for you, in concrete terms?*
+
+Write two to four outcome goals — specific, time-bound, and meaningful. Not "do well in my subjects" but "achieve a credit average or above across all three units by the end of semester." Not "keep up with readings" but "complete all required readings within 48 hours of each lecture."
+
+These outcome goals become the fixed reference point for every decision you make below them. When choosing how to spend a study session, the question is always: does this action serve one of these outcomes?
+
+## Step 2 — Build Your Weekly Process Architecture
+
+With outcomes defined, design the process layer — the recurring weekly actions that will produce those outcomes over time.
+
+Map your actual week first. Identify every fixed commitment: lectures, tutorials, part-time work, sport, social obligations. What remains is your discretionary time — and it is almost certainly less than you think. Work with what is real, not what is ideal.
+
+Inside your discretionary time, assign three types of sessions:
+
+**Deep focus blocks** (60–90 minutes): For demanding cognitive work — essay drafting, problem sets, learning new material. Protect these during your peak cognitive window. Aim for two to three per week at minimum.
+
+**Review sessions** (20–30 minutes): For spaced repetition — revisiting material from previous lectures on the schedule established in Module 2. These can sit in lower-energy slots and require no peak attention.
+
+**Weekly planning session** (30 minutes): Once per week — Sunday evening or Monday morning — to review what you achieved, check your outcome goals, and set your process intentions for the coming week. This session is the maintenance engine of the whole system.
+
+## Step 3 — Apply Environment Design to Each Session Type
+
+Each session type has different environmental requirements. Deep focus blocks demand full distraction elimination — phone in another room, site blockers active, a workspace associated only with focused work. Review sessions are less demanding but still benefit from a quiet, consistent location. Your weekly planning session works best with your calendar, notes, and goals visible simultaneously.
+
+Design the environment for each session in advance, not in the moment. Deciding where and how to study while already sitting down is a decision that drains the same attention you are trying to protect.
+
+## Step 4 — Install Recovery Mechanisms
+
+No system survives contact with a real semester unchanged. Illness, deadlines, social obligations, and motivational valleys will disrupt your routine. The question is not whether this will happen — it is whether your system survives it.
+
+Build in two explicit recovery mechanisms. First, a **minimum viable session**: a version of each habit so small it cannot reasonably be skipped — five minutes of review notes, one paragraph drafted, the planning session reduced to a single list. This preserves the habit chain through difficult weeks. Second, a **fortnightly review**: every two weeks, spend 15 minutes asking three questions — what is working, what is not, and what one adjustment would most improve the system. Systems that are never reviewed slowly drift out of alignment with reality.
+
+## Step 5 — Start Small, Then Expand
+
+The most common mistake in system design is building the ideal version first. Start with the minimum viable system: one deep focus block per week, three spaced review sessions, and one weekly planning session. Run it for two weeks. Then add. A system you actually use beats a perfect system you abandon in week three.
+
+## Your System Is a Living Document
+
+A personal learning system is not a fixed schedule — it is a responsive framework. Your outcomes, your available time, your energy patterns, and your subjects will all change across a semester and across a degree. The students who learn well over time are not those who find the perfect system once; they are those who build the habit of designing, running, reviewing, and improving their system continuously. That habit — the meta-skill of learning how to learn — is what this entire track has been building toward.`,
+    quizzes: [
+      {
+        question:
+          "According to the module, what is the purpose of establishing outcome goals before designing a weekly routine?",
+        options: [
+          "To ensure all study sessions are equal in length and difficulty",
+          "To provide a fixed reference point so every process decision can be evaluated against what actually matters",
+          "To replace process goals with more motivating long-term targets",
+          "To calculate exactly how many study hours are needed per subject",
+        ],
+        correct: 1,
+        explanation:
+          "Outcome goals serve as the fixed reference point for the entire system — every session, habit, and decision is evaluated against whether it serves one of those defined outcomes, keeping effort aligned with what matters.",
+      },
+      {
+        question:
+          "Why does the module recommend mapping your actual week before designing your routine, rather than your ideal week?",
+        options: [
+          "Because ideal weeks are too unpredictable to plan around effectively",
+          "Because fixed commitments like lectures and work leave less discretionary time than students typically assume, and a realistic plan is more likely to be followed",
+          "Because studying during fixed commitments is more efficient than using discretionary time",
+          "Because the ideal week template is provided in the weekly planning session instead",
+        ],
+        correct: 1,
+        explanation:
+          "Routines built around ideal conditions fail when real life intervenes — mapping actual fixed commitments first reveals the true amount of available time and produces a plan that can be sustained rather than one that collapses at the first disruption.",
+      },
+      {
+        question:
+          "What distinguishes a deep focus block from a review session in the weekly process architecture?",
+        options: [
+          "Deep focus blocks use spaced repetition; review sessions use active recall",
+          "Deep focus blocks are scheduled daily; review sessions are scheduled weekly",
+          "Deep focus blocks require peak cognitive energy for demanding new work; review sessions are lower-intensity and suited to off-peak time slots",
+          "Deep focus blocks are used for group study; review sessions are for independent work",
+        ],
+        correct: 2,
+        explanation:
+          "Deep focus blocks are reserved for cognitively demanding work — drafting, problem-solving, learning new material — and require your peak attention window, while review sessions revisit existing material and can sit in lower-energy periods.",
+      },
+      {
+        question:
+          "What is the function of a 'minimum viable session' as a recovery mechanism?",
+        options: [
+          "To replace full study sessions during exam periods when time is limited",
+          "To preserve the habit chain during difficult weeks by reducing each session to its smallest possible form rather than skipping it entirely",
+          "To serve as an introductory session when starting a new topic for the first time",
+          "To act as a reward after completing a full deep focus block",
+        ],
+        correct: 1,
+        explanation:
+          "A minimum viable session — five minutes of review, one paragraph drafted — keeps the habit alive through illness, disruption, or low motivation, preventing a single hard week from breaking the routine entirely.",
+      },
+      {
+        question:
+          "What does the module identify as the meta-skill that this entire track has been building toward?",
+        options: [
+          "The ability to memorise large volumes of information quickly using spaced repetition",
+          "The discipline to follow a fixed study schedule without deviation across a full semester",
+          "The habit of continuously designing, running, reviewing, and improving your own learning system",
+          "The skill of writing specific, time-bound goals and sharing them with an accountability partner",
+        ],
+        correct: 2,
+        explanation:
+          "The module frames the ultimate goal of the track as developing the meta-skill of learning how to learn — the ongoing practice of building, evaluating, and refining a personal system, which compounds in value across an entire degree.",
+      },
+    ],
+  })
+  await addModule("Data Literacy and Critical Thinking", {
+    title: "How to Read Charts and Graphs Critically",
+    description:
+      "Learn to identify the most common chart types and what they are suited for, recognise the techniques that make charts misleading, and apply three critical questions before accepting any visual data as trustworthy.",
+    orderIndex: 2,
+    content: `## Why Charts Are Not Neutral
+
+A chart feels objective. Numbers are displayed, a visual shape emerges, and the conclusion seems obvious. This feeling of objectivity is precisely what makes charts one of the most powerful tools for misleading an audience. Every chart involves dozens of design decisions — what to include, what to exclude, where to start the axis, which time period to show — and each decision shapes what the viewer concludes. Reading charts critically means understanding that a chart is always an argument, not just a picture of data.
+
+## The Three Common Chart Types
+
+**Bar charts** display data as rectangular bars, with the height or length of each bar representing a value. They are best suited for comparing distinct categories — sales across different products, scores across different students, population across different cities. The key assumption of a bar chart is that the categories are meaningfully separate and that size comparisons between bars are valid.
+
+**Line charts** display data as points connected by a continuous line, typically with time on the horizontal axis. They are best suited for showing change or trends over time — how temperature varies across a year, how a company's revenue has grown over a decade. The continuous line implies continuity between data points, so line charts should only be used when the data itself is continuous or sequential.
+
+**Pie charts** display data as slices of a circle, where each slice's size represents its proportion of the whole. They are best suited for showing how a total is divided among a small number of categories — and only when those categories are mutually exclusive and genuinely add up to 100%. Pie charts become unreliable with more than five or six slices, as the human eye is poor at comparing angles and areas accurately.
+
+## How Charts Mislead
+
+Understanding the common deception techniques is as important as understanding the chart types themselves.
+
+**Truncated axes** are the most widespread form of chart manipulation. A bar chart or line chart normally starts its vertical axis at zero. When the axis is cut — starting at 80% instead of 0%, for example — small differences between values are visually amplified into dramatic gaps. A change from 81% to 84% on a truncated axis can be made to look as significant as a change from 0% to 100% on a full axis. Always check where the axis begins.
+
+**Cherry-picked time ranges** exploit the fact that any trend can be made to look positive or negative depending on which portion of the timeline is shown. A stock price that has fallen 40% over five years can still be presented with a line chart showing only the last three months — during which it happened to rise. When a line chart is shown, always ask: why does the data start here, and what happened before?
+
+**Misleading scale and size comparisons** appear frequently in pictorial charts and bubble charts, where two-dimensional images are used to represent one-dimensional values. If one figure is twice the value of another, the temptation is to double the height of the image — but doubling the height of a two-dimensional figure quadruples its area, making the difference look four times as large as it actually is.
+
+**Omitted context** is perhaps the subtlest technique. A chart showing that crime in a city rose 50% last year is alarming — unless the baseline was so low that the absolute increase amounted to twelve incidents. Percentages without absolute numbers, and absolute numbers without baselines, are both incomplete.
+
+## Three Questions to Ask Before Trusting Any Chart
+
+These three questions will catch the majority of misleading charts before they influence your conclusions:
+
+**1. Where does the axis start?** If a bar or line chart does not start at zero, ask whether the visual impression of difference is proportional to the actual numerical difference.
+
+**2. What is not shown?** Every chart is a selection. Ask what data was available that did not make it into the visualisation — the longer time range, the comparison group, the absolute numbers behind the percentages.
+
+**3. Who made this chart and why?** A chart produced by a company to promote its own product, a political party to support its own policy, or a lobby group to advance its own cause has an interested author. Interested authors make design choices that serve their argument. That does not make the chart wrong — but it makes scrutiny essential.
+
+## Charts as Arguments
+
+Every chart is making a case. The designer has chosen what to show, how to frame it, and what conclusion to make easy to reach. Your job as a critical reader is to separate the data from the design — to ask what the numbers actually say when stripped of the visual choices made around them. That habit, applied consistently, is what distinguishes a data-literate reader from one who is easily persuaded by a well-made graphic.`,
+    quizzes: [
+      {
+        question:
+          "Which chart type is most appropriate for showing how a single quantity changes continuously over time?",
+        options: [
+          "A pie chart, because it shows proportional relationships clearly",
+          "A bar chart, because it allows direct size comparisons between values",
+          "A line chart, because it represents continuous sequential change with a connected line",
+          "A pictorial chart, because images are easier to interpret than abstract lines",
+        ],
+        correct: 2,
+        explanation:
+          "Line charts are designed for continuous or sequential data — the connected line implies continuity between points, making them the natural choice for trends over time such as temperature, revenue, or population change.",
+      },
+      {
+        question:
+          "A bar chart shows customer satisfaction scores ranging from 79% to 84%, but the vertical axis starts at 78% rather than 0%. What is the effect of this design choice?",
+        options: [
+          "It makes the chart easier to read by zooming in on the relevant range",
+          "It visually amplifies small differences between bars, making them appear far more dramatic than the actual numerical gap",
+          "It has no effect on interpretation because the numbers are still labelled correctly",
+          "It corrects for the fact that satisfaction scores below 78% are not possible",
+        ],
+        correct: 1,
+        explanation:
+          "A truncated axis compresses the baseline, causing visually small differences to appear large — a 5-percentage-point gap looks enormous on a truncated axis but is barely visible when the axis starts at zero.",
+      },
+      {
+        question:
+          "A news article shows a line chart of a politician's approval rating rising steadily over six months. What critical question should you ask first?",
+        options: [
+          "Whether the line chart should have been a bar chart instead",
+          "Whether the approval rating is measured as a percentage or an absolute number",
+          "What happened before the six-month window shown, and why that start date was chosen",
+          "Whether the chart includes a legend identifying the data source",
+        ],
+        correct: 2,
+        explanation:
+          "Cherry-picked time ranges can make any trend appear positive or negative — asking why the data starts at a particular point reveals whether the selected window is representative or deliberately chosen to support a specific narrative.",
+      },
+      {
+        question:
+          "Why do pie charts become unreliable when they contain more than five or six slices?",
+        options: [
+          "Because pie charts can only represent data that adds up to exactly 100%",
+          "Because the human eye is poor at accurately comparing angles and areas, making small differences between slices impossible to judge reliably",
+          "Because too many slices cause the chart software to round values incorrectly",
+          "Because pie charts are only valid for categorical data, and more than six categories is too many",
+        ],
+        correct: 1,
+        explanation:
+          "Unlike bar length, which the eye can compare accurately, angles and areas in a pie chart are difficult to judge — with many slices, viewers cannot reliably determine which is larger, making the chart effectively unreadable for precise comparison.",
+      },
+      {
+        question:
+          "A chart shows that a city's homicide rate increased by 100% last year. What critical piece of context is missing before this statistic can be meaningfully interpreted?",
+        options: [
+          "The chart type used to display the data",
+          "The name of the city and the year the data was collected",
+          "The absolute baseline number — a 100% increase from 2 incidents is very different from a 100% increase from 200",
+          "Whether the data was collected by the government or a private organisation",
+        ],
+        correct: 2,
+        explanation:
+          "Percentages without absolute baselines are incomplete — a 100% increase sounds alarming but is meaningless without knowing the starting value, since doubling from 2 to 4 incidents is very different from doubling from 200 to 400.",
+      },
+    ],
+  })
+  await addModule("Data Literacy and Critical Thinking", {
+    title: "Misleading Statistics — How Numbers Lie",
+    description:
+      "Learn to see through misleading statistical claims by understanding the difference between absolute and relative risk, how skewed distributions make averages deceptive, why sample size determines how much a result means, and how to identify numbers that sound impressive but say very little.",
+    orderIndex: 3,
+    content: `## Numbers Are Not Self-Interpreting
+
+Statistics feel authoritative. A percentage, a study result, or a risk figure carries an air of precision that plain language does not. But a number without context is not information — it is raw material that can be shaped into almost any conclusion the presenter wants. The techniques for doing this are not complicated; they are consistent and learnable. Once you know them, you will encounter them everywhere.
+
+## Absolute vs Relative Risk — The Most Common Statistical Trick
+
+Imagine a headline: *"New drug cuts cancer risk by 50%."* That sounds transformative. But 50% of what?
+
+If the baseline risk of developing the cancer in question is 2 in 1000 people, a 50% reduction brings it to 1 in 1000. The **relative risk reduction** is 50% — dramatic and headline-worthy. The **absolute risk reduction** is 0.1 percentage points — one fewer person per thousand. Both numbers describe the same drug. Only one of them tells you whether the drug is likely to matter to you personally.
+
+Relative risk figures are almost always larger and more impressive than absolute ones, which is why they appear in advertisements, press releases, and political speeches. The question to ask whenever you see a percentage change in risk is: *what was the baseline, and how large is the absolute difference?* A 50% reduction in a tiny risk is a small absolute change. A 10% reduction in a large risk may be enormous.
+
+## How Averages Mislead
+
+The word "average" is used loosely to describe three different calculations — mean, median, and mode — and the choice between them can completely change the story.
+
+Consider income in a small company with ten employees. Nine earn $40,000 per year and one executive earns $400,000. The **mean** (total divided by number of people) is $76,000 — a figure that describes no actual employee's experience. The **median** (the middle value when sorted) is $40,000 — a far more representative picture of what a typical employee earns.
+
+When a distribution is **skewed** — pulled sharply in one direction by extreme values — the mean is dragged toward the outliers while the median remains near the centre. Income, wealth, house prices, and social media follower counts are all heavily right-skewed. Claims about "average" in these domains almost always use the mean, producing a figure inflated by the extremes. Whenever you see an average in a domain likely to contain outliers, ask which average was used and whether the median would tell a different story.
+
+## Why Sample Size Determines How Much a Result Means
+
+A study finds that people who drink green tea have a 30% lower rate of a particular illness. Before updating your shopping list, ask: how many people were in the study?
+
+A result from 40 participants is not comparable to a result from 40,000. Small samples produce **unstable estimates** — their results vary enormously by chance, and a finding that looks significant in a small sample frequently disappears when the study is repeated with more people. The formal measure of this is the **confidence interval**: the range of values within which the true effect is likely to fall. Large samples produce narrow confidence intervals (precise estimates); small samples produce wide ones (uncertain estimates).
+
+The practical rule is straightforward: the more dramatic and surprising a finding, and the smaller the sample it comes from, the more sceptical you should be. Genuinely robust effects tend to emerge from large, well-designed studies and replicate consistently across independent research teams.
+
+## Statistics That Sound Impressive but Mean Very Little
+
+Some statistical claims are technically accurate but structurally empty — designed to create an impression without providing meaningful information.
+
+**"Nine out of ten dentists recommend..."** — recommend compared to what alternative? How were the dentists selected? Was the question leading? Without methodology, this tells you nothing about the product.
+
+**"Up to 40% more effective"** — "up to" is doing enormous work here. A range that tops out at 40% could have a typical result of 2%. "Up to" claims describe best-case scenarios, not typical ones.
+
+**"Linked to a significant increase in risk"** — "linked to" signals correlation, not causation. The increase may be statistically significant while being too small to matter practically. And statistical significance is not the same as real-world importance: with a large enough sample, trivially small differences become statistically significant.
+
+**"Studies show..."** — which studies? How many? Published where? Conducted by whom? A single study showing anything is not a scientific consensus; it is one data point. Treat "studies show" claims the same way you treat anonymous sources — potentially interesting, insufficient on their own.
+
+## The Habit of Asking One More Question
+
+You do not need a statistics degree to navigate misleading numbers. You need one consistent habit: always ask for the context the headline leaves out. What was the baseline? Which average? How large was the sample? What does "significant" actually mean here? That single habit — asking what is missing rather than accepting what is presented — is what separates a data-literate thinker from one who is easily led by impressive-sounding numbers.`,
+    quizzes: [
+      {
+        question:
+          "A supplement company claims their product 'reduces your risk of illness by 40%.' The baseline risk without the supplement is 5 in 1,000. What is the absolute risk reduction?",
+        options: [
+          "40 percentage points",
+          "2 percentage points",
+          "0.2 percentage points",
+          "5 percentage points",
+        ],
+        correct: 2,
+        explanation:
+          "A 40% relative reduction of a 0.5% baseline risk (5 in 1,000) equals a 0.2 percentage point absolute reduction — from 0.5% to 0.3%. The relative figure sounds dramatic; the absolute figure reveals the practical impact is very small.",
+      },
+      {
+        question:
+          "In a heavily right-skewed distribution such as household income, why does the mean typically overstate what a 'typical' person earns?",
+        options: [
+          "Because the mean is calculated incorrectly when extreme values are present",
+          "Because the mean is dragged upward by a small number of very high earners, making it unrepresentative of most people's experience",
+          "Because income data is always collected from the wealthiest households first",
+          "Because right-skewed distributions always have a mean equal to the highest value",
+        ],
+        correct: 1,
+        explanation:
+          "In a right-skewed distribution, extreme high values pull the mean upward while the majority of values cluster much lower — the median, which sits at the middle of the sorted distribution, gives a far more representative picture of the typical experience.",
+      },
+      {
+        question:
+          "A study of 35 participants finds that a new teaching method improves test scores by 25%. Why should this result be treated with caution?",
+        options: [
+          "Because a 25% improvement is too large to be credible",
+          "Because small samples produce unstable estimates with wide confidence intervals, and the result may not replicate in a larger study",
+          "Because teaching method studies are inherently unreliable regardless of sample size",
+          "Because the improvement should have been measured in absolute points, not percentages",
+        ],
+        correct: 1,
+        explanation:
+          "Small samples produce highly variable results — a finding from 35 participants could easily be a chance occurrence. Robust effects require large samples, narrow confidence intervals, and independent replication before they can be trusted.",
+      },
+      {
+        question:
+          "An advertisement claims a product is 'up to 60% more effective' than the leading competitor. What is the critical problem with this claim?",
+        options: [
+          "The claim uses relative rather than absolute figures",
+          "'Up to' describes only the best-case scenario, so typical results could be far lower — even close to zero",
+          "Effectiveness comparisons are only valid when conducted by independent researchers",
+          "The claim does not specify which competitor was used as the comparison",
+        ],
+        correct: 1,
+        explanation:
+          "'Up to' claims define a ceiling, not a typical outcome — a product that is 60% more effective in one rare scenario but 1% more effective on average can truthfully advertise 'up to 60%', making the claim misleading without being technically false.",
+      },
+      {
+        question:
+          "A news headline states: 'Coffee consumption linked to improved memory.' What is the most important limitation signalled by the word 'linked'?",
+        options: [
+          "The study was too small to produce reliable results",
+          "'Linked' indicates correlation only — it does not establish that coffee causes the memory improvement",
+          "The finding applies only to the specific type of coffee tested in the study",
+          "'Linked' means the finding was statistically significant but not practically meaningful",
+        ],
+        correct: 1,
+        explanation:
+          "'Linked to' and 'associated with' signal correlation — two things that tend to occur together — but do not establish causation. Coffee drinkers may differ from non-coffee drinkers in many other ways that explain the memory difference.",
+      },
+    ],
+  })
+  await addModule("Data Literacy and Critical Thinking", {
+    title: "Correlation vs Causation — The Most Misunderstood Concept in Data",
+    description:
+      "Understand what correlation really means, why it does not imply causation, how confounding variables produce false causal impressions, and how to evaluate causation claims responsibly using real-world examples.",
+    orderIndex: 4,
+    content: `## The Most Expensive Confusion in Data Thinking
+
+Researchers once found a near-perfect statistical correlation between the number of Nicolas Cage films released per year and the number of people who drowned in swimming pools. Both rose and fell together with remarkable consistency across multiple years. Nobody seriously concluded that Nicolas Cage films cause drownings — the example is absurd enough to make the logic obvious.
+
+But the same logical error, in less absurd form, drives billions of dollars of misguided business decisions, flawed medical advice, and bad public policy every year. The confusion between correlation and causation is not rare or unsophisticated — it is the default error of human reasoning when patterns appear in data. Understanding it clearly is one of the most practically valuable things a data-literate person can do.
+
+## What Correlation Actually Means
+
+Two variables are **correlated** when they tend to change together. A positive correlation means they rise and fall in the same direction — ice cream sales and drowning rates both increase in summer. A negative correlation means one rises as the other falls — hours of sleep and frequency of illness tend to move in opposite directions.
+
+Correlation is measured by a **correlation coefficient**, typically ranging from -1 to +1. A coefficient near +1 means a strong positive relationship; near -1 means a strong negative one; near 0 means no consistent relationship. Importantly, correlation is a mathematical description of a pattern in data. It carries no information about why that pattern exists.
+
+## Why Correlation Does Not Imply Causation
+
+Finding a correlation tells you that two things move together. It tells you nothing about the mechanism. There are four possible explanations for any correlation:
+
+**A causes B.** Smoking correlates with lung cancer because smoking genuinely causes cellular damage that leads to cancer. This is the causal explanation — but it required decades of controlled research to establish, not just the observation of a correlation.
+
+**B causes A.** The causal arrow runs the other way. Studies once found that hospitalised patients had worse health outcomes than non-hospitalised people — not because hospitals cause illness, but because sick people go to hospital. The illness caused the hospitalisation, not vice versa.
+
+**A third variable C causes both.** This is the confounding variable problem, and it is the most common source of false causal conclusions. Ice cream sales and drowning rates correlate strongly — not because ice cream causes drowning, but because hot weather causes both. Remove the summer months and the correlation largely disappears.
+
+**The correlation is pure coincidence.** With enough variables in a dataset, some will correlate by chance alone. The Nicolas Cage example falls here. In large datasets especially, spurious correlations are statistically inevitable.
+
+## Confounding Variables — The Hidden Explanation
+
+A **confounding variable** is a third factor that causes or influences both of the variables you are observing, producing a correlation between them that has nothing to do with any direct relationship.
+
+A classic example: research found that children with larger shoe sizes had better reading ability. The tempting causal conclusion — bigger feet help you read — is obviously wrong. The confounder is age. Older children have larger feet and better reading ability. Age causes both. Remove the age effect and the shoe size correlation disappears entirely.
+
+Identifying confounders requires asking one persistent question: *is there something else — unmeasured or uncontrolled — that could plausibly cause both of these things to move together?* In nutrition research, lifestyle confounders are rampant — people who eat more vegetables also tend to exercise more, sleep better, and smoke less. Attributing health outcomes to the vegetables alone, without controlling for these other factors, produces correlations that masquerade as causation.
+
+## How to Think About Causation Responsibly
+
+Establishing genuine causation is harder than finding a correlation, and the gold standard for doing so is the **randomised controlled trial (RCT)**: randomly assign participants to a treatment group and a control group, apply only the variable of interest to the treatment group, and compare outcomes. Random assignment neutralises confounders by distributing them evenly across both groups — any difference in outcome can then be attributed to the treatment with confidence.
+
+When RCTs are not available — as is often the case in social science, nutrition, and economics, where you cannot randomly assign people to poverty or a diet for years — causation must be argued through a combination of converging evidence, theoretical mechanism, dose-response relationships, and the elimination of plausible confounders. This is harder and messier, and the conclusions are held with appropriately less certainty.
+
+A practical framework for evaluating any causal claim: first, confirm the correlation is real and replicable. Second, ask whether a plausible confounding variable could explain it. Third, ask whether there is a credible mechanism — a biological, psychological, or social process by which A could actually produce B. Fourth, ask whether the effect appears in controlled or experimental conditions, not just observational data. A claim that survives all four questions is worth taking seriously. Most do not survive the second.
+
+## The Takeaway
+
+Correlation is a signal worth investigating. It is not an answer. When you see a headline claiming that X causes Y, the habit to build is immediate scepticism about the causal arrow — not cynicism that dismisses the finding, but disciplined curiosity about what else might explain the pattern. That habit, applied consistently, will make you a more reliable thinker than most people who encounter data.`,
+    quizzes: [
+      {
+        question:
+          "Two variables have a correlation coefficient of +0.92. What does this tell you?",
+        options: [
+          "One variable is almost certainly causing the other to increase",
+          "The two variables have a strong positive relationship — they tend to rise and fall together — but the cause of that relationship is not established",
+          "The relationship is strong enough to be used for prediction but too weak to imply causation",
+          "The variables are identical and measuring the same underlying phenomenon",
+        ],
+        correct: 1,
+        explanation:
+          "A correlation coefficient describes the strength and direction of a statistical relationship only — a high coefficient confirms the variables move together consistently but carries no information about why, leaving causation entirely unresolved.",
+      },
+      {
+        question:
+          "A study finds that people who carry lighters are more likely to develop lung cancer. What is the most likely explanation?",
+        options: [
+          "Carrying a lighter directly causes lung cancer through chemical exposure",
+          "People with lung cancer are more likely to need a lighter for medical equipment",
+          "Smoking is a confounding variable — it causes both the likelihood of carrying a lighter and the development of lung cancer",
+          "The correlation is coincidental and disappears when a larger sample is used",
+        ],
+        correct: 2,
+        explanation:
+          "Smoking is the confounder here — it causes people to carry lighters and independently causes lung cancer, producing a correlation between lighter-carrying and cancer that has no direct causal basis.",
+      },
+      {
+        question:
+          "Why is a randomised controlled trial considered the gold standard for establishing causation?",
+        options: [
+          "Because it uses larger sample sizes than observational studies",
+          "Because random assignment distributes confounding variables evenly across groups, so any outcome difference can be attributed to the treatment",
+          "Because it measures correlation coefficients more precisely than other study designs",
+          "Because participants in RCTs are more representative of the general population",
+        ],
+        correct: 1,
+        explanation:
+          "Random assignment is the critical feature — by distributing known and unknown confounders evenly across treatment and control groups, it isolates the effect of the variable being tested and allows genuine causal inference.",
+      },
+      {
+        question:
+          "Research shows that countries with higher chocolate consumption per capita win more Nobel Prizes per capita. What is the most data-literate interpretation?",
+        options: [
+          "Chocolate consumption improves cognitive function and creativity, leading to Nobel Prize-winning work",
+          "Nobel Prize winners tend to celebrate with chocolate, so the prizes cause the consumption",
+          "A confounding variable — such as national wealth, which funds both chocolate consumption and research institutions — likely explains both",
+          "The correlation coefficient must be near zero because the claim is implausible",
+        ],
+        correct: 2,
+        explanation:
+          "National wealth is the classic confounder here — wealthier countries can afford more chocolate per capita and also fund the universities, research institutions, and scientific culture that produce Nobel laureates, causing both variables to rise together.",
+      },
+      {
+        question:
+          "Which of the following questions is most useful for evaluating whether a correlation reflects genuine causation?",
+        options: [
+          "How large is the correlation coefficient between the two variables?",
+          "Is there a plausible confounding variable that could cause both things to move together?",
+          "Was the correlation reported in a peer-reviewed journal?",
+          "How many years of data were used to calculate the correlation?",
+        ],
+        correct: 1,
+        explanation:
+          "Identifying a plausible confounder is the most powerful initial test of a causal claim — if a third variable can credibly explain why both variables move together, the direct causal interpretation collapses regardless of how strong the correlation is.",
+      },
+    ],
+  })
+  await addModule("Data Literacy and Critical Thinking", {
+    title: "Evaluating Data Sources — Who Collected This and Why",
+    description:
+      "Learn how to assess the credibility of data sources, distinguish peer-reviewed research from opinion, understand how funding and incentives shape findings, and apply a practical checklist to any data claim you encounter.",
+    orderIndex: 5,
+    content: `## Data Does Not Arrive Without an Author
+
+Every dataset, study, statistic, and chart was produced by someone, for a reason, using a method they chose, and reported in a way they designed. None of those decisions are neutral. A data claim is not just a number — it is the end product of a chain of human choices, and the credibility of the claim depends heavily on who made those choices and what their interests were.
+
+This does not mean all data is equally suspect or that cynicism is the correct response. It means that evaluating a data source is a necessary step before accepting its conclusions — the same step you would apply to any other argument.
+
+## What Makes a Source Credible
+
+Credibility in data sources rests on four pillars.
+
+**Methodology transparency** means the source explains how the data was collected — who was sampled, how measurements were taken, what was included and excluded, and how the analysis was performed. A credible source does not just report conclusions; it shows its work. If you cannot find a description of the method, you cannot evaluate whether the conclusion follows from it.
+
+**Independence** means the organisation or researcher collecting the data does not have a financial or institutional stake in a particular outcome. Government statistical agencies, academic research institutions, and established international bodies such as the World Health Organization generally have stronger independence than industry-funded research groups or advocacy organisations.
+
+**Replication and consensus** means the finding has been confirmed by multiple independent research teams using different methods and populations. A single study, however well-designed, is a starting point. A finding that appears consistently across many independent studies is substantially more reliable.
+
+**Publication and peer review** means the research has been submitted to scrutiny by independent experts in the field before being published. Peer review is imperfect — it does not catch all errors, and it can be slow — but it represents a systematic check that is absent from press releases, blog posts, social media claims, and industry white papers.
+
+## Peer-Reviewed Research vs Opinion
+
+The distinction between peer-reviewed research and opinion is one of the most important in data literacy, and it is frequently obscured.
+
+A **peer-reviewed study** reports original data collection or analysis, describes the methodology in detail, has been evaluated by independent experts, and is published in an academic journal. It makes claims bounded by its data and acknowledges its limitations.
+
+An **opinion piece, commentary, or editorial** — even one written by a credentialed expert and published in a reputable outlet — is an argued position, not a data report. It may cite studies selectively, interpret evidence in a particular direction, and reach conclusions that go beyond what the underlying data supports. Expert opinion is valuable, but it is not the same category of evidence as original peer-reviewed research.
+
+Many sources occupy ambiguous territory: think-tank reports, industry white papers, government-commissioned reviews, and non-profit research publications. These are not automatically unreliable, but they require additional scrutiny — particularly of who funded them and what conclusion would have served the funder's interests.
+
+## How Funding and Incentives Shape Findings
+
+The relationship between funding source and research outcome is one of the most documented phenomena in the sociology of science. Studies funded by the sugar industry were significantly more likely to find that fat, not sugar, was responsible for cardiovascular disease. Pharmaceutical company-funded drug trials are more likely to report positive results than independently funded trials of the same drugs. Tobacco industry research consistently found no causal link between smoking and cancer long after independent research had established one clearly.
+
+This is not always deliberate fraud. Funding shapes research in subtler ways: which questions get asked, which outcomes get measured, which results get written up and submitted for publication, and which get filed away. Researchers with an interested funder are not immune to unconscious motivated reasoning — the tendency to find the answer you are looking for more convincing than the one you were not expecting.
+
+The practical implication is simple: when evaluating a study, locate the funding disclosure — reputable journals require it — and ask whether the funder had a commercial or ideological stake in the result. A finding that favours the funder's interests is not automatically wrong, but it warrants corroboration from independent sources before being trusted fully.
+
+## A Practical Checklist for Evaluating Any Data Claim
+
+Apply these six questions to any significant data claim before accepting it:
+
+**1. Who collected this data?** Is the source an independent research institution, a government agency, an industry group, or an anonymous website?
+
+**2. How was it collected?** Is the methodology described clearly enough to evaluate? Was the sample representative? Were the measurements valid?
+
+**3. Who funded it?** Does the funder have a financial or ideological interest in the outcome? Is the funding disclosed or obscured?
+
+**4. Has it been peer-reviewed?** Is this original research published in an academic journal, or a press release, white paper, or opinion piece?
+
+**5. Has it been replicated?** Does this finding appear consistently across independent studies, or is this a single result?
+
+**6. What do independent experts say?** Do researchers with no stake in the outcome regard this finding as credible and consistent with the broader evidence base?
+
+A claim that answers these questions satisfactorily is worth engaging with seriously. A claim that cannot answer them deserves significant scepticism regardless of how confidently it is presented.`,
+    quizzes: [
+      {
+        question:
+          "What is the most important feature that distinguishes a peer-reviewed study from an expert opinion piece?",
+        options: [
+          "Peer-reviewed studies are written by more qualified researchers than opinion pieces",
+          "Peer-reviewed studies report original data with transparent methodology evaluated by independent experts, while opinion pieces are argued positions that may go beyond the underlying evidence",
+          "Opinion pieces are published faster and are therefore more current than peer-reviewed research",
+          "Peer-reviewed studies are only published by government institutions, while opinion pieces appear in commercial outlets",
+        ],
+        correct: 1,
+        explanation:
+          "The defining difference is the combination of original data, transparent methodology, and independent expert evaluation — opinion pieces, even by credentialed experts, are argued positions rather than data reports and do not undergo the same systematic scrutiny.",
+      },
+      {
+        question:
+          "A pharmaceutical company publishes a study showing their new drug is highly effective. The study's methodology appears sound. What additional step is most important before accepting this finding?",
+        options: [
+          "Check whether the drug has received government approval in at least one country",
+          "Confirm that the study was conducted within the last five years",
+          "Locate the funding disclosure and seek independent replication, since industry-funded trials are more likely to report favourable outcomes",
+          "Verify that the study used a large enough sample to produce a significant correlation",
+        ],
+        correct: 2,
+        explanation:
+          "Industry-funded research consistently shows higher rates of favourable findings than independently funded research on the same interventions — funding disclosure and independent replication are the essential checks before trusting a commercially interested result.",
+      },
+      {
+        question:
+          "Which of the following data sources would generally warrant the most scrutiny before being cited in an academic argument?",
+        options: [
+          "A study published in a peer-reviewed public health journal with independent funding",
+          "A report from a national government statistical agency",
+          "A white paper published by an industry lobby group without methodology disclosure",
+          "A meta-analysis of fifty independent studies conducted by an academic research team",
+        ],
+        correct: 2,
+        explanation:
+          "An industry lobby group has an institutional interest in a particular finding, and the absence of methodology disclosure means the claim cannot be independently evaluated — both factors make it the least credible source in this list.",
+      },
+      {
+        question:
+          "A single well-designed study finds that a particular diet reduces the risk of heart disease by 30%. What is the most data-literate response?",
+        options: [
+          "Accept the finding because the study was well-designed and the effect size is large",
+          "Reject the finding because nutrition research is inherently unreliable",
+          "Treat it as a promising starting point and look for independent replication before drawing firm conclusions",
+          "Accept the finding only if it was funded by a government health agency",
+        ],
+        correct: 2,
+        explanation:
+          "A single study, however well-designed, is a starting point rather than a conclusion — robust findings replicate consistently across independent research teams, and a 30% effect in one study could reflect chance, confounding, or publication bias until confirmed elsewhere.",
+      },
+      {
+        question:
+          "According to the practical checklist in the module, what does asking 'has it been replicated?' help you assess?",
+        options: [
+          "Whether the original researchers made arithmetic errors in their analysis",
+          "Whether the finding appears consistently across independent studies rather than being a single isolated result",
+          "Whether the study sample was large enough to produce statistically significant results",
+          "Whether the methodology has been approved by a regulatory authority",
+        ],
+        correct: 1,
+        explanation:
+          "Replication across independent studies using different methods and populations is one of the strongest indicators of a robust finding — a result that has not been replicated could reflect chance, methodological quirks, or publication bias specific to the original study.",
+      },
+    ],
+  })
+  await addModule("Data Literacy and Critical Thinking", {
+    title: "Making Decisions with Imperfect Data",
+    description:
+      "Learn why perfect data never arrives, how to make sound decisions under uncertainty, when available data is trustworthy enough to act on, and how to apply a simple framework for data-driven choices in everyday academic and personal life.",
+    orderIndex: 6,
+    content: `## The Myth of Complete Information
+
+There is a version of data literacy that leads to paralysis. You learn about misleading statistics, confounding variables, funding bias, and unreliable samples — and the natural response is to trust nothing and decide nothing until the evidence is beyond doubt. This response feels rigorous. It is actually a form of avoidance, and it carries its own costs.
+
+Perfect data does not exist. Every dataset has gaps, every study has limitations, every sample has selection pressures, and every measurement introduces some error. The real world does not pause while you wait for a cleaner dataset. Waiting for certainty before acting is not a neutral choice — it is a decision to maintain the status quo, with all the consequences that brings. A doctor who refuses to treat a patient until every test is complete has made a decision. An investor who holds cash until the market is predictable has made a decision. A student who delays choosing a research direction until every option is evaluated has made a decision.
+
+The question is never whether to decide under uncertainty. The question is how to decide well.
+
+## How to Make Reasonable Decisions Under Uncertainty
+
+Good decisions under uncertainty share a common structure. They do not require certainty — they require that the evidence be weighed honestly and that the stakes be understood clearly.
+
+**Calibrate your confidence to the quality of the evidence.** A conclusion supported by multiple independent replicated studies warrants more confidence than a conclusion from a single survey. A pattern that appears consistently across different methods and populations is more reliable than one that appears only under specific conditions. Match how strongly you hold your conclusion to how strong the evidence actually is — neither dismissing weak evidence entirely nor treating it as proof.
+
+**Consider the cost of each type of error.** In any decision under uncertainty, there are two ways to be wrong: acting when you should not have (a false positive), and not acting when you should have (a false negative). The right threshold for action depends on which error is more costly in your specific situation. A medical screening test for a serious but treatable disease should have a low threshold for a positive result — missing a case is catastrophic, and a false alarm is merely inconvenient. Conversely, a decision with irreversible consequences should require stronger evidence before commitment.
+
+**Make your reasoning explicit.** When deciding under uncertainty, write down — even briefly — what evidence you are relying on, what assumptions you are making, and what would change your mind. This discipline does two things: it prevents post-hoc rationalisation, where you construct reasons for a decision you made on other grounds, and it creates a record you can return to and update as new information arrives.
+
+## When to Trust Your Data — and When to Question It
+
+Not all uncertainty is equal. Some data is imperfect but directionally reliable; some is so flawed that acting on it is worse than acting on nothing.
+
+**Trust your data more when:** the source is independent and transparent about methodology; the finding has been replicated across multiple studies; the sample is large and representative; the effect size is substantial rather than marginal; and the result is consistent with a plausible mechanism.
+
+**Question your data more when:** a single study supports the claim; the funder has a stake in the outcome; the sample is small or self-selected; the effect is only statistically significant but practically tiny; or the claim contradicts a large body of established evidence without a compelling explanation for why.
+
+The practical skill is not choosing between trusting and distrusting data — it is adjusting how much weight you give a piece of evidence based on the conditions under which it was produced.
+
+## A Simple Decision Framework for Data-Driven Choices
+
+When facing a decision that involves data, apply this four-step framework:
+
+**Step 1 — Define the decision clearly.** What exactly are you deciding, and what are the realistic options? Ambiguous decisions produce ambiguous reasoning.
+
+**Step 2 — Identify the evidence.** What data exists that is relevant to this decision? Apply the source evaluation checklist from the previous module. How strong and independent is it?
+
+**Step 3 — Assess the stakes.** What are the consequences of each type of error — acting incorrectly versus not acting when you should? High-stakes, irreversible decisions require stronger evidence than low-stakes, reversible ones.
+
+**Step 4 — Decide and document.** Make the best decision the available evidence supports, record your reasoning briefly, and identify what new information would cause you to revise it. Set a point in the future to review whether the decision is holding up.
+
+## Imperfect Data Is the Only Kind There Is
+
+Data literacy is not about finding perfect information — it is about extracting the best possible signal from imperfect information and making decisions that are proportionate to what the evidence can actually support. The goal is not certainty; it is calibrated confidence. That distinction — between demanding proof before acting and acting thoughtfully on the best available evidence — separates effective thinkers from those who are either reckless or permanently stuck.`,
+    quizzes: [
+      {
+        question:
+          "Why does the module argue that waiting for perfect data before making a decision is not a neutral choice?",
+        options: [
+          "Because data quality improves faster when decisions are made quickly",
+          "Because waiting is itself a decision to maintain the status quo, which carries its own consequences",
+          "Because perfect data eventually becomes outdated before it can be acted on",
+          "Because decision-makers who wait lose credibility with their peers",
+        ],
+        correct: 1,
+        explanation:
+          "Inaction is a form of action — choosing to wait maintains whatever situation currently exists, with all its consequences, making it a decision in itself rather than a neutral pause before a real decision.",
+      },
+      {
+        question:
+          "A medical screening test for a serious but treatable illness has some false positive results. According to the module's framework, what does this suggest about the appropriate detection threshold?",
+        options: [
+          "The threshold should be raised to eliminate false positives, since unnecessary treatment is harmful",
+          "The threshold should be kept low, because missing a genuine case is far more costly than an unnecessary follow-up",
+          "The threshold should match the base rate of the illness in the general population",
+          "The threshold is irrelevant if the test has been peer-reviewed and validated",
+        ],
+        correct: 1,
+        explanation:
+          "When the cost of a false negative — missing a serious treatable illness — is much higher than the cost of a false positive — an unnecessary but correctable alarm — the decision framework calls for a lower threshold for action.",
+      },
+      {
+        question:
+          "According to the module, which of the following should increase your confidence in a data finding?",
+        options: [
+          "The finding was published in a widely read mainstream news outlet",
+          "The effect is statistically significant in a single large study funded by an interested party",
+          "The finding has been replicated across multiple independent studies with a transparent methodology",
+          "The claim is consistent with the intuitions of the person presenting it",
+        ],
+        correct: 2,
+        explanation:
+          "Independent replication across multiple studies with transparent methodology is one of the strongest indicators of a reliable finding — it reduces the probability that the result reflects chance, bias, or methodological quirks specific to one research team.",
+      },
+      {
+        question:
+          "What is the purpose of making your reasoning explicit when deciding under uncertainty?",
+        options: [
+          "To satisfy external reviewers who may later evaluate the decision",
+          "To prevent post-hoc rationalisation and create a record that can be updated as new information arrives",
+          "To ensure the decision follows a standardised format recognised across disciplines",
+          "To slow down the decision-making process so that all options are fully explored",
+        ],
+        correct: 1,
+        explanation:
+          "Writing down the evidence, assumptions, and conditions for revision prevents the common error of constructing reasons after the fact to justify a decision made on different grounds — and produces a document that can be genuinely revisited when circumstances change.",
+      },
+      {
+        question:
+          "A student is deciding whether to change their study strategy based on one self-help article citing a single unpublished study. According to the framework, what should they do?",
+        options: [
+          "Implement the strategy immediately, since any evidence is better than none",
+          "Reject the strategy entirely, since single unpublished studies are never reliable",
+          "Treat it as a low-confidence signal, seek corroborating evidence from independent sources, and consider the cost of trying a low-stakes adjustment",
+          "Wait until a peer-reviewed meta-analysis confirms the finding before making any change",
+        ],
+        correct: 2,
+        explanation:
+          "A single unpublished study warrants low but not zero weight — the appropriate response is calibrated scepticism, not dismissal or full acceptance. For a low-stakes reversible decision like adjusting a study habit, the threshold for a trial is reasonably low while stronger evidence is sought.",
+      },
+    ],
+  })
+  await addModule("Data Literacy and Critical Thinking", {
+    title: "Putting It All Together — Analysing a Real Data Claim",
+    description:
+      "Apply every concept from this track — source evaluation, chart reading, statistical interpretation, and causal reasoning — to walk through a realistic data claim step by step and reach a well-reasoned final judgment.",
+    orderIndex: 7,
+    content: `## From Individual Skills to a Complete Analysis
+
+You now have a full toolkit. You can read charts critically and spot truncated axes. You can distinguish relative risk from absolute risk and identify when an average conceals more than it reveals. You know that correlation does not imply causation and that confounding variables are often hiding in plain sight. You can evaluate a source by asking who collected the data, who funded it, and whether it has been independently replicated. And you know how to make a decision when the evidence is imperfect but a judgment is still required.
+
+The final skill is integration — applying all of these tools in sequence to a single claim, without losing the thread between steps. This module walks through exactly that, using a realistic example of the kind of data claim you will encounter regularly in university, in the media, and in professional life.
+
+## The Claim
+
+A nutrition company publishes the following on its website, accompanied by a bar chart:
+
+*"A new study shows that students who take our DailyFocus supplement scored 34% higher on concentration tests than students who did not. The bar chart below shows the dramatic improvement in focus scores. Thousands of students are already experiencing the benefits."*
+
+Work through this claim using every layer of analysis the track has equipped you with.
+
+## Layer 1 — Evaluate the Source
+
+The first question is always: who produced this, and why? This claim appears on the nutrition company's own website — the same company that sells the supplement being studied. That is the strongest possible conflict of interest: the funder, the researcher, and the publisher are all the same entity with a direct commercial interest in a positive result.
+
+There is no mention of peer review, no journal citation, no independent institution involved. The methodology is not described — we do not know who the participants were, how they were selected, how many there were, how "concentration tests" were defined or administered, or whether there was a control group.
+
+At this stage, the source alone warrants substantial scepticism. A credible extraordinary claim requires credible methodology. None is visible here.
+
+## Layer 2 — Read the Chart Critically
+
+Before accepting the bar chart's visual impression, ask the three critical questions from Module 2. Where does the axis start? If the vertical axis begins at, say, 60 rather than 0, a difference between scores of 68 and 72 can be made to look as dramatic as a difference between 0 and 100. The claim uses the word "dramatic" — that word is doing work the numbers may not support.
+
+What is not shown? There is no error bar, no confidence interval, no representation of how much individual scores varied. A mean score can look impressive while hiding the fact that results were wildly inconsistent across participants. And the time range is unspecified — were scores measured immediately after taking the supplement, or over weeks?
+
+Who made this chart? The company selling the supplement. Every design choice serves the argument being made.
+
+## Layer 3 — Interpret the Statistics
+
+The headline figure is a 34% improvement in concentration test scores. Apply the relative versus absolute distinction immediately. What were the baseline scores? If students without the supplement scored an average of 50 out of 100, a 34% improvement would represent roughly 17 additional points — a meaningful absolute difference. If the baseline was 94 out of 100, a 34% relative improvement is mathematically impossible. Without the baseline, the percentage is uninterpretable.
+
+The sample is described only as producing data for a "new study" — no size is given. A 34% effect in a sample of 20 participants in a single unblinded study is a very different claim from the same effect in a randomised controlled trial of 2,000.
+
+## Layer 4 — Assess Causation
+
+Even if we accept the correlation — students who took the supplement scored higher — the causal question remains open. Was this a randomised controlled trial, where participants were randomly assigned to supplement and placebo groups? If not, the students who chose to take a supplement may differ systematically from those who did not: they may be more motivated, more health-conscious, better rested, or better nourished generally. Any of these factors could cause both supplement-taking and higher test scores, producing a correlation with no causal link to the product.
+
+Without random assignment and a blinded placebo control, the 34% difference cannot be attributed to the supplement. It describes a correlation between two groups that were probably not comparable to begin with.
+
+## Layer 5 — Final Judgment
+
+Applying the decision framework from Module 6: the source is conflicted and non-transparent; the chart is potentially misleading; the statistic is uninterpretable without the baseline; the sample size is unknown; and there is no evidence of random assignment, peer review, or independent replication.
+
+The appropriate judgment is not that the supplement definitely does not work — it is that this claim provides no credible evidence that it does. The five-layer analysis has not found a flaw in the data; it has found an absence of trustworthy data altogether.
+
+The action-relevant conclusion: do not act on this claim. If the question matters enough to investigate further, search for independent peer-reviewed research on the active ingredients, not the company's own publications.
+
+## Analysis as a Habit
+
+This five-layer process — source, chart, statistics, causation, judgment — sounds laborious when written out in full. With practice, it becomes rapid and automatic. Most claims collapse at Layer 1 or Layer 2, and the full analysis is rarely needed. The value of knowing all five layers is not that you apply them exhaustively every time — it is that nothing important slips past you when it counts.`,
+    quizzes: [
+      {
+        question:
+          "In the supplement example, why does the source of the claim — the company's own website — immediately warrant scepticism before any other analysis is performed?",
+        options: [
+          "Because company websites are not permitted to publish scientific research",
+          "Because the funder, researcher, and publisher share the same commercial interest in a positive result, creating the strongest possible conflict of interest",
+          "Because nutrition companies are required to publish only peer-reviewed data",
+          "Because websites cannot display charts with sufficient accuracy for scientific claims",
+        ],
+        correct: 1,
+        explanation:
+          "When the entity funding the research, conducting it, and publishing it is the same organisation that profits from a positive result, every layer of independent scrutiny is absent — this is the strongest possible conflict of interest and the first reason to withhold confidence.",
+      },
+      {
+        question:
+          "The bar chart accompanying the claim is described as showing a 'dramatic improvement.' What is the first chart-reading question to ask?",
+        options: [
+          "Whether the chart uses a pie or bar format, since pie charts are less reliable",
+          "Whether the data has been peer-reviewed before being displayed visually",
+          "Where the vertical axis starts — a truncated axis can make small numerical differences appear visually dramatic",
+          "Whether the chart includes a legend identifying the supplement brand",
+        ],
+        correct: 2,
+        explanation:
+          "The word 'dramatic' is a signal to check the axis — a truncated axis that starts above zero compresses the baseline and visually amplifies small differences into large-looking gaps, creating an impression disproportionate to the actual numerical change.",
+      },
+      {
+        question:
+          "The claim states students scored '34% higher' on concentration tests. Why is this figure uninterpretable without additional information?",
+        options: [
+          "Because percentage improvements are only valid for physical measurements, not cognitive tests",
+          "Because the baseline score is not provided, making it impossible to calculate the absolute difference or assess whether the change is meaningful",
+          "Because 34% is too large an effect size to be credible in a nutrition study",
+          "Because the figure should have been expressed as a correlation coefficient rather than a percentage",
+        ],
+        correct: 1,
+        explanation:
+          "A relative percentage change is meaningless without the baseline — 34% of a score near the ceiling is mathematically and practically different from 34% of a low baseline score, and without the starting value the statistic cannot be evaluated.",
+      },
+      {
+        question:
+          "Why can the 34% score difference not be attributed to the supplement without evidence of random assignment?",
+        options: [
+          "Because random assignment is only required when the sample size exceeds 100 participants",
+          "Because students who chose to take the supplement may differ from those who did not in ways that independently affect concentration scores, making the groups incomparable",
+          "Because concentration tests are subjective measures that require blinding regardless of group assignment",
+          "Because the supplement would need to be tested against multiple placebos to isolate its effect",
+        ],
+        correct: 1,
+        explanation:
+          "Without random assignment, the supplement group and the non-supplement group may differ systematically — in motivation, sleep, diet, or health awareness — and any of these confounders could explain the score difference independently of the supplement.",
+      },
+      {
+        question:
+          "After completing all five layers of analysis on the supplement claim, what is the most data-literate final judgment?",
+        options: [
+          "The supplement definitely does not work because no credible evidence supports it",
+          "The supplement probably works because a 34% improvement is too large to be explained by confounding alone",
+          "This claim provides no credible evidence that the supplement works, and acting on it is not warranted without independent peer-reviewed research",
+          "The claim is plausible enough to act on because some evidence is always better than none",
+        ],
+        correct: 2,
+        explanation:
+          "The five-layer analysis reveals an absence of trustworthy evidence — not proof of ineffectiveness, but a complete lack of credible support. The appropriate conclusion is to withhold judgment and seek independent peer-reviewed research rather than acting on a conflicted, unverified claim.",
+      },
+    ],
+  })
+  await addModule("Academic Research and Writing Skills", {
+    title: "Finding and Evaluating Academic Sources",
+    description:
+      "Learn where to find credible academic sources using Google Scholar and university databases, understand the difference between primary and secondary sources, evaluate credibility using a structured framework, and know when your research is sufficient to begin writing.",
+    orderIndex: 2,
+    content: `## Why Source Quality Determines Argument Quality
+
+An essay is only as strong as the evidence it rests on. A well-structured argument built on unreliable sources is not a good essay — it is a well-organised mistake. Before you can write convincingly about any academic topic, you need to know where to find credible evidence, how to distinguish strong sources from weak ones, and how to judge when you have gathered enough to make your case.
+
+## Where to Find Academic Sources
+
+**Google Scholar** (scholar.google.com) is the most accessible starting point for most students. It indexes peer-reviewed journal articles, theses, books, and conference papers across virtually every discipline. Each result shows how many times a paper has been cited by other researchers — a rough but useful indicator of influence. Google Scholar is free and requires no login, though accessing full-text articles may require your university login for paywall content.
+
+**University library databases** are the more powerful tool. Most universities subscribe to databases such as JSTOR, EBSCOhost, ProQuest, PubMed (for health sciences), PsycINFO (for psychology), and Scopus. These databases allow advanced filtering by date, publication type, peer-review status, and subject area — giving you far more control over search results than a general web search. Your university library website will list which databases you have access to and often provides guides for using them effectively.
+
+**Reference chaining** is an underused technique: find one strong, relevant paper, then examine its reference list. The sources it cites are almost by definition relevant to your topic, and following those citations leads you quickly into the core literature of a field.
+
+Avoid using general websites, Wikipedia, news articles, or blog posts as primary academic sources. These can be useful for orientation and background understanding, but they do not constitute academic evidence in a university argument.
+
+## Primary vs Secondary Sources
+
+A **primary source** is original material — the direct evidence or first-hand account from which knowledge is drawn. In the sciences, a primary source is the original research paper reporting a study's methodology and findings. In history, it might be a letter, treaty, or government document from the period being studied. In literature, it is the text itself.
+
+A **secondary source** interprets, analyses, or synthesises primary sources. A journal article reviewing twenty studies on a topic is a secondary source. A textbook chapter summarising a field's research history is a secondary source. Secondary sources are valuable for understanding how a field interprets evidence, but they should not replace engagement with the primary research when precision matters.
+
+In most university essays, you are expected to engage with both — secondary sources to situate your argument in the existing conversation, primary sources to ground your claims in direct evidence.
+
+## Evaluating Credibility — The CRAAP Test
+
+The **CRAAP test** is a structured framework for evaluating any source, particularly useful when a source falls outside the clear peer-reviewed category. The acronym stands for:
+
+**Currency** — When was this published or last updated? In fast-moving fields like medicine or technology, a source from ten years ago may be significantly outdated. In humanities disciplines, older foundational texts may still be highly relevant.
+
+**Relevance** — Does this source actually address your research question? A tangentially related paper that you are stretching to fit your argument is not a relevant source — it is a distraction.
+
+**Authority** — Who wrote this, and what are their credentials? Is the author affiliated with a recognised research institution? Is the publication a peer-reviewed journal or an unreviewed platform?
+
+**Accuracy** — Is the information supported by evidence and citations? Does it acknowledge limitations? Is it consistent with what other credible sources say on the topic?
+
+**Purpose** — Why was this created? Is it to inform and report research findings, or to persuade, sell, or advocate for a particular position? Sources with an explicit agenda require additional scrutiny.
+
+No single criterion disqualifies a source automatically, but a source that scores poorly on multiple dimensions should be treated with significant caution.
+
+## How to Know When You Have Enough Sources
+
+A common student error is either under-researching — grabbing the first five results and starting to write — or over-researching — reading indefinitely to delay the discomfort of drafting. Neither produces a strong essay.
+
+You have sufficient sources when three conditions are met. First, **saturation**: new sources you find are largely citing the same key papers and making the same core arguments you have already encountered. Second, **coverage**: you have sources that address each major aspect of your argument, not just one angle. Third, **quality over quantity**: you have a smaller number of directly relevant, credible sources rather than a large number of loosely related ones. Ten strong, directly relevant sources will support a better essay than thirty marginal ones.
+
+When you reach saturation and your key arguments are each supported by at least two independent credible sources, you are ready to write.`,
+    quizzes: [
+      {
+        question:
+          "What does the citation count displayed in Google Scholar results indicate?",
+        options: [
+          "The number of times the article has been downloaded from the internet",
+          "The quality score assigned by Google's peer-review algorithm",
+          "How many other researchers have referenced this paper in their own work — a rough indicator of influence",
+          "The number of authors who contributed to the paper",
+        ],
+        correct: 2,
+        explanation:
+          "Citation count reflects how many subsequent academic works have referenced a paper — highly cited papers have influenced the field significantly, making citation count a useful but imperfect proxy for a source's academic relevance and impact.",
+      },
+      {
+        question:
+          "A student is writing an essay on the psychological effects of social media and finds a well-written blog post by a marketing consultant summarising recent studies. How should this source be used?",
+        options: [
+          "As a primary academic source, since it cites peer-reviewed research",
+          "As background orientation only — the original peer-reviewed studies it references should be found and cited instead",
+          "As a secondary source equivalent to a journal review article",
+          "It should not be read at all, since non-academic sources contain no useful information",
+        ],
+        correct: 1,
+        explanation:
+          "A blog post, however well-written, does not constitute academic evidence — but it can point you toward the primary research it references, which should be located, evaluated, and cited directly in your essay.",
+      },
+      {
+        question:
+          "Which of the following is an example of a primary source for a psychology essay on memory?",
+        options: [
+          "A textbook chapter summarising fifty years of memory research",
+          "A Wikipedia article about the multi-store model of memory",
+          "The original 1968 journal article by Atkinson and Shiffrin reporting their memory model research",
+          "A review article evaluating competing theories of memory storage",
+        ],
+        correct: 2,
+        explanation:
+          "A primary source is the original research report — the paper in which Atkinson and Shiffrin first presented their findings. Textbook chapters, Wikipedia articles, and review articles are all secondary sources that interpret or summarise primary research.",
+      },
+      {
+        question:
+          "Using the CRAAP test, which criterion is most relevant when evaluating whether a medical research article from 2008 is appropriate to cite in a 2025 essay?",
+        options: [
+          "Purpose — medical research is often funded by pharmaceutical companies",
+          "Relevance — older articles are less likely to address current research questions",
+          "Currency — in a fast-moving field like medicine, findings from 2008 may have been superseded or contradicted by more recent research",
+          "Authority — researchers from 2008 may not have held the same credentials as current academics",
+        ],
+        correct: 2,
+        explanation:
+          "Currency is the most directly relevant criterion here — medical knowledge evolves rapidly, and a 2008 study may have been updated, challenged, or replaced by subsequent research, making it important to verify whether the findings still represent the current evidence base.",
+      },
+      {
+        question:
+          "According to the module, what does 'saturation' mean in the context of knowing when you have done enough research?",
+        options: [
+          "You have read every source available on your topic regardless of relevance",
+          "You have found at least thirty sources covering multiple disciplines",
+          "New sources you find are largely referencing the same key papers and repeating the same core arguments you have already encountered",
+          "You have spent a minimum of ten hours searching before beginning to write",
+        ],
+        correct: 2,
+        explanation:
+          "Saturation occurs when the research process stops yielding genuinely new information — when new sources consistently cite the same foundational papers and repeat arguments you have already mapped, you have likely covered the core literature sufficiently to begin writing.",
+      },
+    ],
+  })
+  await addModule("Academic Research and Writing Skills", {
+    title: "Building a Strong Academic Argument",
+    description:
+      "Learn what distinguishes an academic argument from personal opinion, how to structure claims with evidence and reasoning, how to connect sources to your own point rather than just quoting them, and how to identify and fix the most common weaknesses in student arguments.",
+    orderIndex: 3,
+    content: `## Opinion vs Argument — What Is the Difference?
+
+Everyone has opinions. Academic writing requires something more demanding: a structured argument. The difference is not about confidence or passion — it is about the relationship between the claim you are making and the evidence you are using to support it.
+
+An opinion is a position held on the basis of feeling, intuition, or personal experience: "I think social media is bad for young people." An academic argument makes a specific, contestable claim and supports it with evidence that has been reasoned through: "Longitudinal studies suggest that passive social media consumption — scrolling without posting — is more strongly associated with reduced wellbeing in adolescents than active engagement, though this relationship is moderated by pre-existing social comparison tendencies."
+
+The academic version is harder to write, but it does something the opinion cannot: it tells the reader exactly what is being claimed, on what basis, and under what conditions. It invites scrutiny rather than agreement, and it can be evaluated, challenged, and built upon by other researchers.
+
+## The Claim-Evidence-Reasoning Structure
+
+The fundamental unit of academic argument is a three-part structure: **claim**, **evidence**, and **reasoning**. Every paragraph that advances your argument should contain all three, though not necessarily in a rigid sequence.
+
+**The claim** is your point — a specific, arguable statement that your paragraph will support. It should not be a fact everyone accepts, and it should not be so broad that no evidence could adequately support it.
+
+**The evidence** is the support — a finding, datum, example, or quotation from a credible source that is relevant to the claim. Evidence on its own does not make an argument; it is raw material.
+
+**The reasoning** is the bridge — the explanation of why and how the evidence supports the claim. This is the part most students omit, and its absence is the most common reason a paragraph fails to persuade.
+
+A worked example:
+
+*Claim:* Retrieval practice produces more durable long-term memory than re-reading.
+*Evidence:* Roediger and Karpicke (2006) found that students who completed retrieval practice tests retained significantly more information one week later than those who re-read the material.
+*Reasoning:* This suggests that the act of recalling information from memory — rather than passively re-exposing oneself to it — strengthens the memory trace in ways that predict long-term retention, making retrieval a more efficient study strategy than review.
+
+Notice that the reasoning does not simply restate the evidence. It interprets it, explains the mechanism, and connects it back to the claim explicitly.
+
+## Connecting Evidence to Your Point
+
+A recurring weakness in student essays is what might be called the "quote dump" — inserting a quotation or paraphrased finding and then moving on, leaving the reader to infer the connection themselves. This is not argument; it is decoration.
+
+Every piece of evidence you introduce should be followed by your analysis of it. Ask yourself three questions after placing any evidence in your essay: What does this show? Why does this matter for my claim? What does this add that the previous evidence did not?
+
+Use your own voice to do this work. Phrases like "This indicates that...", "What this suggests is...", and "This is significant because..." are signals that you are performing the reasoning your reader needs to follow your argument rather than simply presenting data and hoping the point is obvious.
+
+Paraphrasing is generally preferable to direct quotation in academic writing, because it demonstrates that you have understood the source rather than merely copied it. Reserve direct quotation for cases where the specific wording of the original is itself significant — a precise definition, a theoretical formulation, or a phrase whose meaning would change if paraphrased.
+
+## Common Weaknesses in Student Arguments
+
+**Asserting without evidencing.** Making strong claims without any supporting source is the most elementary error. Every contestable claim requires a citation.
+
+**Evidencing without reasoning.** Placing a citation after a claim without explaining what it shows or why it matters. The citation becomes a gesture toward evidence rather than an actual argument.
+
+**Over-quoting.** Filling paragraphs with long block quotations gives the impression of research but demonstrates no understanding. Your analysis of sources is what is being assessed, not your ability to copy them.
+
+**Failing to acknowledge counter-evidence.** A one-sided argument that ignores contradicting evidence is weaker than one that addresses it. Acknowledging that the evidence is mixed, and explaining why your interpretation is nonetheless more persuasive, demonstrates a level of intellectual sophistication that one-sided arguments cannot.
+
+**Paragraph sprawl.** A paragraph that advances three separate claims supports none of them adequately. Each paragraph should have one central claim, supported and reasoned through completely, before the essay moves on.
+
+## Argument as Intellectual Responsibility
+
+Building a strong academic argument is not just a writing skill — it is an intellectual commitment to honesty. It means claiming only what your evidence can support, acknowledging the limits of that evidence, and making your reasoning visible so others can evaluate it. Essays that do this well do not just earn better marks — they contribute something genuine to the conversation they are part of.`,
+    quizzes: [
+      {
+        question:
+          "What is the key difference between an academic argument and a personal opinion?",
+        options: [
+          "An academic argument is written in formal language while an opinion uses informal language",
+          "An academic argument makes a specific contestable claim supported by evidence and explicit reasoning, while an opinion rests on feeling or personal experience",
+          "An academic argument must be at least 1000 words to distinguish it from a short opinion",
+          "An opinion becomes an academic argument once it is supported by a single citation",
+        ],
+        correct: 1,
+        explanation:
+          "The distinction is structural and epistemic — an academic argument specifies exactly what is claimed, on what evidential basis, and through what reasoning, making it open to scrutiny and evaluation in a way a personal opinion is not.",
+      },
+      {
+        question:
+          "In the claim-evidence-reasoning structure, what role does the reasoning component play?",
+        options: [
+          "It introduces the topic of the paragraph before the claim is stated",
+          "It summarises the evidence in simpler language for the reader",
+          "It restates the claim using different wording to reinforce the point",
+          "It explains how and why the evidence supports the claim, bridging the two rather than leaving the connection implicit",
+        ],
+        correct: 3,
+        explanation:
+          "Reasoning is the analytical bridge between evidence and claim — it explains the mechanism, interprets the significance, and makes explicit the logical connection that the reader needs to follow the argument, rather than leaving them to infer it.",
+      },
+      {
+        question:
+          "A student writes: 'Social media has been shown to harm mental health (Smith, 2021).' What is the primary weakness of this sentence as an academic argument?",
+        options: [
+          "The citation format is incorrect and should include the full journal title",
+          "The claim is too specific and would benefit from a broader scope",
+          "The evidence is present but there is no reasoning explaining what Smith found or why it supports the claim",
+          "The sentence uses passive voice, which is not acceptable in academic writing",
+        ],
+        correct: 2,
+        explanation:
+          "The sentence drops a citation without explaining what Smith's study found, how it was conducted, or why it supports the specific claim being made — evidence without reasoning is the most common structural weakness in student academic writing.",
+      },
+      {
+        question:
+          "When is it most appropriate to use a direct quotation rather than paraphrasing a source?",
+        options: [
+          "Whenever the source is particularly long and summarising it would take too many words",
+          "When the specific wording of the original is itself significant — such as a precise definition or theoretical formulation whose meaning would change if reworded",
+          "For every piece of evidence, since direct quotations demonstrate more thorough research than paraphrasing",
+          "Only when the source is a primary document such as a historical text or legal statute",
+        ],
+        correct: 1,
+        explanation:
+          "Paraphrasing demonstrates understanding and integrates evidence more fluidly into your own argument — direct quotation should be reserved for cases where the exact wording matters, such as a key definition, a theoretical claim, or a phrase whose specific phrasing is the subject of analysis.",
+      },
+      {
+        question:
+          "Why does acknowledging counter-evidence strengthen rather than weaken an academic argument?",
+        options: [
+          "It increases the word count and demonstrates that more research was conducted",
+          "It signals to the examiner that the student has read a broader range of sources",
+          "Addressing contradicting evidence and explaining why your interpretation is nonetheless more persuasive demonstrates intellectual rigour and makes your argument harder to dismiss",
+          "It satisfies the requirement for balance that all academic essays must meet",
+        ],
+        correct: 2,
+        explanation:
+          "An argument that ignores contradicting evidence appears selective and fragile — one that confronts counter-evidence and explains why it does not undermine the central claim demonstrates genuine engagement with the complexity of the evidence and produces a more persuasive, intellectually honest case.",
+      },
+    ],
+  })
+  await addModule("Academic Research and Writing Skills", {
+    title: "Understanding and Avoiding Plagiarism",
+    description:
+      "Learn what plagiarism is and why universities treat it seriously, how to quote, paraphrase, and summarise correctly, how citation works in principle, and how to avoid the accidental plagiarism mistakes that catch most students off guard.",
+    orderIndex: 4,
+    content: `## What Plagiarism Is — and Why It Matters
+
+Plagiarism is presenting someone else's words, ideas, data, or creative work as your own without appropriate acknowledgment. It encompasses a wide range of behaviours — from copying a paragraph verbatim without quotation marks, to paraphrasing a source too closely, to submitting work written by someone else entirely, to reusing your own previously submitted work without disclosure.
+
+Universities treat plagiarism seriously for reasons that go beyond rule enforcement. Academic knowledge is built on attribution — the system of citations that allows every claim to be traced back to its origin, evaluated for credibility, and built upon by subsequent researchers. When that attribution is falsified or omitted, the integrity of the entire system is compromised. For the individual student, plagiarism also undermines the purpose of assessment: the point of writing an essay is to develop and demonstrate your own thinking, and submitting someone else's thinking defeats that purpose entirely regardless of whether you are caught.
+
+Most plagiarism at university is not deliberate fraud. It is the product of poor note-taking habits, misunderstanding what citation requires, or confusion about the difference between quoting, paraphrasing, and summarising. Understanding these distinctions is the most practical defence against accidental academic misconduct.
+
+## Quoting, Paraphrasing, and Summarising
+
+These three techniques are not interchangeable. Each has a specific use and a specific set of requirements.
+
+**Quoting** means reproducing an author's exact words, enclosed in quotation marks, with a citation. Use direct quotation when the specific wording is significant — a precise definition, a theoretical formulation, or a phrase whose meaning would be altered by rewording. Quote sparingly. An essay dense with quotations demonstrates copying, not understanding.
+
+\`\`\`
+Original: "Memory consolidation occurs primarily during slow-wave sleep."
+Quoted: According to Walker (2017), "memory consolidation occurs primarily during slow-wave sleep" (p. 43).
+\`\`\`
+
+**Paraphrasing** means restating a specific idea from a source in your own words and sentence structure, with a citation. Paraphrasing is not synonym substitution — replacing a few words while keeping the original sentence structure is still plagiarism. A genuine paraphrase reconstructs the idea from your understanding of it.
+
+\`\`\`
+Original: "Memory consolidation occurs primarily during slow-wave sleep."
+Poor paraphrase (still plagiarism): Memory solidification happens mainly during slow-wave sleep (Walker, 2017).
+Strong paraphrase: Walker (2017) argues that the process by which memories become stable and durable is concentrated in the deep, non-REM stages of the sleep cycle.
+\`\`\`
+
+**Summarising** means condensing the main point or argument of a larger passage or entire source into a brief overview in your own words, with a citation. Summaries cover more ground than paraphrases and are used to represent the general thrust of a source rather than a specific claim within it.
+
+In all three cases, a citation is required. The common misconception that only direct quotations need citations is one of the most dangerous misunderstandings in academic writing. If the idea came from someone else, it needs a citation — regardless of how thoroughly you have reworded it.
+
+## How Citation Works in Principle
+
+Citation systems vary by discipline — APA is common in social sciences, Harvard in many humanities, Vancouver in medicine, Chicago in history — but all citation systems serve the same two functions: they give credit to the original source, and they give the reader enough information to locate that source themselves.
+
+Every citation has two components that must both be present. The **in-text citation** appears within your writing at the point where you use the source — typically the author's surname and year of publication. The **reference list entry** appears at the end of your document and provides the full details: author, title, publication, year, and where applicable the URL or DOI.
+
+Check your university's style guide or your unit outline for the required citation format in each subject. The specific formatting varies, but the principle — attribute every borrowed idea, in the text and in the reference list — is universal.
+
+## Common Accidental Plagiarism Mistakes
+
+**Copy-paste note-taking.** When researching, students often paste source text directly into their notes without marking it as a quotation. Later, when writing, they use that text assuming it was their own summary. Solution: always mark copied text clearly in your notes with quotation marks and the source, or only write notes in your own words from the start.
+
+**Paraphrasing too closely.** Changing a few words while preserving the sentence structure and sequence of ideas of the original is still plagiarism, even with a citation. Solution: read the source, close it, wait a moment, then write the idea in your own words from memory.
+
+**Forgetting to cite a paraphrase.** Believing that a citation is only required for direct quotation. Solution: apply a simple rule — if you would not have written that sentence without reading that source, it needs a citation.
+
+**Mosaic plagiarism.** Weaving together phrases from multiple sources without quotation marks, creating text that appears original but is assembled from others' language. Solution: every phrase that is not your own language requires either quotation marks or genuine paraphrase.
+
+**Inadequate citation.** Citing a source in the reference list but not in the text at the point of use, or vice versa. Both components are always required.
+
+## Attribution as Intellectual Honesty
+
+Proper citation is not bureaucratic box-ticking. It is the written expression of intellectual honesty — an acknowledgment that your thinking has been shaped by others, and a signpost that allows your reader to engage with those sources directly. Students who cite well are not demonstrating that they needed other people's ideas; they are demonstrating that they know how to use them.`,
+    quizzes: [
+      {
+        question:
+          "A student reads a source, then rewords each sentence by replacing key words with synonyms while keeping the same sentence structure and sequence of ideas. They include a citation. Is this plagiarism?",
+        options: [
+          "No — because they have changed the words and included a citation",
+          "No — because synonym substitution with a citation satisfies paraphrasing requirements",
+          "Yes — because genuine paraphrase requires reconstructing the idea in your own sentence structure, not just substituting words in the original structure",
+          "Yes — but only if the source is a peer-reviewed journal article",
+        ],
+        correct: 2,
+        explanation:
+          "Synonym substitution that preserves the original sentence structure is a form of plagiarism known as close paraphrasing — a genuine paraphrase requires that you reconstruct the idea from your own understanding, producing a sentence that reflects your voice and structure rather than the source's.",
+      },
+      {
+        question:
+          "When is a citation required in academic writing?",
+        options: [
+          "Only when using a direct quotation with the source's exact words",
+          "Only when the source is a peer-reviewed journal article",
+          "Whenever an idea, finding, argument, or piece of data originated from another source — regardless of whether it is quoted or paraphrased",
+          "Only when the information could not be considered general knowledge",
+        ],
+        correct: 2,
+        explanation:
+          "The obligation to cite is triggered by the origin of the idea, not the form in which it appears — paraphrased ideas, summarised arguments, and specific data all require citation just as direct quotations do, because all represent intellectual content that belongs to another author.",
+      },
+      {
+        question:
+          "What is 'mosaic plagiarism'?",
+        options: [
+          "Submitting the same essay to two different units without disclosure",
+          "Weaving together phrases and sentences from multiple sources without quotation marks to create text that appears original",
+          "Citing a source in the reference list but failing to include an in-text citation",
+          "Using images or diagrams from sources without attribution",
+        ],
+        correct: 1,
+        explanation:
+          "Mosaic plagiarism assembles unacknowledged language from multiple sources into what superficially appears to be original writing — because no single source is copied in full, it can escape simple plagiarism detection while still misrepresenting others' language as the student's own.",
+      },
+      {
+        question:
+          "What is the most reliable note-taking practice to prevent accidental plagiarism during research?",
+        options: [
+          "Copy source text faithfully into notes and add a citation at the end of the note",
+          "Only take notes from sources that are freely available online",
+          "Mark all copied text clearly with quotation marks and source details in your notes, or write notes exclusively in your own words from the moment of reading",
+          "Limit note-taking to a maximum of three sources per essay to reduce the risk of confusion",
+        ],
+        correct: 2,
+        explanation:
+          "The most common pathway to accidental plagiarism is copy-pasted research notes that are later mistaken for the student's own writing — clearly marking all copied text at the point of note-taking, or writing only in your own words from the start, eliminates this risk entirely.",
+      },
+      {
+        question:
+          "A student's essay includes a full reference list entry for every source used, but no in-text citations appear within the body of the essay. What is the problem?",
+        options: [
+          "There is no problem — a complete reference list satisfies citation requirements",
+          "The reference list entries need to include page numbers to be complete",
+          "Both components of citation are required — in-text citations at the point of use and reference list entries — and the absence of in-text citations means the reader cannot identify which claims are attributed to which sources",
+          "Reference lists are only required in certain citation styles and may not be applicable to this student's discipline",
+        ],
+        correct: 2,
+        explanation:
+          "Citation has two inseparable components — the in-text citation identifies where in your argument a specific source is being used, while the reference list provides the full details to locate it. A reference list without in-text citations leaves the reader unable to determine which ideas belong to which source.",
+      },
+    ],
+  })
+  await addModule("Academic Research and Writing Skills", {
+    title: "Writing a Literature Review",
+    description:
+      "Understand what a literature review is and why it matters, how to organise sources thematically rather than as a list of summaries, how to identify a genuine research gap, and how to write the gap statement that connects existing literature to your own work.",
+    orderIndex: 5,
+    content: `## What a Literature Review Is — and Is Not
+
+A literature review is one of the most commonly misunderstood pieces of academic writing. Many students approach it as a sequence of source summaries — paragraph one describes Smith (2019), paragraph two describes Jones (2021), paragraph three describes Brown (2022) — and produce something that reads like an annotated bibliography rather than an academic argument.
+
+A literature review is not a collection of summaries. It is a **critical synthesis** of existing research on a topic, written to establish what is known, how different researchers have approached the question, where they agree and disagree, and — crucially — what remains unknown, contested, or underexplored. Its purpose is not to prove that you have read widely. Its purpose is to position your own research within the existing conversation and justify why that research needs to exist.
+
+## Organising Thematically, Not Source by Source
+
+The structural shift that transforms a list of summaries into a genuine literature review is organising by **theme or argument** rather than by source. Instead of dedicating a paragraph to each paper you have read, you identify the major patterns, debates, and threads that run across the literature and organise your writing around those.
+
+A practical approach: after reading your sources, identify three to five recurring themes, tensions, or findings that appear across multiple papers. These become the organisational pillars of your review. Under each theme, you bring together the relevant sources — agreeing, disagreeing, qualifying each other — and discuss them in relation to the theme rather than in isolation.
+
+For example, a literature review on the effects of sleep deprivation might be organised around three themes: cognitive performance effects, emotional regulation effects, and the role of individual differences in vulnerability. Under each theme, multiple studies are discussed together, with the review tracing points of consensus, disagreement, and methodological variation. No single paper takes a paragraph to itself unless it is foundational enough to warrant that focus.
+
+This structure signals to your reader — and your examiner — that you have understood the literature, not merely read it. The difference in academic quality between a source-by-source and a thematic review is substantial.
+
+## Synthesising Rather Than Summarising
+
+Within each thematic section, your writing should synthesise rather than summarise. Synthesis means drawing out the relationships between sources — where they converge, where they conflict, and what the pattern of evidence suggests when viewed together.
+
+Phrases that signal synthesis: "Taken together, these studies suggest...", "While Smith (2019) found X, Jones (2021) challenges this by arguing Y, and the discrepancy may be explained by...", "A consistent finding across multiple studies is..., though this pattern is complicated by research showing..."
+
+Phrases that signal mere summary and should be used sparingly: "Smith (2019) found that...", "According to Jones (2021)...", "Brown (2022) argues that..." — these are useful when introducing a specific finding, but a paragraph consisting entirely of such sentences is a list of summaries, not a synthesis.
+
+## Identifying a Research Gap
+
+A research gap is a space in the existing literature where something important has not been adequately addressed. Identifying a genuine gap is what gives your own research its justification — it answers the implicit question your reader is always asking: why does this study need to exist?
+
+Gaps take several forms. A **population gap** exists when a phenomenon has been studied in one group but not in another — many psychological studies have been conducted exclusively on Western university students, leaving questions about whether findings apply elsewhere. A **methodological gap** exists when existing research has relied on the same design or measure in ways that limit what can be concluded. A **theoretical gap** exists when competing theories have not been adequately tested against each other. A **recency gap** exists when the literature is dominated by older studies and more recent developments have not yet been examined.
+
+To identify the gap, read the limitations sections of your sources carefully — researchers typically acknowledge what their own work does not address. Look for disagreements between studies that have not been resolved. Notice if a particular variable, population, or context is absent from the conversation.
+
+## Writing the Gap Statement
+
+The gap statement is the sentence or short paragraph that names the gap explicitly and connects it to the research you are about to present. It is typically the final movement of a literature review, and it performs two functions: it closes the review by crystallising what is missing, and it opens the research by explaining why your study addresses something that matters.
+
+A strong gap statement follows this logic: existing research has established X and Y, but Z remains unexamined — this study addresses Z by...
+
+For example: *While substantial research has documented the cognitive effects of sleep deprivation in laboratory conditions, the effects of naturally occurring, cumulative sleep restriction on academic performance in real-world student populations remain poorly understood. This study addresses that gap by...*
+
+The gap statement is the hinge between the literature and your own work. Write it last, after you have synthesised everything else, and make it specific enough that the reader understands exactly what space your research is stepping into.`,
+    quizzes: [
+      {
+        question:
+          "What is the fundamental difference between a literature review and an annotated bibliography?",
+        options: [
+          "A literature review uses more sources and is therefore longer than an annotated bibliography",
+          "An annotated bibliography summarises each source separately, while a literature review critically synthesises sources around themes, debates, and patterns to position new research",
+          "A literature review only includes peer-reviewed sources, while an annotated bibliography can include any source type",
+          "An annotated bibliography is written before research begins, while a literature review is written after data collection",
+        ],
+        correct: 1,
+        explanation:
+          "The defining distinction is structural and analytical — an annotated bibliography describes each source in isolation, while a literature review synthesises across sources to reveal patterns, tensions, and gaps that justify new research.",
+      },
+      {
+        question:
+          "Why is thematic organisation preferable to source-by-source organisation in a literature review?",
+        options: [
+          "It reduces the total number of citations needed and makes the review easier to write",
+          "It allows the writer to exclude sources that contradict their argument",
+          "Organising by theme demonstrates understanding of the literature as a whole — the relationships between ideas — rather than just familiarity with individual papers",
+          "Examiners require thematic organisation as a formatting standard in most universities",
+        ],
+        correct: 2,
+        explanation:
+          "Thematic organisation groups sources by the ideas and patterns they share, revealing how the field of knowledge is structured — this demonstrates genuine understanding of the literature, whereas source-by-source organisation only demonstrates that the papers were read.",
+      },
+      {
+        question:
+          "Which of the following sentences best exemplifies synthesis rather than summary?",
+        options: [
+          "Smith (2019) found that stress negatively affects academic performance.",
+          "According to Jones (2021), sleep quality mediates the relationship between stress and performance.",
+          "While Smith (2019) and Jones (2021) both document a negative relationship between stress and performance, they differ on the mechanism — Smith emphasises cortisol elevation while Jones identifies sleep disruption as the primary pathway.",
+          "Brown (2022) reviewed previous studies on stress and concluded that more research is needed.",
+        ],
+        correct: 2,
+        explanation:
+          "Synthesis draws out the relationship between sources — agreement, disagreement, and what the pattern means — rather than reporting each source's findings separately. The third option explicitly compares two sources on a specific point of divergence, which is the defining move of synthesis.",
+      },
+      {
+        question:
+          "A student notices that most studies on digital learning tools have been conducted with undergraduate students in North America. What type of research gap does this represent?",
+        options: [
+          "A theoretical gap — competing theories have not been tested against each other",
+          "A methodological gap — existing studies have used flawed research designs",
+          "A recency gap — the studies are too old to reflect current technology",
+          "A population gap — the phenomenon has been studied in one group but findings may not generalise to other populations or regions",
+        ],
+        correct: 3,
+        explanation:
+          "When existing research has focused on a specific population and it is unclear whether findings apply elsewhere, this constitutes a population gap — the research question has been addressed, but only for a narrow slice of the relevant population.",
+      },
+      {
+        question:
+          "Where in a literature review does the gap statement typically appear, and what two functions does it serve?",
+        options: [
+          "At the beginning, to explain why the topic was chosen and outline the structure of the review",
+          "Throughout the review, repeated under each thematic section to reinforce the argument",
+          "At the end, to close the review by naming what is missing and open the research section by explaining what the current study addresses",
+          "In a separate section after the reference list, to avoid interrupting the flow of the synthesis",
+        ],
+        correct: 2,
+        explanation:
+          "The gap statement is the hinge between the literature review and the research — positioned at the end of the review, it crystallises what remains unaddressed in the existing literature and immediately connects that absence to the study being introduced.",
+      },
+    ],
+  })
+  await addModule("Academic Research and Writing Skills", {
+    title: "Academic Writing Style — Clarity, Precision, and Tone",
+    description:
+      "Learn what distinguishes academic writing from casual writing, how to write precisely without unnecessary complexity, when and how to use hedging language, and how to fix the most common style mistakes students make — with before and after examples.",
+    orderIndex: 6,
+    content: `## What Academic Writing Actually Is
+
+There is a widespread misconception that academic writing means long sentences, obscure vocabulary, and a tone of deliberate complexity. This misconception produces essays that are difficult to read, imprecise in their claims, and less persuasive than their simpler counterparts.
+
+Academic writing is not defined by complexity. It is defined by **precision, evidence-grounding, and appropriate epistemic humility**. A well-written academic sentence says exactly what it means, no more and no less, on the basis of evidence, with appropriate acknowledgment of uncertainty. That can be achieved in plain language. In fact, it is achieved more reliably in plain language than in inflated prose, because vague and convoluted sentences conceal imprecision rather than eliminating it.
+
+The real distinction between academic and casual writing is not vocabulary size — it is the relationship between claims and evidence, the specificity of language, and the disciplined avoidance of overstatement.
+
+## Precision Without Unnecessary Complexity
+
+Precision means using words that match your meaning as exactly as possible. It does not mean using longer or rarer words. "Utilise" does not mean anything different from "use." "Commence" is not more precise than "begin." Substituting common words with formal-sounding equivalents produces a tone of academic performance without improving the quality of the thought.
+
+Precision problems in student writing most often take the form of vague nouns and imprecise verbs. Consider the difference:
+
+**Vague:** "Society has issues with how young people use technology."
+**Precise:** "Adolescents' increasing use of smartphones during evening hours has been associated with delayed sleep onset and reduced sleep duration."
+
+The precise version specifies the population (adolescents), the behaviour (smartphone use during evening hours), and the outcomes (delayed sleep onset, reduced sleep duration). The vague version could mean almost anything and supports no argument.
+
+Apply this test to your own sentences: could someone disagree with what you have written, or is it too vague to be contestable? If it cannot be disagreed with, it is probably not saying anything specific enough to be useful.
+
+## The Role of Hedging Language
+
+**Hedging** is the use of language that signals appropriate uncertainty about a claim. It is not weakness — it is intellectual honesty, and it is a required feature of academic writing because most empirical claims are probabilistic rather than absolute.
+
+Compare: "Sleep deprivation causes poor academic performance" versus "Sleep deprivation has been associated with reduced academic performance across several longitudinal studies."
+
+The first version asserts a universal causal relationship that the evidence rarely supports with certainty. The second version accurately represents what the research shows — a consistent association established through a particular type of study — without overclaiming.
+
+Common hedging expressions: *suggests, indicates, appears to, is associated with, may, tends to, the evidence implies, findings point toward, this is consistent with.* These are not filler phrases — they carry specific epistemic meaning. Using them accurately is a mark of scholarly maturity.
+
+The error to avoid is double hedging — stacking so many qualifiers that the sentence says nothing: "It could perhaps be suggested that there might possibly be some relationship..." One appropriate hedge is precise. Multiple hedges signal either extreme uncertainty or a failure to commit to a position you actually hold.
+
+## Common Style Mistakes — Before and After
+
+**Mistake 1: Casual register**
+Before: "Loads of studies show that sleep is really important for memory."
+After: "A substantial body of research indicates that adequate sleep plays a significant role in memory consolidation."
+
+The revision removes informal intensifiers ("loads," "really") and replaces them with language that specifies degree without relying on colloquial emphasis.
+
+**Mistake 2: Vague claims masquerading as statements**
+Before: "Mental health is a big problem for students these days."
+After: "Rates of anxiety and depression among university students have increased significantly over the past decade, with recent surveys suggesting that one in four students experiences a diagnosable mental health condition during their degree."
+The revision makes a specific, evidenced claim rather than a general observation.
+
+**Mistake 3: Inflated vocabulary hiding weak ideas**
+Before: "The utilisation of multifarious pedagogical methodologies facilitated the amelioration of educational outcomes."
+After: "Using a variety of teaching methods improved student learning outcomes."
+Simpler language exposes whether the idea itself is sound. In this case, it is — and it reads far better.
+
+**Mistake 4: First-person overclaiming**
+Before: "I believe that social media is destroying democracy."
+After: "Some scholars argue that algorithmic amplification of divisive content on social media platforms may contribute to political polarisation."
+Academic writing attributes positions to evidence and authors, not to personal belief. Reserve first-person constructions for describing your own analytical moves ("This essay argues that...") rather than your opinions.
+
+**Mistake 5: Sentence sprawl**
+Before: "There are many different factors that have been identified by researchers as potentially contributing to the complex phenomenon of student burnout, which is a multifaceted issue that affects many students."
+After: "Researchers have identified several contributing factors to student burnout, including workload, sleep deprivation, and perceived lack of control."
+Every word should earn its place. Sentences that delay their meaning with padding reduce clarity and signal to the reader that precision is not a priority.
+
+## Clarity as an Ethical Commitment
+
+Writing clearly is not just a stylistic preference — it is a commitment to your reader. Academic arguments are addressed to people whose time is valuable and whose understanding matters. An argument buried in inflated prose may protect the writer from scrutiny, but it fails the reader and, ultimately, fails the intellectual project the writing is meant to serve.`,
+    quizzes: [
+      {
+        question:
+          "Which of the following best describes what makes writing 'academic' rather than just formal?",
+        options: [
+          "Using long sentences, technical vocabulary, and avoiding the first person entirely",
+          "Writing in a passive voice throughout to avoid any suggestion of personal involvement",
+          "Making claims that are precisely worded, grounded in evidence, and appropriately qualified to reflect the actual strength of the evidence",
+          "Ensuring every paragraph contains at least three citations from peer-reviewed sources",
+        ],
+        correct: 2,
+        explanation:
+          "Academic writing is defined by the relationship between claims and evidence, the specificity of language, and epistemic honesty — not by surface features like sentence length, passive voice, or citation density.",
+      },
+      {
+        question:
+          "A student rewrites 'use' as 'utilise' and 'begin' as 'commence' throughout their essay. What does this achieve?",
+        options: [
+          "It improves precision by using more specific terminology for academic contexts",
+          "It signals subject-specific vocabulary that examiners expect in formal writing",
+          "It adds a tone of academic performance without improving the precision or quality of the underlying ideas",
+          "It satisfies the requirement for formal register that all university essays must meet",
+        ],
+        correct: 2,
+        explanation:
+          "'Utilise' and 'use' are functionally synonymous in most contexts — substituting the longer form creates the appearance of formality without adding meaning, which is precisely the kind of inflation that obscures rather than improves academic writing.",
+      },
+      {
+        question:
+          "What is the purpose of hedging language in an academic claim?",
+        options: [
+          "To make the writer appear less confident so that criticism is less likely",
+          "To signal appropriate epistemic uncertainty — accurately representing the strength and limits of the evidence rather than overclaiming",
+          "To reduce word count by replacing definitive statements with shorter qualified ones",
+          "To avoid making claims that could be directly tested or falsified",
+        ],
+        correct: 1,
+        explanation:
+          "Hedging is a mark of scholarly precision — it calibrates the strength of a claim to match the strength of the evidence, which is an intellectual requirement in empirical fields where most findings are probabilistic rather than absolute.",
+      },
+      {
+        question:
+          "Which revision best corrects the following sentence: 'I believe that social media is ruining society'?",
+        options: [
+          "'I strongly believe that social media is ruining society, as many people would agree.'",
+          "'It is believed by this author that social media is having negative societal effects.'",
+          "'Research suggests that certain features of social media platforms, such as algorithmic content amplification, may contribute to measurable negative social outcomes.'",
+          "'Social media is clearly ruining society, which is why this essay will examine its effects.'",
+        ],
+        correct: 2,
+        explanation:
+          "The revision removes personal belief framing, specifies which features of social media are implicated, uses appropriate hedging ('may contribute'), and grounds the claim in a researchable mechanism — all of which make it a precise, evidenceable academic statement rather than an opinion.",
+      },
+      {
+        question:
+          "What is wrong with the following sentence and how should it be revised?\n\n'There are many different factors that researchers have identified as contributing to the complex and multifaceted phenomenon of academic burnout, which is something that affects a significant number of students.'",
+        options: [
+          "It uses passive voice, which should be replaced with active constructions throughout",
+          "It is too short and needs additional detail about which researchers identified these factors",
+          "It delays its meaning with padding and repetition — it can be revised to 'Researchers have identified several factors contributing to academic burnout, a condition affecting a significant proportion of students'",
+          "It uses hedging language inappropriately — 'have identified' should be replaced with a stronger assertion",
+        ],
+        correct: 2,
+        explanation:
+          "The original sentence uses filler phrases ('many different,' 'complex and multifaceted,' 'something that') that delay meaning without adding information — the revision preserves the content while eliminating the padding, making the sentence more direct and easier to read.",
+      },
+    ],
+  })
+  await addModule("Academic Research and Writing Skills", {
+    title: "Putting It All Together — Write a Short Research Summary",
+    description:
+      "Apply every skill from this track to write a complete 300-word academic research summary — choosing a focused topic, locating and evaluating a source, extracting the core argument, and producing structured academic prose with the correct tone, precision, and citation awareness.",
+    orderIndex: 7,
+    content: `## From Individual Skills to a Complete Piece of Writing
+
+Every module in this track has given you one layer of the academic writing process. You know how to find and evaluate credible sources, construct a claim-evidence-reasoning argument, avoid plagiarism through proper quotation and paraphrase, synthesise rather than summarise, and write with precision and appropriate hedging. This final module brings all of those layers together into one coherent task: writing a short but complete academic research summary.
+
+A 300-word summary is a demanding format precisely because it is short. Every sentence must carry weight. There is no room for vague claims, redundant phrasing, or padding. Done well, a 300-word academic summary demonstrates more skill than a padded 1500-word essay, because it requires genuine understanding rather than volume.
+
+## Step 1 — Choose a Focused Topic
+
+Do not begin with a broad subject. "Climate change," "mental health," or "artificial intelligence" are categories, not topics. A focused topic is a specific question or phenomenon within a category that a single source can meaningfully address.
+
+Useful narrowing questions: What aspect? In which population? Under what conditions? With what outcome?
+
+**Too broad:** The effects of exercise on mental health.
+**Focused:** The effect of aerobic exercise frequency on self-reported anxiety symptoms in university students.
+
+A focused topic makes source selection easier, because you are looking for something specific rather than browsing a vast field.
+
+## Step 2 — Find and Evaluate One Source
+
+Using Google Scholar or your university database, search for a peer-reviewed article that addresses your focused topic directly. Apply the evaluation checklist from Module 2: check the author's institutional affiliation, confirm the journal is peer-reviewed, note the publication year, and identify the funding source if disclosed.
+
+Read the abstract carefully first. The abstract tells you whether the article is genuinely relevant before you invest time in the full paper. Once you have confirmed relevance, read the introduction, results, and conclusion — you do not need to understand every methodological detail to extract the core argument accurately.
+
+## Step 3 — Extract the Core Argument
+
+Before writing a word of your summary, identify four things in the source:
+
+**The research question:** What was the study trying to find out?
+**The method in brief:** How was it investigated? (survey, experiment, analysis of existing data)
+**The key finding:** What did the results show?
+**The main conclusion or implication:** What does this mean, and what does the author claim follows from it?
+
+Write these four points in your own words as brief notes — not copied from the source. This is your raw material. The summary is built from this understanding, not from the source's own sentences.
+
+## Step 4 — Write the Summary
+
+A 300-word academic research summary has three parts.
+
+**Opening (approximately 60 words):** Introduce the topic and source. Name the author, year, and the research question the study addresses. Establish why this question matters in one sentence.
+
+\`\`\`
+Cheng et al. (2023) investigate the relationship between aerobic exercise frequency
+and self-reported anxiety symptoms among full-time university students, a population
+in which anxiety prevalence has risen sharply over the past decade. The study responds
+to a gap in existing research, which has predominantly examined exercise effects in
+clinical rather than non-clinical student populations.
+\`\`\`
+
+**Body (approximately 180 words):** Describe the method briefly, report the key findings with appropriate hedging, and explain the reasoning that connects findings to conclusions. Use paraphrase throughout — your voice, their ideas, a citation.
+
+\`\`\`
+Using a longitudinal survey design across one semester, the authors tracked self-reported
+anxiety scores and exercise frequency in 412 undergraduate students. Their findings
+suggest that students who engaged in aerobic exercise three or more times per week
+reported significantly lower anxiety levels at semester's end compared with those who
+exercised once a week or less. Notably, the association was stronger among students
+who reported high baseline academic stress, indicating that exercise frequency may be
+particularly protective in high-pressure periods. The authors argue that the mechanism
+is likely bidirectional — reduced anxiety facilitates more consistent exercise, which in
+turn further reduces anxiety — though the cross-sectional nature of some measures
+limits causal inference.
+\`\`\`
+
+**Closing (approximately 60 words):** State the implications and limitations honestly. What does this study contribute? What does it not resolve?
+
+\`\`\`
+These findings contribute to a growing body of evidence supporting exercise as a
+low-cost, accessible mental health intervention for student populations. However, the
+reliance on self-reported measures and a single-institution sample limits the
+generalisability of the conclusions. Independent replication across diverse student
+populations would strengthen the evidence base considerably.
+\`\`\`
+
+## What the Finished Summary Demonstrates
+
+Read the three sections together and notice what each module has contributed. The source was found and evaluated (Module 2). The claim-evidence-reasoning structure holds each paragraph together (Module 3). The ideas are paraphrased with citations rather than copied (Module 4). The writing synthesises rather than just describes (Module 5). The language is precise, hedged, and free of padding (Module 6).
+
+A 300-word summary is small. What it represents — a complete, disciplined, evidence-grounded academic writing process — is not. Every longer piece of academic writing you will produce is built from exactly these same components, repeated and expanded. Master the small version and the large version becomes a matter of scale, not of kind.`,
+    quizzes: [
+      {
+        question:
+          "Why is a focused, narrow topic preferable to a broad subject when writing a short research summary?",
+        options: [
+          "Narrow topics are easier to find sources for because fewer papers exist on them",
+          "A focused topic allows a single source to address the question meaningfully and gives the summary a specific, evidenceable claim rather than a general observation",
+          "Broad topics require multiple sources, which exceeds the scope of a 300-word summary",
+          "Examiners penalise broad topics because they suggest the student has not read enough",
+        ],
+        correct: 1,
+        explanation:
+          "A focused topic defines a specific question that a single peer-reviewed source can address directly — this makes source selection purposeful and ensures the summary has a concrete, arguable claim rather than a vague overview of a large field.",
+      },
+      {
+        question:
+          "Before writing the summary, the module recommends extracting four things from the source in your own words. Which of the following is NOT one of the four?",
+        options: [
+          "The research question the study addresses",
+          "The method used to investigate the question",
+          "The names and qualifications of every author listed on the paper",
+          "The key finding and the main conclusion or implication",
+        ],
+        correct: 2,
+        explanation:
+          "The four pre-writing extraction points are the research question, method, key finding, and main conclusion — author credentials are evaluated during source assessment but are not part of the argument extraction process used to build the summary.",
+      },
+      {
+        question:
+          "In the example opening paragraph, what function does the final sentence serve — 'The study responds to a gap in existing research, which has predominantly examined exercise effects in clinical rather than non-clinical student populations'?",
+        options: [
+          "It provides the citation for the source being summarised",
+          "It identifies the population gap in the existing literature that justifies the study, connecting it to the skills developed in the literature review module",
+          "It hedges the author's claim by acknowledging that previous research may have reached different conclusions",
+          "It transitions from the opening to the body by previewing the three main findings",
+        ],
+        correct: 1,
+        explanation:
+          "This sentence performs the gap-identification function from Module 5 — it situates the study within existing literature by naming what previous research has not addressed, which justifies why the study needed to be conducted and why it is worth summarising.",
+      },
+      {
+        question:
+          "The body paragraph includes the phrase 'the cross-sectional nature of some measures limits causal inference.' What academic writing principle does this sentence demonstrate?",
+        options: [
+          "Hedging the opening claim so the summary does not appear overconfident",
+          "Providing methodological detail to show the source was read thoroughly",
+          "Acknowledging a limitation of the study honestly rather than presenting its findings as more definitive than the evidence supports",
+          "Introducing a counter-argument that will be resolved in the closing paragraph",
+        ],
+        correct: 2,
+        explanation:
+          "Acknowledging limitations is a mark of intellectual honesty and epistemic precision — presenting findings without noting methodological constraints would overclaim what the evidence supports, which violates the standards of academic argument established in Module 3 and Module 6.",
+      },
+      {
+        question:
+          "The closing paragraph states that 'independent replication across diverse student populations would strengthen the evidence base considerably.' Why is this an academically appropriate way to end a summary?",
+        options: [
+          "It demonstrates that the student disagrees with the source's conclusions",
+          "It satisfies the word count by adding a sentence that does not require a citation",
+          "It models calibrated confidence — acknowledging what the study contributes while honestly identifying what remains unresolved and what further evidence would be needed",
+          "It signals to the reader that the student intends to conduct their own follow-up research",
+        ],
+        correct: 2,
+        explanation:
+          "Ending with an honest assessment of what the evidence does and does not establish — and what would be needed to extend it — demonstrates the data-literate, epistemically calibrated approach that all the modules in this track have built toward, closing the summary with intellectual honesty rather than false certainty.",
+      },
+    ],
+  })
+  await addModule('Productivity and Learning Systems', {
+  title: 'Building a Weekly Learning Routine That Actually Sticks',
+  description: 'Learn why most routines fail and how to design a realistic weekly learning schedule that survives contact with real life.',
+  orderIndex: 3,
+  content: `## Why Most Routines Fail Within Two Weeks
+
+Almost everyone has started a new routine with genuine enthusiasm and abandoned it within two weeks. This is not a willpower problem. It is a design problem. Most routines fail because they are built for an ideal version of your life — not the actual one.
+
+The most common mistake is making the routine too ambitious too quickly. Someone who has never exercised decides to work out every day. Someone who rarely reads decides to read for an hour every night. These routines feel motivating to plan but exhausting to maintain. When one session gets missed, the whole system collapses.
+
+## Habit Stacking — Attaching New Habits to Existing Ones
+
+The most reliable way to build a new routine is to attach it to something you already do automatically. This is called habit stacking. The formula is simple: after I do X, I will do Y.
+
+Examples that work well for learning:
+- After I make my morning coffee, I will review my learning notes for 10 minutes
+- After I sit down at my desk, I will open my learning platform before anything else
+- After dinner, I will spend 20 minutes on one module
+
+The existing habit acts as a trigger. You do not need to remember to start — the trigger does it for you.
+
+## Implementation Intentions — Being Specific About When and Where
+
+Research by psychologist Peter Gollwitzer shows that people who specify exactly when and where they will perform a behaviour are significantly more likely to follow through than those who just intend to do it.
+
+Vague intention: "I will study more this week."
+Implementation intention: "I will study in the library on Monday, Wednesday, and Friday from 4pm to 5pm."
+
+The difference sounds small. The effect is large. Being specific removes the daily decision of when to start — and it is that decision that most often leads to postponement.
+
+## How to Recover From a Broken Streak
+
+Missing one session does not ruin a routine. Missing two in a row is where habits die. Research by Phillippa Lally at University College London found that missing a single occasion had no measurable impact on long-term habit formation — but allowing a gap to become a pattern did.
+
+The rule is simple: never miss twice. If you miss Monday, Thursday becomes non-negotiable. Keep the streak alive even with a reduced version of the habit — five minutes instead of thirty still counts. The goal is to maintain the identity of someone who shows up, not to achieve a perfect record.
+
+## Designing Your Weekly Learning Schedule
+
+A realistic weekly learning schedule has three properties: it fits your actual week, not your ideal week; it specifies exactly when and where sessions happen; and it has a recovery plan for when sessions get missed.
+
+Start with two or three sessions per week, not seven. Build consistency first. Increase frequency only after the routine feels automatic — which typically takes four to eight weeks of consistent practice.`,
+  quizzes: [
+    {
+      question: 'Why do most new routines fail within two weeks?',
+      options: [
+        'People lack willpower and motivation',
+        'The routines are designed for an ideal life rather than real life and are too ambitious too quickly',
+        'Two weeks is not enough time to form any habit',
+        'People forget to track their progress'
+      ],
+      correct: 1,
+      explanation: 'Most routines fail because of poor design — they are built for ideal conditions and set the bar too high from the start, making them unsustainable when real life intervenes.'
+    },
+    {
+      question: 'What is habit stacking?',
+      options: [
+        'Doing multiple habits at exactly the same time',
+        'Writing a list of all the habits you want to build',
+        'Attaching a new habit to an existing automatic behaviour as a trigger',
+        'Tracking habits using a stacking chart'
+      ],
+      correct: 2,
+      explanation: 'Habit stacking uses an existing automatic behaviour as a trigger for the new habit. The formula is: after I do X, I will do Y. This removes the need to remember to start.'
+    },
+    {
+      question: 'What did Peter Gollwitzer\'s research show about implementation intentions?',
+      options: [
+        'General intentions are more flexible and therefore more effective',
+        'People who specify exactly when and where they will act are significantly more likely to follow through',
+        'Morning routines are more effective than evening routines',
+        'Writing habits down is more important than scheduling them'
+      ],
+      correct: 1,
+      explanation: 'Gollwitzer\'s research showed that specifying the exact time and place for a behaviour dramatically increases follow-through compared to vague intentions, because it removes the daily decision of when to start.'
+    },
+    {
+      question: 'According to the research on habit formation, what is the most damaging pattern?',
+      options: [
+        'Missing a single session occasionally',
+        'Studying for less time than planned',
+        'Allowing a missed session to become two missed sessions in a row',
+        'Changing the time of your study session'
+      ],
+      correct: 2,
+      explanation: 'Research by Phillippa Lally found that missing one session has no measurable impact on long-term habit formation. The danger is missing twice in a row, which is where habits break down permanently.'
+    },
+    {
+      question: 'What is the recommended approach when starting a new weekly learning routine?',
+      options: [
+        'Study every day to build maximum momentum as quickly as possible',
+        'Start with two or three sessions per week and build consistency before increasing frequency',
+        'Study for as long as possible in each session to compensate for missed days',
+        'Plan seven sessions per week but only complete the ones that feel natural'
+      ],
+      correct: 1,
+      explanation: 'Starting with two or three sessions per week builds the consistency and identity of a learner before adding frequency. Trying to do too much too soon is the primary reason routines fail.'
+    }
+  ]
+})
+  // ════════════════════════════════════════════════════════
+  // END OF MODULES
+  // ════════════════════════════════════════════════════════
+
+  console.log("Done.");
+}
+
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());
