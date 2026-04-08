@@ -1,3 +1,0 @@
-DATABASE_URL="postgresql://postgres:abedsamir101@localhost:5432/aldss_db"
-JWT_SECRET="its-my-super-key-abed-ad-ah"
-PORT=3001
