@@ -7,6 +7,9 @@ import BaselineSurveyPage from './pages/onboarding/BaselineSurveyPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import TrackPage from './pages/dashboard/TrackPage'
 import ModulePage from './pages/dashboard/ModulePage'
+import WeeklySurveyPage from './pages/dashboard/WeeklySurveyPage'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import ParticipantDetailPage from './pages/admin/ParticipantDetailPage'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth()
@@ -26,6 +29,9 @@ function App() {
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/track/:trackId" element={<ProtectedRoute><TrackPage /></ProtectedRoute>} />
       <Route path="/module/:moduleId" element={<ProtectedRoute><ModulePage /></ProtectedRoute>} />
+      <Route path="/weekly-survey" element={<ProtectedRoute><WeeklySurveyPage /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/participant/:userId" element={<ProtectedRoute><ParticipantDetailPage /></ProtectedRoute>} />
     </Routes>
   )
 }

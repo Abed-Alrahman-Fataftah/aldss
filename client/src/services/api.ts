@@ -6,7 +6,18 @@ const api = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
-
+export const surveyAPI = {
+  submit: (data: SurveyData) => api.post("/surveys/submit", data),
+  getWeeklyStatus: () => api.get("/surveys/weekly-status"),
+  getMySurveys: () => api.get("/surveys/my-surveys"),
+};
+export const adminAPI = {
+  getOverview: () => api.get("/admin/overview"),
+  getParticipants: () => api.get("/admin/participants"),
+  getParticipantDetail: (userId: string) =>
+    api.get(`/admin/participants/${userId}`),
+  getRecentActivity: () => api.get("/admin/activity"),
+};
 // Automatically attach JWT token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("aldss_token");
@@ -27,11 +38,6 @@ export const authAPI = {
 export const eventAPI = {
   log: (data: EventData) => api.post("/events/log", data),
   getMyEvents: () => api.get("/events/my-events"),
-};
-
-// Survey
-export const surveyAPI = {
-  submit: (data: SurveyData) => api.post("/surveys/submit", data),
 };
 
 // Types
@@ -78,4 +84,5 @@ export const contentAPI = {
   logPathSwitch: (fromTrackId: string, toTrackId: string) =>
     api.post("/content/path-switch", { fromTrackId, toTrackId }),
 };
+
 export default api;

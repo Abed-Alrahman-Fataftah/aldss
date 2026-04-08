@@ -5,6 +5,8 @@ import authRoutes from './routes/auth.routes'
 import eventRoutes from './routes/event.routes'
 import surveyRoutes from './routes/survey.routes'
 import contentRoutes from './routes/content.routes'
+import adminRoutes from './routes/admin.routes'
+
 
 
 
@@ -24,6 +26,8 @@ app.use('/api/auth', authRoutes)
 app.use('/api/events', eventRoutes)
 app.use('/api/surveys', surveyRoutes)
 app.use('/api/content', contentRoutes)
+app.use('/api/admin', adminRoutes)
+
 
 
 
