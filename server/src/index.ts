@@ -3,6 +3,8 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import authRoutes from './routes/auth.routes'
 import eventRoutes from './routes/event.routes'
+import surveyRoutes from './routes/survey.routes'
+
 
 dotenv.config()
 
@@ -18,6 +20,8 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api/events', eventRoutes)
+app.use('/api/surveys', surveyRoutes)
+
 
 app.listen(PORT, () => {
   console.log(`ALDSS server running on port ${PORT}`)
