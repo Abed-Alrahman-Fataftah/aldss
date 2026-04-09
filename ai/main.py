@@ -5,6 +5,11 @@ from database import test_connection
 from features import compute_dqd_index
 from snapshots import run_weekly_computation, get_all_active_users, get_current_week_number
 import uvicorn
+from interventions import (
+    run_intervention_check,
+    get_pending_intervention,
+    acknowledge_intervention
+)
 
 load_dotenv()
 
@@ -78,5 +83,55 @@ def participants_summary():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/run-interventions")
+def run_interventions():
+    """
+    Check all intervention group participants and deliver
+    guidance cards to those above the DQD threshold.
+    """
+    try:
+        result = run_intervention_check()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/pending-intervention/{user_id}")
+def get_pending(user_id: str):
+    """Check if a user has a pending guidance card to display."""
+    try:
+        intervention = get_pending_intervention(user_id)
+        return {"intervention": intervention}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/acknowledge-intervention/{intervention_id}")
+def acknowledge(
+    intervention_id: str,
+    accepted: bool = True,
+    rating: int = None
+):
+    """Record participant response to an intervention."""
+    try:
+        acknowledge_intervention(intervention_id, accepted, rating)
+        return {"acknowledged": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/run-full-pipeline")
+def run_full_pipeline(force: bool = False):
+    """
+    Run the complete weekly pipeline:
+    1. Compute DQD for all participants
+    2. Check and deliver interventions
+    """
+    try:
+        dqd_result = run_weekly_computation(force=force)
+        intervention_result = run_intervention_check()
+        return {
+            "dqd": dqd_result,
+            "interventions": intervention_result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

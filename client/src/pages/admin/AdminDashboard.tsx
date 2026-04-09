@@ -112,12 +112,33 @@ export default function AdminDashboard() {
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      setRunResult(res.data);
-      // Reload overview after computation
+      setRunResult({ computed: res.data.computed || 0 });
       const overviewRes = await adminAPI.getOverview();
       setOverview(overviewRes.data);
     } catch (err) {
       console.error("Run weekly error:", err);
+    } finally {
+      setRunning(false);
+    }
+  };
+  const handleRunFullPipeline = async () => {
+    setRunning(true);
+    setRunResult(null);
+    try {
+      const token = localStorage.getItem("aldss_token");
+      const res = await axios.post(
+        "http://localhost:3001/api/ai/run-full-pipeline",
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      setRunResult({
+        computed: res.data.dqd?.computed || 0,
+        interventions: res.data.interventions?.delivered || 0,
+      });
+      const overviewRes = await adminAPI.getOverview();
+      setOverview(overviewRes.data);
+    } catch (err) {
+      console.error("Pipeline error:", err);
     } finally {
       setRunning(false);
     }
@@ -470,10 +491,27 @@ export default function AdminDashboard() {
                 display: "flex",
                 alignItems: "center",
                 gap: "1rem",
+                flexWrap: "wrap",
               }}
             >
               <button
                 onClick={handleRunWeekly}
+                disabled={running}
+                style={{
+                  background: running ? "#aaa" : "#2E75B6",
+                  color: "white",
+                  border: "none",
+                  padding: "0.75rem 1.5rem",
+                  borderRadius: "8px",
+                  cursor: running ? "not-allowed" : "pointer",
+                  fontWeight: 600,
+                  fontSize: "0.9rem",
+                }}
+              >
+                {running ? "Computing..." : "Compute DQD only"}
+              </button>
+              <button
+                onClick={handleRunFullPipeline}
                 disabled={running}
                 style={{
                   background: running ? "#aaa" : "#1F3864",
@@ -486,7 +524,9 @@ export default function AdminDashboard() {
                   fontSize: "0.9rem",
                 }}
               >
-                {running ? "Computing DQD..." : "Run weekly DQD computation"}
+                {running
+                  ? "Running..."
+                  : "Run full pipeline (DQD + interventions)"}
               </button>
               {runResult && (
                 <div
@@ -496,8 +536,9 @@ export default function AdminDashboard() {
                     fontWeight: 500,
                   }}
                 >
-                  Done — {runResult.computed} participant
-                  {runResult.computed !== 1 ? "s" : ""} computed
+                  Done — {runResult.computed} DQD computed ·{" "}
+                  {runResult.interventions || 0} intervention
+                  {runResult.interventions !== 1 ? "s" : ""} delivered
                 </div>
               )}
             </div>

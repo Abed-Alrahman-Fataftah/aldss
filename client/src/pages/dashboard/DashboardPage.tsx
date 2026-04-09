@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { contentAPI, surveyAPI } from "../../services/api";
+import InterventionCard from "../../components/InterventionCard";
+import axios from "axios";
 
 interface Track {
   id: string;
@@ -26,7 +28,21 @@ export default function DashboardPage() {
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
   const [surveyDue, setSurveyDue] = useState(false);
   const [surveyWeek, setSurveyWeek] = useState(1);
+  const [intervention, setIntervention] = useState<any>(null);
 
+  useEffect(() => {
+    const token = localStorage.getItem("aldss_token");
+    axios
+      .get("http://localhost:3001/api/ai/pending-intervention", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        if (res.data.intervention) {
+          setIntervention(res.data.intervention);
+        }
+      })
+      .catch(console.error);
+  }, []);
   useEffect(() => {
     contentAPI
       .getTracks()
@@ -143,6 +159,13 @@ export default function DashboardPage() {
             </div>
             <div style={{ color: "white", fontSize: "1.5rem" }}>→</div>
           </div>
+        )}
+        {intervention && (
+          <InterventionCard
+            intervention={intervention}
+            onDismiss={() => setIntervention(null)}
+            onAccept={() => setIntervention(null)}
+          />
         )}
 
         {/* Track grid */}
