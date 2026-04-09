@@ -41,7 +41,9 @@ export default function DashboardPage() {
           setIntervention(res.data.intervention);
         }
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error("Intervention fetch error:", err);
+      });
   }, []);
   useEffect(() => {
     contentAPI

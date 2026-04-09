@@ -8,43 +8,55 @@ DQD_THRESHOLD = 0.60
 CONSECUTIVE_WEEKS_REQUIRED = 2
 
 def get_latest_snapshots(user_id: str, limit: int = 3) -> list:
-    df = query_df("""
-        SELECT 
-            "dqdIndex",
-            "trajectoryType",
-            "dropoutRisk",
-            "weekNumber",
-            "featureVector",
-            "computedAt"
-        FROM "DQDSnapshot"
-        WHERE "userId" = :user_id
-        ORDER BY "weekNumber" DESC
-        LIMIT :limit
-    """, {"user_id": user_id, "limit": limit})
-    return df.to_dict("records") if len(df) > 0 else []
+    from sqlalchemy import text
+    from database import engine
 
+    with engine.connect() as conn:
+        result = conn.execute(text("""
+            SELECT 
+                id,
+                "dqdIndex",
+                "trajectoryType",
+                "dropoutRisk",
+                "weekNumber",
+                "featureVector",
+                "computedAt"
+            FROM "DQDSnapshot"
+            WHERE "userId" = :user_id
+            ORDER BY "weekNumber" DESC
+            LIMIT :limit
+        """), {"user_id": user_id, "limit": limit})
+        rows = result.fetchall()
+        columns = result.keys()
+
+    return [dict(zip(columns, row)) for row in rows]
 def intervention_already_sent_this_week(user_id: str, week_number: int) -> bool:
-    df = query_df("""
-        SELECT id FROM "Intervention"
-        WHERE "userId" = :user_id
-        AND EXTRACT(week FROM "triggeredAt") = EXTRACT(week FROM NOW())
-    """, {"user_id": user_id})
-    return len(df) > 0
+    from sqlalchemy import text
+    from database import engine
+
+    with engine.connect() as conn:
+        result = conn.execute(text("""
+            SELECT id FROM "Intervention"
+            WHERE "userId" = :user_id
+            AND "triggeredAt" >= NOW() - INTERVAL '7 days'
+        """), {"user_id": user_id})
+        rows = result.fetchall()
+
+    return len(rows) > 0
 
 def should_trigger_intervention(snapshots: list) -> bool:
-    """
-    Trigger intervention if DQD >= threshold for 
-    CONSECUTIVE_WEEKS_REQUIRED weeks in a row.
-    """
-    if len(snapshots) < CONSECUTIVE_WEEKS_REQUIRED:
-        # Not enough history — trigger if single snapshot is very high
-        if len(snapshots) == 1 and snapshots[0]["dqdIndex"] >= 0.75:
-            return True
+    if not snapshots:
         return False
     
-    recent = snapshots[:CONSECUTIVE_WEEKS_REQUIRED]
-    return all(s["dqdIndex"] >= DQD_THRESHOLD for s in recent)
-
+    latest_dqd = float(snapshots[0].get("dqdIndex") or 0)
+    
+    print(f"    trigger check: latest={latest_dqd:.2f} threshold={DQD_THRESHOLD}")
+    
+    # Trigger if latest snapshot is above threshold
+    if latest_dqd >= DQD_THRESHOLD:
+        return True
+    
+    return False
 def get_user_info(user_id: str) -> dict:
     df = query_df("""
         SELECT "fullName", "group" FROM "User" WHERE id = :user_id
@@ -66,18 +78,35 @@ def write_intervention(
     guidance_text: str,
     explanation_text: str
 ) -> str:
-    df = query_df("""
-        INSERT INTO "Intervention"
-        (id, "userId", "dqdSnapshotId", "guidanceText", "explanationText", "triggeredAt")
-        VALUES (gen_random_uuid(), :user_id, :snapshot_id, :guidance_text, :explanation_text, NOW())
-        RETURNING id
-    """, {
-        "user_id": user_id,
-        "snapshot_id": snapshot_id,
-        "guidance_text": guidance_text,
-        "explanation_text": explanation_text
-    })
-    return df.iloc[0]["id"]
+    from sqlalchemy import text
+    from database import engine
+    import uuid
+
+    intervention_id = str(uuid.uuid4())
+
+    with engine.connect() as conn:
+        conn.execute(text("""
+            INSERT INTO "Intervention"
+            (id, "userId", "dqdSnapshotId", "guidanceText", "explanationText", "dismissed", "triggeredAt")
+            VALUES (
+                :id,
+                :user_id,
+                :snapshot_id,
+                :guidance_text,
+                :explanation_text,
+                false,
+                NOW()
+            )
+        """), {
+            "id": intervention_id,
+            "user_id": user_id,
+            "snapshot_id": snapshot_id,
+            "guidance_text": guidance_text,
+            "explanation_text": explanation_text
+        })
+        conn.commit()
+
+    return intervention_id
 
 def run_intervention_check() -> dict:
     """
@@ -103,18 +132,23 @@ def run_intervention_check() -> dict:
         snapshots = get_latest_snapshots(user_id)
         
         if not snapshots:
-            skipped.append({"user": user_name, "reason": "no snapshots yet"})
+            reason = "no snapshots yet"
+            print(f"  Skipping {user_name}: {reason}")
+            skipped.append({"user": user_name, "reason": reason})
             continue
         
+        print(f"  {user_name} — latest DQD: {snapshots[0]['dqdIndex']:.2f}, snapshots found: {len(snapshots)}")
+        
         if intervention_already_sent_this_week(user_id, snapshots[0].get("weekNumber", 1)):
-            skipped.append({"user": user_name, "reason": "already received intervention this week"})
+            reason = "already received intervention this week"
+            print(f"  Skipping {user_name}: {reason}")
+            skipped.append({"user": user_name, "reason": reason})
             continue
         
         if not should_trigger_intervention(snapshots):
-            skipped.append({
-                "user": user_name,
-                "reason": f"DQD {snapshots[0]['dqdIndex']:.2f} below threshold"
-            })
+            reason = f"DQD {snapshots[0]['dqdIndex']:.2f} below threshold {DQD_THRESHOLD}"
+            print(f"  Skipping {user_name}: {reason}")
+            skipped.append({"user": user_name, "reason": reason})
             continue
         
         # Generate intervention
@@ -142,6 +176,8 @@ def run_intervention_check() -> dict:
         
         snapshot_id = get_latest_dqd_snapshot_id(user_id)
         if not snapshot_id:
+            print(f"  Skipping {user_name}: no latest DQD snapshot id found")
+            skipped.append({"user": user_name, "reason": "no latest DQD snapshot id found"})
             continue
         
         intervention_id = write_intervention(
@@ -159,7 +195,11 @@ def run_intervention_check() -> dict:
             "top_feature": message["top_features"][0]["display_name"] if message["top_features"] else "unknown"
         })
         
-        print(f"  Delivered to {user_name}: DQD={latest['dqdIndex']:.2f} | trigger={message['top_features'][0]['display_name'] if message['top_features'] else 'general'}")
+        print(
+            f"  Delivered to {user_name}: "
+            f"DQD={latest['dqdIndex']:.2f} | "
+            f"trigger={message['top_features'][0]['display_name'] if message['top_features'] else 'general'}"
+        )
     
     return {
         "delivered": len(delivered),
@@ -167,48 +207,54 @@ def run_intervention_check() -> dict:
         "details": delivered
     }
 
-def get_pending_intervention(user_id: str) -> Optional[dict]:
-    """
-    Get the most recent unacknowledged intervention for a user.
-    Called by the frontend to check if a guidance card should be shown.
-    """
-    df = query_df("""
-        SELECT 
-            id,
-            "guidanceText",
-            "explanationText",
-            "triggeredAt"
-        FROM "Intervention"
-        WHERE "userId" = :user_id
-        AND "accepted" IS NULL
-        AND "dismissed" = false
-        ORDER BY "triggeredAt" DESC
-        LIMIT 1
-    """, {"user_id": user_id})
-    
-    if len(df) == 0:
+def get_pending_intervention(user_id: str):
+    from sqlalchemy import text
+    from database import engine
+    import pandas as pd
+
+    with engine.connect() as conn:
+        result = conn.execute(text("""
+            SELECT 
+                id,
+                "guidanceText",
+                "explanationText",
+                "triggeredAt"
+            FROM "Intervention"
+            WHERE "userId" = :user_id
+            AND "accepted" IS NULL
+            AND "dismissed" = false
+            ORDER BY "triggeredAt" DESC
+            LIMIT 1
+        """), {"user_id": user_id})
+        rows = result.fetchall()
+
+    if not rows:
         return None
-    
-    row = df.iloc[0]
+
+    row = rows[0]
     return {
-        "id": row["id"],
-        "guidance_text": row["guidanceText"],
-        "explanation_text": row["explanationText"],
-        "triggered_at": str(row["triggeredAt"])
+        "id": str(row[0]),
+        "guidance_text": str(row[1]),
+        "explanation_text": str(row[2]),
+        "triggered_at": str(row[3])
     }
 
-def acknowledge_intervention(intervention_id: str, accepted: bool, rating: Optional[int] = None):
-    """Record whether participant accepted or dismissed the intervention."""
-    execute("""
-        UPDATE "Intervention"
-        SET 
-            "accepted" = :accepted,
-            "dismissed" = :dismissed,
-            "explanationRating" = :rating
-        WHERE id = :intervention_id
-    """, {
-        "intervention_id": intervention_id,
-        "accepted": accepted,
-        "dismissed": not accepted,
-        "rating": rating
-    })
+def acknowledge_intervention(intervention_id: str, accepted: bool, rating=None):
+    from sqlalchemy import text
+    from database import engine
+
+    with engine.connect() as conn:
+        conn.execute(text("""
+            UPDATE "Intervention"
+            SET 
+                "accepted" = :accepted,
+                "dismissed" = :dismissed,
+                "explanationRating" = :rating
+            WHERE id = :intervention_id
+        """), {
+            "intervention_id": intervention_id,
+            "accepted": accepted,
+            "dismissed": not accepted,
+            "rating": rating
+        })
+        conn.commit()

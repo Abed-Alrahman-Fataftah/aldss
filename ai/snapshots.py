@@ -86,30 +86,37 @@ def get_days_since_last_session(user_id: str) -> float:
     return (datetime.now() - last_session.replace(tzinfo=None)).days
 
 def write_snapshot(user_id: str, week_number: int, result: dict, trajectory: str, dropout_risk: float):
-    execute("""
-        INSERT INTO "DQDSnapshot" 
-        (id, "userId", "weekNumber", "dqdIndex", "consistencyScore", 
-         "dropoutRisk", "trajectoryType", "featureVector", "computedAt")
-        VALUES (
-            gen_random_uuid(),
-            :user_id,
-            :week_number,
-            :dqd_index,
-            :consistency_score,
-            :dropout_risk,
-            :trajectory_type,
-            :feature_vector,
-            NOW()
-        )
-    """, {
-        "user_id": user_id,
-        "week_number": week_number,
-        "dqd_index": result["dqd_index"],
-        "consistency_score": round(1.0 - result["features"]["f1_session_regularity"], 4),
-        "dropout_risk": dropout_risk,
-        "trajectory_type": trajectory,
-        "feature_vector": json.dumps(result["features"])
-    })
+    from sqlalchemy import text
+    from database import engine
+    import uuid
+
+    with engine.connect() as conn:
+        conn.execute(text("""
+            INSERT INTO "DQDSnapshot" 
+            (id, "userId", "weekNumber", "dqdIndex", "consistencyScore", 
+             "dropoutRisk", "trajectoryType", "featureVector", "computedAt")
+            VALUES (
+                :id,
+                :user_id,
+                :week_number,
+                :dqd_index,
+                :consistency_score,
+                :dropout_risk,
+                :trajectory_type,
+                CAST(:feature_vector AS jsonb),
+                NOW()
+            )
+        """), {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "week_number": week_number,
+            "dqd_index": float(result["dqd_index"]),
+            "consistency_score": float(round(1.0 - result["features"]["f1_session_regularity"], 4)),
+            "dropout_risk": float(dropout_risk),
+            "trajectory_type": trajectory,
+            "feature_vector": json.dumps(result["features"])
+        })
+        conn.commit()
 
 def run_weekly_computation(force: bool = False) -> dict:
     users = get_all_active_users()
