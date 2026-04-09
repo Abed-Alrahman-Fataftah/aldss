@@ -104,6 +104,20 @@ export default function DashboardPage() {
           >
             Sign out
           </button>
+          <button
+            onClick={() => navigate("/progress")}
+            style={{
+              background: "rgba(255,255,255,0.15)",
+              border: "none",
+              color: "white",
+              padding: "0.4rem 1rem",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "0.85rem",
+            }}
+          >
+            My progress
+          </button>
         </div>
       </div>
 

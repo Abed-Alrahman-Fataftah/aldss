@@ -7,6 +7,7 @@ import surveyRoutes from './routes/survey.routes'
 import contentRoutes from './routes/content.routes'
 import adminRoutes from './routes/admin.routes'
 import aiRoutes from './routes/ai.routes'
+import sessionRoutes from './routes/session.routes'
 
 
 
@@ -30,6 +31,8 @@ app.use('/api/surveys', surveyRoutes)
 app.use('/api/content', contentRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/sessions', sessionRoutes)
+
 
 
 

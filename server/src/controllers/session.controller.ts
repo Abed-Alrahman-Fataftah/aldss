@@ -1,9 +1,9 @@
+import { Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 export const startSession = async (userId: string): Promise<string> => {
-  // Find the last session for this user
   const lastSession = await prisma.session.findFirst({
     where: { userId },
     orderBy: { startedAt: 'desc' }
@@ -44,4 +44,38 @@ export const endSession = async (sessionId: string): Promise<void> => {
       durationSeconds
     }
   })
+}
+
+export const getMySessionSummary = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).userId
+
+    const allSessions = await prisma.session.findMany({
+      where: { userId },
+      orderBy: { startedAt: 'asc' }
+    })
+
+    const totalSessions = allSessions.length
+
+    const totalMinutes = Math.round(
+      allSessions.reduce((sum, s) => sum + (s.durationSeconds || 0), 0) / 60
+    )
+
+    const avgSessionMinutes = totalSessions > 0
+      ? Math.round(totalMinutes / totalSessions)
+      : 0
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    const lastSevenDays = allSessions.filter(s => s.startedAt >= sevenDaysAgo).length
+
+    res.json({
+      totalSessions,
+      totalMinutes,
+      avgSessionMinutes,
+      lastSevenDays
+    })
+  } catch (error) {
+    console.error('Session summary error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
 }
