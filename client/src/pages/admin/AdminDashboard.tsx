@@ -4,6 +4,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { adminAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import { API_BASE } from '../../services/api'
+
 
 interface Overview {
   participants: {
@@ -108,7 +110,7 @@ export default function AdminDashboard() {
     try {
       const token = localStorage.getItem("aldss_token");
       const res = await axios.post(
-        "http://localhost:3001/api/ai/run-weekly",
+        `${API_BASE}/api/ai/run-weekly`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -127,7 +129,7 @@ export default function AdminDashboard() {
     try {
       const token = localStorage.getItem("aldss_token");
       const res = await axios.post(
-        "http://localhost:3001/api/ai/run-full-pipeline",
+        `${API_BASE}/api/ai/run-full-pipeline`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );

@@ -4,6 +4,8 @@ import { useAuth } from "../../context/AuthContext";
 import { contentAPI, surveyAPI } from "../../services/api";
 import InterventionCard from "../../components/InterventionCard";
 import axios from "axios";
+import { API_BASE } from '../../services/api'
+
 
 interface Track {
   id: string;
@@ -32,7 +34,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const token = localStorage.getItem("aldss_token");
     axios
-      .get("http://localhost:3001/api/ai/pending-intervention", {
+      .get(`${API_BASE}/api/ai/pending-intervention`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -61,7 +63,6 @@ export default function DashboardPage() {
       .catch(console.error);
   }, []);
   const handleTrackSelect = (trackId: string) => {
-    
     navigate(`/track/${trackId}`);
   };
 
