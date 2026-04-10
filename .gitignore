@@ -16,8 +16,7 @@ ai/__pycache__/
 dist/
 client/dist/
 
-# Prisma
-server/prisma/migrations/
+
 
 # OS
 .DS_Store
