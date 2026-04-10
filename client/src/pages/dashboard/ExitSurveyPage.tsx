@@ -31,7 +31,7 @@ const ScaleInput = ({ value, onChange, low, high }: {
 
 export default function ExitSurveyPage() {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)

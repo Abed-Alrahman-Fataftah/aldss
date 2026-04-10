@@ -25,7 +25,6 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
   const [surveyDue, setSurveyDue] = useState(false);
   const [surveyWeek, setSurveyWeek] = useState(1);
   const [intervention, setIntervention] = useState<any>(null);
@@ -62,7 +61,7 @@ export default function DashboardPage() {
       .catch(console.error);
   }, []);
   const handleTrackSelect = (trackId: string) => {
-    setSelectedTrack(trackId);
+    
     navigate(`/track/${trackId}`);
   };
 

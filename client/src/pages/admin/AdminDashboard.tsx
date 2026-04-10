@@ -162,10 +162,6 @@ export default function AdminDashboard() {
   };
 
   const atRiskCount = participants.filter((p) => p.atRisk).length;
-  const interventionGroup = participants.filter(
-    (p) => p.group === "INTERVENTION",
-  );
-  const controlGroup = participants.filter((p) => p.group === "CONTROL");
 
   const tabStyle = (tab: string) => ({
     padding: "0.6rem 1.25rem",
