@@ -118,6 +118,23 @@ export default function DashboardPage() {
           >
             My progress
           </button>
+          {user?.isAdmin && (
+            <button
+              onClick={() => navigate("/admin")}
+              style={{
+                background: "rgba(255,255,255,0.25)",
+                border: "1px solid rgba(255,255,255,0.4)",
+                color: "white",
+                padding: "0.4rem 1rem",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+              }}
+            >
+              Research dashboard →
+            </button>
+          )}
         </div>
       </div>
 

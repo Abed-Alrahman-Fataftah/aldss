@@ -47,6 +47,7 @@ model User {
   consentGiven     Boolean  @default(false)
   enrolledAt       DateTime @default(now())
   isActive         Boolean  @default(true)
+  isAdmin          Boolean  @default(false)
   ageRange         String?
   studyLevel       String?
   fieldOfStudy     String?

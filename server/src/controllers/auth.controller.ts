@@ -53,6 +53,7 @@ export const register = async (req: Request, res: Response) => {
         studyLevel,
         fieldOfStudy,
         weeklyStudyHours: weeklyStudyHours ? parseInt(weeklyStudyHours) : null,
+        isAdmin: false,
       },
     });
 
@@ -112,6 +113,7 @@ export const login = async (req: Request, res: Response) => {
         fullName: user.fullName,
         group: user.group,
         enrolledAt: user.enrolledAt,
+        isAdmin: user.isAdmin,
       },
     });
   } catch (error) {
@@ -138,6 +140,7 @@ export const getMe = async (req: Request, res: Response) => {
         studyLevel: true,
         fieldOfStudy: true,
         weeklyStudyHours: true,
+        isAdmin: true,
       },
     });
 

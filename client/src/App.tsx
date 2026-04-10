@@ -20,6 +20,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <div style={{ padding: "2rem" }}>Loading...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!user.isAdmin) return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <Routes>
@@ -61,22 +69,6 @@ function App() {
         }
       />
       <Route
-        path="/admin"
-        element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/participant/:userId"
-        element={
-          <ProtectedRoute>
-            <ParticipantDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/progress"
         element={
           <ProtectedRoute>
@@ -90,6 +82,22 @@ function App() {
           <ProtectedRoute>
             <ExitSurveyPage />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/participant/:userId"
+        element={
+          <AdminRoute>
+            <ParticipantDetailPage />
+          </AdminRoute>
         }
       />
     </Routes>

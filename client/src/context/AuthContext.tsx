@@ -8,6 +8,7 @@ interface User {
   group: 'CONTROL' | 'INTERVENTION'
   enrolledAt: string
   consentGiven: boolean
+   isAdmin: boolean
 }
 
 interface AuthContextType {
