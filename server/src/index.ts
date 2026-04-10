@@ -13,14 +13,15 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-app.use(
-  cors({
-    origin: ["http://localhost:5173", process.env.FRONTEND_URL || ""].filter(
-      Boolean,
-    ),
-    credentials: true,
-  }),
-);
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://aldss.vercel.app',
+    'https://aldss-git-main-abed-alrahman-fataftahs-projects.vercel.app',
+    /\.vercel\.app$/
+  ],
+  credentials: true
+}))
 
 app.use(express.json());
 
