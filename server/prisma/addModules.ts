@@ -6613,6 +6613,3822 @@ You are not a JavaScript beginner anymore.`,
     }
   ]
 })
+await addModule('React Development', {
+  title: 'What is React and Why Does It Exist',
+  description: 'Understand the problem React solves, how it differs from vanilla JavaScript DOM manipulation, and why the component-based, declarative model makes building complex UIs dramatically more manageable.',
+  orderIndex: 1,
+  content: `## The Problem React Was Built to Solve
+
+Before you write a single line of React, you need to understand the problem it was designed to solve. Otherwise React feels like an arbitrary set of rules imposed on top of JavaScript. Once you see the problem clearly, React feels like an obvious solution.
+
+Imagine you are building a social media feed. Each post has a like count, a comment count, a share button, and a user avatar. When someone likes a post, the like count increments, the button changes colour, and a notification badge updates somewhere else on the page. When they comment, the comment count updates, the comment list expands, and the input field clears.
+
+In vanilla JavaScript, you would write code like this:
+
+\`\`\`javascript
+const likeBtn = document.querySelector(\`#like-btn-\${postId}\`)
+const likeCount = document.querySelector(\`#like-count-\${postId}\`)
+const notificationBadge = document.querySelector('#notification-badge')
+
+likeBtn.addEventListener('click', () => {
+  const current = parseInt(likeCount.textContent)
+  likeCount.textContent = current + 1
+  likeBtn.classList.add('liked')
+  notificationBadge.textContent = parseInt(notificationBadge.textContent) + 1
+  // update database...
+  // update other places that show this like count...
+  // handle the case where user un-likes...
+})
+\`\`\`
+
+This works for one button. Now imagine a feed with fifty posts, each with its own like button, comment section, share menu, and bookmark button. Every time the data changes, you have to find the right DOM elements and update them manually. The data (the actual like count) lives somewhere in JavaScript, but the display of that data is scattered across dozens of DOM manipulation calls.
+
+This is the core problem: **as an application grows, keeping the DOM in sync with the data becomes exponentially harder to manage.** You end up with spaghetti code where the state of the application is implicitly encoded in the DOM itself, bugs emerge because you forgot to update one of the seven places that shows a particular piece of data, and adding new features requires carefully threading through existing imperative logic.
+
+Facebook built React in 2013 to solve exactly this problem. They had a massive, complex web application with exactly this kind of state-synchronisation nightmare, and they needed a better model.
+
+## The React Mental Model — Declarative UI
+
+React's solution is a complete inversion of how you think about building UIs. Instead of writing code that says **how to change the UI** (imperative), you write code that says **what the UI should look like** for a given state (declarative).
+
+In vanilla JavaScript: "Find the like count element. Read its current value. Add one. Set the text content to the new value. Find the button. Add the 'liked' class."
+
+In React: "When the like count is N and isLiked is true, render a button with the 'liked' class and the number N next to it."
+
+You describe the desired end state. React figures out how to get there. When the data changes, you update the data — React automatically re-renders the UI to match.
+
+This is the fundamental mental model of React: **UI is a function of state.**
+
+\`\`\`javascript
+UI = f(state)
+\`\`\`
+
+Give React the current state of your application, and it produces the UI. Change the state, React produces the new UI. You never manually reach into the DOM and change elements — you change the data, and React handles the rest.
+
+## The Virtual DOM — How React Makes This Fast
+
+The obvious concern with "re-render everything when data changes" is performance. If every data change causes the entire page to be redrawn, that sounds expensive. React solves this with the **Virtual DOM**.
+
+The Virtual DOM is a lightweight JavaScript representation of the actual DOM — a tree of plain JavaScript objects that describes what the UI should look like. When your state changes, React:
+
+1. Builds a new Virtual DOM tree representing the updated UI
+2. Compares it to the previous Virtual DOM tree (this process is called **diffing**)
+3. Calculates the minimal set of actual DOM changes needed
+4. Applies only those specific changes to the real DOM
+
+This means React does the expensive DOM manipulation as infrequently and minimally as possible, while you get to write simple declarative code without thinking about performance optimisation. In practice, React applications are fast because of this diffing process, not despite the "re-render everything" approach.
+
+## Components — The Lego Blocks of React
+
+The second major idea in React is **component-based architecture**. Instead of thinking about a page as one big HTML document, React encourages you to break the UI into small, self-contained, reusable pieces called components.
+
+Think of a YouTube page. You can decompose it into components:
+- A \`Header\` component (search bar, navigation, profile icon)
+- A \`VideoGrid\` component
+  - Many \`VideoCard\` components (each with thumbnail, title, channel name, view count)
+- A \`Sidebar\` component
+  - Many \`SidebarItem\` components
+
+Each component owns its own logic and appearance. The \`VideoCard\` component knows how to display a video — give it the data for any video and it renders correctly. You can reuse the same component dozens of times with different data.
+
+This is fundamentally different from traditional web development where you might have one HTML file, one CSS file, and one JavaScript file, with everything tangled together. React components bundle HTML structure, CSS-adjacent styling logic, and JavaScript behaviour into a single, cohesive unit.
+
+## JSX — HTML in Your JavaScript
+
+React introduces a syntax extension called **JSX** that lets you write what looks like HTML directly in your JavaScript files. This initially looks strange to everyone.
+
+\`\`\`jsx
+function Greeting() {
+  const name = "Alice"
+  return <h1>Hello, {name}!</h1>
+}
+\`\`\`
+
+JSX is not HTML. It is syntactic sugar for function calls. The above is transformed by a build tool (Babel) into:
+
+\`\`\`javascript
+function Greeting() {
+  const name = "Alice"
+  return React.createElement('h1', null, \`Hello, \${name}!\`)
+}
+\`\`\`
+
+JSX compiles to \`React.createElement\` calls, which create Virtual DOM objects. You never write \`React.createElement\` directly — JSX makes it readable and intuitive.
+
+Key JSX rules that differ from HTML:
+- Use \`className\` instead of \`class\` (class is a reserved word in JavaScript)
+- Use \`htmlFor\` instead of \`for\` on labels
+- All tags must be closed — \`<img />\` not \`<img>\`
+- JavaScript expressions go inside curly braces \`{}\`
+- A component must return a single root element (or a Fragment)
+
+\`\`\`jsx
+function UserCard({ name, age, isActive }) {
+  return (
+    <div className="card">
+      <h2>{name}</h2>
+      <p>Age: {age}</p>
+      <span className={isActive ? 'active' : 'inactive'}>
+        {isActive ? 'Online' : 'Offline'}
+      </span>
+    </div>
+  )
+}
+\`\`\`
+
+The curly braces are the bridge between JSX and JavaScript. Anything valid as a JavaScript expression can go inside them: variables, function calls, ternary operators, array methods. You cannot put statements (if/else, for loops) directly inside JSX — but you can use ternary operators and array methods, or compute values before the return statement.
+
+## Setting Up a React Project
+
+The fastest way to start a React project today is with **Vite**, a modern build tool that sets everything up for you:
+
+\`\`\`javascript
+npm create vite@latest my-react-app -- --template react
+cd my-react-app
+npm install
+npm run dev
+\`\`\`
+
+This creates a project structure:
+\`\`\`
+my-react-app/
+  src/
+    App.jsx        — your main App component
+    main.jsx       — the entry point that mounts React
+    index.css      — global styles
+  index.html       — the HTML shell
+  package.json
+  vite.config.js
+\`\`\`
+
+Open \`src/main.jsx\` and you will see:
+
+\`\`\`jsx
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)
+\`\`\`
+
+This is the entry point. React takes control of the \`<div id="root">\` in \`index.html\` and renders your entire application inside it. Everything from here is React components — you rarely touch the HTML file again.
+
+## React vs Vanilla JavaScript — A Side-by-Side Example
+
+Let's see the difference concretely. A counter that increments when a button is clicked:
+
+**Vanilla JavaScript:**
+\`\`\`javascript
+// HTML: <div id="app"><p id="count">0</p><button id="btn">+</button></div>
+
+let count = 0
+const countEl = document.getElementById('count')
+const btn = document.getElementById('btn')
+
+btn.addEventListener('click', () => {
+  count++
+  countEl.textContent = count  // manual DOM sync
+})
+\`\`\`
+
+**React:**
+\`\`\`jsx
+import { useState } from 'react'
+
+function Counter() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <p>{count}</p>
+      <button onClick={() => setCount(count + 1)}>+</button>
+    </div>
+  )
+}
+\`\`\`
+
+The React version is shorter, but more importantly it is structurally different. There is no manual DOM query, no manual DOM update. The UI is described in terms of what it should look like (show the \`count\` variable). When \`setCount\` is called with a new value, React re-renders the component automatically with the new count displayed. The data and the display are always in sync because React makes them inseparable.
+
+## The React Ecosystem
+
+React itself is a focused library — it handles rendering and component composition. It does not prescribe how you handle routing, data fetching, styling, or global state management. This gives you flexibility but requires choosing from a rich ecosystem of companion libraries:
+
+**Routing:** React Router, TanStack Router
+**State management:** Redux Toolkit, Zustand, Jotai
+**Data fetching:** TanStack Query, SWR, RTK Query
+**Styling:** CSS Modules, Styled Components, Tailwind CSS
+**Full-stack frameworks:** Next.js (the dominant choice), Remix
+
+You do not need any of these to learn React. This track focuses on core React — components, props, state, effects, events, and data fetching with the built-in tools. Once you understand core React, picking up any of these libraries becomes significantly easier because you understand the foundation they build on.
+
+## Why React Dominates Frontend Development
+
+React is not the only component-based UI library — Vue, Angular, Svelte, and Solid are all excellent alternatives. But React has maintained dominance for over a decade for several reasons:
+
+**Ecosystem size.** React has the largest ecosystem of libraries, tutorials, and community resources of any frontend framework. Whatever problem you are solving, someone has built a React library for it.
+
+**Job market.** React is by far the most requested skill in frontend developer job postings. Learning React means learning the skill that the industry most wants.
+
+**Transferable concepts.** The concepts you learn in React — components, props, state, declarative rendering, one-way data flow — appear in every modern UI framework. Learning React thoroughly makes every other framework easier to understand.
+
+**React Native.** The same mental model transfers to mobile development through React Native, letting you build iOS and Android applications with React skills.
+
+## What You Are Going to Learn
+
+This track covers the complete core of React in eight modules:
+
+- **Module 2** — Components: writing functional components, composing them together
+- **Module 3** — Props: passing data from parent to child, default props, prop types
+- **Module 4** — State: \`useState\`, re-rendering, state patterns
+- **Module 5** — Effects: \`useEffect\`, lifecycle, cleanup
+- **Module 6** — Events and Forms: controlled inputs, form handling
+- **Module 7** — Data Fetching: loading data from APIs, handling loading and error states
+- **Module 8** — Complete App: everything working together in a real application
+
+Each module builds directly on the previous one. By the end, you will be able to build complete, functional React applications from scratch and have the foundation to tackle frameworks like Next.js and the broader React ecosystem.
+
+The most important shift to make right now is mental. Stop thinking in terms of "find this element and change it." Start thinking in terms of "given this data, what should the UI look like?" Make that shift, and React will start to feel intuitive.`,
+  quizzes: [
+    {
+      question: 'What fundamental problem does React solve compared to vanilla JavaScript DOM manipulation?',
+      options: [
+        'React loads faster than vanilla JavaScript because it skips the parsing step',
+        'React automatically keeps the UI in sync with the data by re-rendering components when state changes, eliminating manual DOM updates',
+        'React prevents JavaScript errors by adding type checking to all components',
+        'React solves the problem of JavaScript not being supported in older browsers'
+      ],
+      correct: 1,
+      explanation: 'The core problem React solves is the synchronisation burden — in vanilla JavaScript, every data change requires manually finding and updating every affected DOM element, while React re-renders automatically when state changes so the UI always reflects the current data.'
+    },
+    {
+      question: 'What does "declarative UI" mean in the context of React?',
+      options: [
+        'You declare all variables at the top of your file before using them in components',
+        'You write code that describes what the UI should look like for a given state, rather than writing step-by-step instructions for how to change it',
+        'You declare which components are public and which are private using special keywords',
+        'You list all the events your component responds to in a declaration block before the return statement'
+      ],
+      correct: 1,
+      explanation: 'Declarative UI means describing the desired end result — "when count is 5, show the number 5" — rather than issuing imperative commands like "find the element and set its text to 5"; React handles the transition from old state to new state automatically.'
+    },
+    {
+      question: 'What is the Virtual DOM and why does React use it?',
+      options: [
+        'A virtual machine that runs JavaScript faster than the browser\'s built-in engine',
+        'A copy of the DOM stored on a server that React synchronises with the browser',
+        'A lightweight JavaScript representation of the UI that React uses to calculate the minimal set of real DOM changes needed when state updates',
+        'A browser extension that visualises the component tree for debugging purposes'
+      ],
+      correct: 2,
+      explanation: 'The Virtual DOM is a plain JavaScript object tree representing the UI — when state changes, React diffs the new Virtual DOM against the previous one and applies only the necessary changes to the real DOM, making re-renders efficient despite the declarative "describe everything" approach.'
+    },
+    {
+      question: 'In JSX, why do you write className instead of class when adding CSS classes to elements?',
+      options: [
+        'className is the HTML5 standard attribute name that replaced class in modern web development',
+        'React adds extra functionality to className that the standard class attribute does not support',
+        'class is a reserved keyword in JavaScript, so JSX uses className to avoid a syntax conflict when writing HTML-like code in JavaScript files',
+        'className is required because React components use a different rendering pipeline than standard HTML elements'
+      ],
+      correct: 2,
+      explanation: 'JSX compiles to JavaScript, and class is a reserved keyword in JavaScript used for defining classes — to avoid the syntax conflict, JSX uses className which React then correctly maps to the class attribute in the actual DOM.'
+    },
+    {
+      question: 'What happens in React when you call a state setter function like setCount?',
+      options: [
+        'React finds the specific DOM element displaying the count and updates only that element\'s text content',
+        'React schedules a re-render of the component with the new state value, and updates the DOM to match the new output',
+        'The state value updates immediately and all variables referencing it automatically reflect the new value',
+        'React saves the new state to localStorage and reloads the component from scratch'
+      ],
+      correct: 1,
+      explanation: 'Calling a state setter schedules a re-render — React re-runs the component function with the new state value, produces new JSX, diffs it against the previous output, and makes the minimal DOM updates needed to reflect the change.'
+    }
+  ]
+})
+
+await addModule('React Development', {
+  title: 'Components — The Building Blocks of React',
+  description: 'Learn how to write and compose React components, understand the rules of JSX, structure a component hierarchy, and think in components when approaching any UI design.',
+  orderIndex: 2,
+  content: `## What Is a Component?
+
+A React component is a JavaScript function that returns JSX — a description of what a piece of the UI should look like. That is the complete definition. Everything in React is built from this simple foundation.
+
+Before writing any code, the most important skill to develop is learning to look at a UI and see components. This is called "thinking in components," and it is the mental model that makes React feel natural.
+
+Look at any web page — say, a product card on an e-commerce site. It has a product image, a product name, a price, a star rating, an "Add to Cart" button, and maybe a "Wishlist" button. Each of those could be its own component. The card itself is a component. A grid of cards is a component. The page is a component.
+
+The rules for how to divide a UI into components are not strict, but a useful heuristic is the **single responsibility principle**: a component should ideally do one thing. If it is growing and doing many unrelated things, it should probably be split into smaller components.
+
+## Your First Component
+
+A React functional component is simply a function whose name starts with a capital letter and returns JSX:
+
+\`\`\`jsx
+function Greeting() {
+  return <h1>Hello, React!</h1>
+}
+\`\`\`
+
+That is a complete, valid React component. The capital letter is not optional — React distinguishes between HTML elements (lowercase: \`<div>\`, \`<p>\`) and React components (uppercase: \`<Greeting>\`, \`<UserCard>\`) by capitalisation. If you write a component name in lowercase, React treats it as an HTML tag and things will not work as expected.
+
+To use a component, you write it in JSX like an HTML tag:
+
+\`\`\`jsx
+function App() {
+  return (
+    <div>
+      <Greeting />
+      <Greeting />
+      <Greeting />
+    </div>
+  )
+}
+\`\`\`
+
+This renders three \`Greeting\` components. Each one independently produces its \`<h1>\` output. Reusability is instant — write the component once, use it anywhere.
+
+## JSX in Depth — The Rules
+
+JSX looks like HTML but it compiles to JavaScript. Understanding its rules prevents the errors that trip up every beginner.
+
+**Rule 1: Return a single root element.**
+
+A component can only return one root-level element. If you want to return multiple elements, wrap them:
+
+\`\`\`jsx
+// Wrong — two sibling elements at the root
+function Wrong() {
+  return (
+    <h1>Title</h1>
+    <p>Paragraph</p>
+  )
+}
+
+// Right — wrapped in a div
+function Right() {
+  return (
+    <div>
+      <h1>Title</h1>
+      <p>Paragraph</p>
+    </div>
+  )
+}
+
+// Also right — React Fragment (no extra DOM element)
+function AlsoRight() {
+  return (
+    <>
+      <h1>Title</h1>
+      <p>Paragraph</p>
+    </>
+  )
+}
+\`\`\`
+
+The empty \`<></>\` syntax is a **React Fragment** — it lets you group elements without adding an extra \`<div>\` to the DOM. Use it when you want to avoid unnecessary wrapper elements.
+
+**Rule 2: All tags must be closed.**
+
+\`\`\`jsx
+// Wrong
+<img src="photo.jpg">
+<input type="text">
+<br>
+
+// Right
+<img src="photo.jpg" />
+<input type="text" />
+<br />
+\`\`\`
+
+**Rule 3: JavaScript expressions go in curly braces.**
+
+\`\`\`jsx
+function ProductCard() {
+  const name = "Wireless Headphones"
+  const price = 79.99
+  const discount = 0.1
+  const finalPrice = price * (1 - discount)
+
+  return (
+    <div className="product-card">
+      <h2>{name}</h2>
+      <p>Original: \${price}</p>
+      <p>Sale: \${finalPrice.toFixed(2)}</p>
+      <p>You save: \${(price - finalPrice).toFixed(2)}</p>
+    </div>
+  )
+}
+\`\`\`
+
+Anything that is a valid JavaScript expression can go inside \`{}\`: variables, arithmetic, function calls, ternary operators, template literals. You cannot put statements inside JSX — no \`if\` blocks, no \`for\` loops — but you can compute values before the return.
+
+**Rule 4: Use className, htmlFor, and camelCase attributes.**
+
+\`\`\`jsx
+// HTML attributes that differ in JSX
+<div class="container">              // Wrong
+<div className="container">         // Right
+
+<label for="email">Email</label>    // Wrong
+<label htmlFor="email">Email</label> // Right
+
+// Event handlers are camelCase
+<button onclick={handleClick}>      // Wrong
+<button onClick={handleClick}>      // Right
+
+// Inline styles use objects with camelCase properties
+<div style="background-color: red"> // Wrong
+<div style={{ backgroundColor: 'red', fontSize: '16px' }}> // Right
+\`\`\`
+
+The double curly braces for inline styles are not special syntax — the outer \`{}\` says "here comes a JavaScript expression," and the inner \`{}\` is just a JavaScript object literal.
+
+## Conditional Rendering
+
+Showing or hiding parts of the UI based on conditions is extremely common. React gives you several patterns for this.
+
+**Ternary operator — for if/else:**
+
+\`\`\`jsx
+function UserStatus({ isLoggedIn }) {
+  return (
+    <div>
+      {isLoggedIn ? (
+        <p>Welcome back!</p>
+      ) : (
+        <p>Please log in.</p>
+      )}
+    </div>
+  )
+}
+\`\`\`
+
+**\`&&\` operator — for if only:**
+
+\`\`\`jsx
+function Notification({ hasMessages, count }) {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      {hasMessages && <p>You have {count} new messages</p>}
+    </div>
+  )
+}
+\`\`\`
+
+The \`&&\` pattern works because in JSX, \`false\`, \`null\`, and \`undefined\` render nothing. When \`hasMessages\` is false, the expression short-circuits and nothing is rendered. When it is true, the JSX after \`&&\` is rendered.
+
+**Watch out for the \`&&\` gotcha with 0:**
+
+\`\`\`jsx
+// Bug! When count is 0, it renders "0" on the page
+{count && <p>{count} items</p>}
+
+// Fix: compare explicitly
+{count > 0 && <p>{count} items</p>}
+// Or use ternary
+{count ? <p>{count} items</p> : null}
+\`\`\`
+
+Zero is falsy in JavaScript, but \`0\` is not \`false\` — JSX renders the number 0 rather than nothing. This is one of the most common beginner bugs.
+
+**Computing conditionally before the return:**
+
+\`\`\`jsx
+function Alert({ type, message }) {
+  let className
+  let icon
+
+  if (type === 'success') {
+    className = 'alert-success'
+    icon = '✓'
+  } else if (type === 'error') {
+    className = 'alert-error'
+    icon = '✗'
+  } else {
+    className = 'alert-info'
+    icon = 'ℹ'
+  }
+
+  return (
+    <div className={className}>
+      <span>{icon}</span>
+      <p>{message}</p>
+    </div>
+  )
+}
+\`\`\`
+
+For complex conditional logic, computing the values before the return is often cleaner than cramming it into JSX.
+
+## Rendering Lists
+
+Rendering a list of items from an array is one of the most common operations in React. You use JavaScript's \`map()\` method to transform an array of data into an array of JSX elements:
+
+\`\`\`jsx
+function FruitList() {
+  const fruits = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry']
+
+  return (
+    <ul>
+      {fruits.map(fruit => (
+        <li>{fruit}</li>
+      ))}
+    </ul>
+  )
+}
+\`\`\`
+
+This works, but React will warn you about a missing \`key\` prop. When rendering lists, each element needs a unique \`key\` prop that helps React track which items changed, were added, or were removed:
+
+\`\`\`jsx
+function FruitList() {
+  const fruits = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry']
+
+  return (
+    <ul>
+      {fruits.map(fruit => (
+        <li key={fruit}>{fruit}</li>
+      ))}
+    </ul>
+  )
+}
+\`\`\`
+
+For real data with unique IDs, use the ID:
+
+\`\`\`jsx
+function ProductList({ products }) {
+  return (
+    <div className="product-grid">
+      {products.map(product => (
+        <div key={product.id} className="product-card">
+          <img src={product.image} alt={product.name} />
+          <h3>{product.name}</h3>
+          <p>\${product.price}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+\`\`\`
+
+**Why keys matter:** Without keys, when the list changes, React re-renders all items. With keys, React knows exactly which item corresponds to which DOM element and can update only what changed. Keys must be unique among siblings, stable (not based on the array index if items can reorder), and string or number type.
+
+Avoid using array index as a key when the list can be reordered or filtered:
+
+\`\`\`jsx
+// Problematic when list can change order
+{items.map((item, index) => <li key={index}>{item}</li>)}
+
+// Better — use a stable unique identifier
+{items.map(item => <li key={item.id}>{item.name}</li>)}
+\`\`\`
+
+## Component Composition — Building UIs from Components
+
+The real power of React components emerges when you compose them together. A complex UI is just components containing components containing components.
+
+\`\`\`jsx
+// Small, focused components
+function Avatar({ src, alt, size = 'medium' }) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={\`avatar avatar-\${size}\`}
+    />
+  )
+}
+
+function UserName({ name, isVerified }) {
+  return (
+    <span className="username">
+      {name}
+      {isVerified && <span className="verified-badge">✓</span>}
+    </span>
+  )
+}
+
+function FollowButton({ isFollowing, onFollow }) {
+  return (
+    <button
+      className={isFollowing ? 'btn-following' : 'btn-follow'}
+      onClick={onFollow}
+    >
+      {isFollowing ? 'Following' : 'Follow'}
+    </button>
+  )
+}
+
+// Compose them into a larger component
+function UserCard({ user, isFollowing, onFollow }) {
+  return (
+    <div className="user-card">
+      <Avatar src={user.avatarUrl} alt={user.name} size="large" />
+      <div className="user-info">
+        <UserName name={user.name} isVerified={user.isVerified} />
+        <p className="bio">{user.bio}</p>
+        <FollowButton isFollowing={isFollowing} onFollow={onFollow} />
+      </div>
+    </div>
+  )
+}
+
+// Use many UserCards in a list
+function UserList({ users, followingIds, onFollow }) {
+  return (
+    <div className="user-list">
+      {users.map(user => (
+        <UserCard
+          key={user.id}
+          user={user}
+          isFollowing={followingIds.includes(user.id)}
+          onFollow={() => onFollow(user.id)}
+        />
+      ))}
+    </div>
+  )
+}
+\`\`\`
+
+Notice how each component is small and focused. \`Avatar\` just renders an image. \`UserName\` renders the name with an optional verified badge. The composition is explicit and readable — you can look at \`UserCard\` and immediately understand it is made of an \`Avatar\`, some \`UserName\` and bio text, and a \`FollowButton\`.
+
+## The children Prop — Wrapping Components
+
+Sometimes you want a component to act as a wrapper or container, and you do not know ahead of time what content it will contain. React handles this with the special \`children\` prop:
+
+\`\`\`jsx
+function Card({ children, title }) {
+  return (
+    <div className="card">
+      {title && <h2 className="card-title">{title}</h2>}
+      <div className="card-body">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// Use it by nesting content inside the tags
+function App() {
+  return (
+    <div>
+      <Card title="User Profile">
+        <p>Name: Alice</p>
+        <p>Age: 25</p>
+        <button>Edit Profile</button>
+      </Card>
+
+      <Card title="Recent Activity">
+        <ul>
+          <li>Liked a post</li>
+          <li>Followed a user</li>
+        </ul>
+      </Card>
+
+      <Card>
+        <p>A card with no title</p>
+      </Card>
+    </div>
+  )
+}
+\`\`\`
+
+Whatever you put between the opening and closing \`<Card>\` tags becomes the \`children\` prop inside the \`Card\` component. This pattern is how layout components, modals, drawers, tooltips, and most wrapper components in React are built.
+
+## Organising Components Into Files
+
+As your application grows, keeping all components in one file becomes unmanageable. The convention is one component per file, exported as the default export:
+
+\`\`\`jsx
+// src/components/Avatar.jsx
+function Avatar({ src, alt, size = 'medium' }) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={\`avatar avatar-\${size}\`}
+    />
+  )
+}
+
+export default Avatar
+\`\`\`
+
+\`\`\`jsx
+// src/components/UserCard.jsx
+import Avatar from './Avatar'
+import UserName from './UserName'
+
+function UserCard({ user }) {
+  return (
+    <div className="user-card">
+      <Avatar src={user.avatarUrl} alt={user.name} />
+      <UserName name={user.name} isVerified={user.isVerified} />
+    </div>
+  )
+}
+
+export default UserCard
+\`\`\`
+
+A standard folder structure for a React project:
+\`\`\`
+src/
+  components/
+    Avatar.jsx
+    UserCard.jsx
+    UserList.jsx
+    Button.jsx
+  pages/
+    HomePage.jsx
+    ProfilePage.jsx
+  App.jsx
+  main.jsx
+\`\`\`
+
+Components that are used across many pages live in \`components/\`. Components that represent whole pages live in \`pages/\`. \`App.jsx\` is typically the root component that ties the pages together.
+
+## Thinking in Components — A Practical Exercise
+
+When you encounter a new UI to build, practise this decomposition process:
+
+1. **Draw boxes around sections of the UI.** Each box is a potential component.
+2. **Name each box.** Good names are nouns that describe what they contain.
+3. **Identify what varies.** Within a component, what data could change? That data will become props or state.
+4. **Identify what is reused.** Any UI element that appears multiple times with different data is a component.
+5. **Build bottom-up.** Start with the smallest, innermost components and compose them upward.
+
+The discipline of thinking in components — before writing any code — is what separates React developers who produce maintainable code from those who produce a tangled mess. Components should feel like vocabulary. When you talk about your UI, you should be able to use the component names naturally: "the \`SearchBar\` inside the \`Header\` needs to update the \`ResultsList\`."
+
+In the next module, you will learn how to pass data into components using props — the mechanism that makes your components dynamic and reusable rather than hardcoded.`,
+  quizzes: [
+    {
+      question: 'Why must React component names start with a capital letter?',
+      options: [
+        'It is a JavaScript requirement — functions that return JSX must be capitalised for the compiler to process them correctly',
+        'React distinguishes between HTML elements (lowercase) and React components (uppercase) by capitalisation — a lowercase name would be treated as an HTML tag',
+        'Capital letters enable React\'s performance optimisation algorithm to identify which functions to cache',
+        'It is a style convention only — lowercase component names work identically but are discouraged'
+      ],
+      correct: 1,
+      explanation: 'React uses the capitalisation of JSX tag names to differentiate between built-in HTML elements like div and p (lowercase) and user-defined React components (uppercase) — writing a component name in lowercase causes React to look for an HTML element with that name rather than calling your function.'
+    },
+    {
+      question: 'What is a React Fragment (<></>) and when should you use it?',
+      options: [
+        'A special component that renders its children with no wrapper element in the DOM, used when you need to return multiple sibling elements without adding an extra div',
+        'A way to split your component into multiple files that React automatically reassembles',
+        'A performance optimisation that prevents re-rendering of components that have not changed',
+        'A placeholder component used during loading states before real content is available'
+      ],
+      correct: 0,
+      explanation: 'A React Fragment groups multiple sibling JSX elements to satisfy the single-root-element rule without adding an extra DOM node — this is useful for avoiding unnecessary wrapper divs that could interfere with CSS layout like flexbox or grid.'
+    },
+    {
+      question: 'Why can using array index as a key in a list cause bugs?',
+      options: [
+        'Array indices are numbers, but React requires keys to be strings',
+        'Using index as a key causes React to re-render every list item on every update regardless of what changed',
+        'When items are added, removed, or reordered, the index of each item changes, causing React to incorrectly associate DOM elements with the wrong data and produce broken or flickering UI',
+        'Array indices start at 0 which React treats as falsy, so the first item never renders correctly'
+      ],
+      correct: 2,
+      explanation: 'Keys are meant to be stable identifiers — if an item moves from position 0 to position 2, its index key changes from 0 to 2, causing React to think a new item appeared and the old one disappeared rather than recognising it as the same item that moved.'
+    },
+    {
+      question: 'What does the children prop allow a React component to do?',
+      options: [
+        'It allows a component to render sub-components that it created internally',
+        'It provides access to all child components in the component tree below the current component',
+        'It allows content placed between a component\'s opening and closing tags to be rendered inside the component, enabling wrapper and layout components',
+        'It gives the component access to its parent\'s state and props without prop drilling'
+      ],
+      correct: 2,
+      explanation: 'The children prop contains whatever JSX is nested between a component\'s opening and closing tags — this enables wrapper patterns like Card, Modal, or Layout components that need to render arbitrary content inside a defined structure without knowing what that content will be in advance.'
+    },
+    {
+      question: 'Why does the expression {count && <p>{count} items</p>} display "0" when count is 0, and how do you fix it?',
+      options: [
+        'It is a JSX bug that was fixed in React 18 — upgrading React resolves the issue automatically',
+        'Zero is falsy in JavaScript but JSX renders the number 0 rather than nothing — fix it by using count > 0 && or a ternary expression instead',
+        'The expression needs parentheses around count to coerce it to a boolean before the && operator evaluates',
+        'JSX converts all falsy values to their string representations, so 0 becomes "0" — use Boolean(count) to fix it'
+      ],
+      correct: 1,
+      explanation: 'The && operator returns the left operand if falsy — when count is 0, it returns 0, and React renders the number 0 as text rather than nothing; using count > 0 && or a ternary ensures a proper boolean comparison and renders nothing when count is zero.'
+    }
+  ]
+})
+
+await addModule('React Development', {
+  title: 'Props — Passing Data Between Components',
+  description: 'Learn how to use props to pass data from parent to child components, make components reusable with different data, set default prop values, destructure props cleanly, and understand the one-way data flow model.',
+  orderIndex: 3,
+  content: `## Props Are How Components Communicate
+
+In the previous module you built components, but they were mostly self-contained — the data was hardcoded inside each component. That makes them rigid and not very useful. A \`UserCard\` component that only ever shows Alice's information is not a reusable component — it is a static template.
+
+Props (short for properties) are the mechanism for making components dynamic and reusable. They are how a parent component passes data down to a child component. The child receives this data and uses it to determine what to render.
+
+The mental model is simple: **props are arguments to your component function.** Just like a regular JavaScript function can take arguments and behave differently based on those arguments, a React component takes props and renders differently based on them.
+
+\`\`\`javascript
+// A regular function with arguments
+function greet(name, age) {
+  return \`Hello, I'm \${name} and I'm \${age} years old.\`
+}
+
+greet("Alice", 25)
+greet("Bob", 30)
+\`\`\`
+
+\`\`\`jsx
+// A React component with props — same idea
+function UserCard(props) {
+  return (
+    <div>
+      <p>Hello, I'm {props.name} and I'm {props.age} years old.</p>
+    </div>
+  )
+}
+
+<UserCard name="Alice" age={25} />
+<UserCard name="Bob" age={30} />
+\`\`\`
+
+The \`UserCard\` component renders differently for each set of props. One component definition, infinite possible renderings. This is the power of props.
+
+## Passing Props
+
+Props are passed to a component like HTML attributes:
+
+\`\`\`jsx
+// Passing strings — no curly braces needed
+<Button label="Click me" variant="primary" />
+
+// Passing numbers — curly braces required
+<Slider min={0} max={100} step={5} />
+
+// Passing booleans
+<Input disabled={true} required={false} />
+// Shorthand for true — just the attribute name
+<Input disabled required />
+
+// Passing arrays
+<List items={['apple', 'banana', 'cherry']} />
+
+// Passing objects
+<UserCard user={{ name: 'Alice', age: 25, role: 'admin' }} />
+
+// Passing functions (event handlers)
+<Button onClick={handleClick} />
+<Button onClick={() => console.log('clicked')} />
+
+// Passing JSX (as children)
+<Card>
+  <h2>Title</h2>
+  <p>Content</p>
+</Card>
+\`\`\`
+
+The rule: anything that is not a plain string needs curly braces. Curly braces signal "evaluate this JavaScript expression."
+
+## Receiving Props — Destructuring
+
+Inside the component, props arrive as a single object. You can access them through the props parameter, but destructuring them is the standard modern approach:
+
+\`\`\`jsx
+// Verbose — accessing through props object
+function Button(props) {
+  return (
+    <button
+      className={\`btn btn-\${props.variant}\`}
+      onClick={props.onClick}
+      disabled={props.disabled}
+    >
+      {props.label}
+    </button>
+  )
+}
+
+// Cleaner — destructuring in the parameter
+function Button({ label, variant, onClick, disabled }) {
+  return (
+    <button
+      className={\`btn btn-\${props.variant}\`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {label}
+    </button>
+  )
+}
+\`\`\`
+
+Destructuring is almost universally preferred. It makes immediately clear what props a component expects, reduces repetitive \`props.\` prefixes, and makes the function signature itself serve as implicit documentation.
+
+## Default Props
+
+When a prop is not provided, its value is \`undefined\`. This can cause errors or ugly output. Default values solve this:
+
+\`\`\`jsx
+function Button({ label, variant = 'primary', size = 'medium', disabled = false, onClick }) {
+  return (
+    <button
+      className={\`btn btn-\${variant} btn-\${size}\`}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  )
+}
+
+// All defaults used
+<Button label="Save" />
+// Renders: btn btn-primary btn-medium, not disabled
+
+// Override some defaults
+<Button label="Delete" variant="danger" size="small" />
+\`\`\`
+
+Default values in destructuring are the modern way to set prop defaults. They are equivalent to the older \`Button.defaultProps\` pattern which you may see in older codebases but should not use in new code.
+
+## Props Are Read-Only — One-Way Data Flow
+
+This is one of the most important rules in React, and understanding it prevents a whole category of bugs.
+
+**Props are read-only. A component must never modify its own props.**
+
+\`\`\`jsx
+// Never do this
+function BadComponent({ count }) {
+  count = count + 1  // Wrong! Mutating props
+  return <p>{count}</p>
+}
+
+// This is fine — compute new values from props
+function GoodComponent({ count }) {
+  const displayCount = count + 1  // derive, don't mutate
+  return <p>{displayCount}</p>
+}
+\`\`\`
+
+This rule enforces **one-way data flow**: data flows from parent to child through props, and only downward. A child component cannot change the data its parent gave it.
+
+This might seem restrictive, but it is what makes React applications predictable and debuggable. If you look at a component and want to understand what data it is working with, you look at its props. The data comes from one place (the parent) and flows in one direction (downward). You can always trace where data comes from.
+
+If a child needs to communicate something back to the parent — a button was clicked, a form was submitted, a value changed — it does so by calling a function that was passed as a prop. The child calls the function, the parent's function runs and can update state, which flows back down as new props. The data still flows down; the events flow up via callbacks.
+
+## Passing Functions as Props — Lifting Events Up
+
+This is the pattern for child-to-parent communication:
+
+\`\`\`jsx
+// Parent owns the data and the handler
+function ShoppingCart() {
+  const [items, setItems] = useState([
+    { id: 1, name: 'Headphones', price: 79.99 },
+    { id: 2, name: 'Mouse', price: 29.99 },
+  ])
+
+  function handleRemove(itemId) {
+    setItems(items.filter(item => item.id !== itemId))
+  }
+
+  return (
+    <div>
+      <h1>Your Cart</h1>
+      {items.map(item => (
+        <CartItem
+          key={item.id}
+          item={item}
+          onRemove={handleRemove}
+        />
+      ))}
+    </div>
+  )
+}
+
+// Child receives the handler and calls it when needed
+function CartItem({ item, onRemove }) {
+  return (
+    <div className="cart-item">
+      <span>{item.name}</span>
+      <span>\${item.price}</span>
+      <button onClick={() => onRemove(item.id)}>
+        Remove
+      </button>
+    </div>
+  )
+}
+\`\`\`
+
+The \`ShoppingCart\` parent owns the \`items\` data and the \`handleRemove\` function. It passes \`handleRemove\` down to \`CartItem\` as \`onRemove\`. When the user clicks "Remove" in the \`CartItem\`, it calls \`onRemove(item.id)\`, which calls the parent's \`handleRemove\`, which updates the parent's state, which causes a re-render with the item gone.
+
+Data flows down. Events flow up. This is React's data model in its entirety.
+
+## Prop Naming Conventions
+
+Good prop naming makes components self-documenting:
+
+- **Boolean props:** use \`is\`, \`has\`, or \`can\` prefixes — \`isLoading\`, \`hasError\`, \`canEdit\`
+- **Event handler props:** use \`on\` prefix — \`onClick\`, \`onSubmit\`, \`onChange\`, \`onClose\`
+- **Data props:** use clear nouns — \`user\`, \`items\`, \`title\`, \`message\`
+- **Render/slot props:** describe what goes there — \`header\`, \`footer\`, \`leftIcon\`
+
+\`\`\`jsx
+function Dialog({
+  isOpen,
+  title,
+  message,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  onConfirm,
+  onCancel,
+}) {
+  if (!isOpen) return null
+
+  return (
+    <div className="dialog-overlay">
+      <div className="dialog">
+        <h2>{title}</h2>
+        <p>{message}</p>
+        <div className="dialog-actions">
+          <button onClick={onCancel}>{cancelLabel}</button>
+          <button onClick={onConfirm}>{confirmLabel}</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+\`\`\`
+
+Reading the prop list tells you everything about this component: it is open or closed, has a title and message, two customisable button labels, and calls back on confirm or cancel.
+
+## The Spread Operator with Props
+
+When you have an object whose properties match the props of a component, you can spread it:
+
+\`\`\`jsx
+const buttonProps = {
+  label: 'Submit',
+  variant: 'primary',
+  disabled: false,
+  onClick: handleSubmit,
+}
+
+// Instead of listing each prop manually
+<Button label={buttonProps.label} variant={buttonProps.variant} ... />
+
+// Spread the object
+<Button {...buttonProps} />
+\`\`\`
+
+This is useful when forwarding all props from a parent to a child:
+
+\`\`\`jsx
+function IconButton({ icon, ...rest }) {
+  return (
+    <button {...rest}>
+      <img src={icon} alt="" />
+      {rest.label}
+    </button>
+  )
+}
+\`\`\`
+
+The \`...rest\` collects all props except \`icon\` and spreads them onto the \`<button>\`. This is the **rest and spread** pattern — very common for wrapper components that pass most props through to an underlying element.
+
+## Prop Drilling — and When It Becomes a Problem
+
+One-way data flow is great, but it creates a challenge as your component tree grows deeper. If a piece of data is needed by a component five levels deep, you have to pass it as a prop through every intermediate level — even the components in the middle do not need it. This is called **prop drilling**.
+
+\`\`\`jsx
+// Prop drilling — theme is passed through components that don't use it
+function App() {
+  const theme = 'dark'
+  return <Layout theme={theme} />
+}
+
+function Layout({ theme }) {
+  return <Sidebar theme={theme} />  // Layout doesn't use theme
+}
+
+function Sidebar({ theme }) {
+  return <NavItem theme={theme} />  // Sidebar doesn't use theme
+}
+
+function NavItem({ theme }) {
+  return <span className={theme}>Menu</span>  // Only NavItem uses theme
+}
+\`\`\`
+
+Prop drilling is not always wrong — for shallow trees or data that is only two levels deep, it is perfectly fine. But when it goes several levels deep, it becomes painful to maintain. The solutions are React Context (for global data like themes and authentication) and state management libraries. These are beyond the scope of this module, but knowing prop drilling is the problem you are solving helps you understand why those tools exist.
+
+## A Complete Props Example
+
+Let's build a complete component system using everything in this module:
+
+\`\`\`jsx
+// Reusable Badge component
+function Badge({ label, colour = 'blue', size = 'small' }) {
+  return (
+    <span className={\`badge badge-\${colour} badge-\${size}\`}>
+      {label}
+    </span>
+  )
+}
+
+// Reusable StarRating component
+function StarRating({ rating, maxStars = 5 }) {
+  return (
+    <div className="star-rating">
+      {Array.from({ length: maxStars }, (_, i) => (
+        <span key={i} className={i < rating ? 'star filled' : 'star empty'}>
+          ★
+        </span>
+      ))}
+      <span className="rating-text">({rating}/{maxStars})</span>
+    </div>
+  )
+}
+
+// Reusable ProductCard component
+function ProductCard({ product, onAddToCart, onWishlist, isWishlisted = false }) {
+  return (
+    <div className="product-card">
+      <div className="product-image-wrapper">
+        <img src={product.imageUrl} alt={product.name} />
+        {product.isNew && <Badge label="NEW" colour="green" />}
+        {product.discount > 0 && (
+          <Badge label={\`-\${product.discount}%\`} colour="red" />
+        )}
+      </div>
+
+      <div className="product-info">
+        <h3>{product.name}</h3>
+        <StarRating rating={product.rating} />
+        <div className="price-row">
+          {product.discount > 0 ? (
+            <>
+              <span className="original-price">\${product.price}</span>
+              <span className="sale-price">
+                \${(product.price * (1 - product.discount / 100)).toFixed(2)}
+              </span>
+            </>
+          ) : (
+            <span className="price">\${product.price}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="product-actions">
+        <button onClick={() => onAddToCart(product.id)}>
+          Add to Cart
+        </button>
+        <button
+          className={isWishlisted ? 'wishlisted' : ''}
+          onClick={() => onWishlist(product.id)}
+        >
+          {isWishlisted ? '♥' : '♡'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// Usage
+function ProductGrid({ products, wishlistedIds, onAddToCart, onWishlist }) {
+  return (
+    <div className="product-grid">
+      {products.map(product => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          isWishlisted={wishlistedIds.includes(product.id)}
+          onAddToCart={onAddToCart}
+          onWishlist={onWishlist}
+        />
+      ))}
+    </div>
+  )
+}
+\`\`\`
+
+This example demonstrates every prop concept in action: passing objects, booleans, functions, strings, and numbers as props; default values; event callback conventions; component composition; and one-way data flow with events lifted up via callbacks.
+
+Props are the nervous system of a React application — they are how every component gets its data and how events propagate up the tree. Master props and you understand how React applications are wired together.`,
+  quizzes: [
+    {
+      question: 'Why are props described as "read-only" in React?',
+      options: [
+        'Props are stored in a frozen object by React so any mutation attempt throws an error',
+        'A component must not modify its own props because data flows in one direction — from parent to child — and mutating props would make the data source unpredictable and break the parent\'s expected state',
+        'Props are read-only only when the component is a class component — functional components can modify their props freely',
+        'React makes props read-only to improve rendering performance by preventing unnecessary re-renders'
+      ],
+      correct: 1,
+      explanation: 'One-way data flow means a parent controls the data it passes to children — if a child could mutate props, the parent would have data it does not know about, making the application unpredictable and extremely difficult to debug.'
+    },
+    {
+      question: 'How does a child component communicate back to a parent in React\'s one-way data flow model?',
+      options: [
+        'By directly modifying the parent\'s state using a special React API called useParent',
+        'By emitting custom events that the parent listens for using addEventListener',
+        'By calling a function that was passed down as a prop from the parent, which allows the parent to update its own state in response',
+        'By storing data in a shared global variable that both parent and child can read and write'
+      ],
+      correct: 2,
+      explanation: 'Data flows down via props, and events flow up via callback functions passed as props — the child calls the function, the parent\'s function runs and can update its state, and the updated state flows back down as new props.'
+    },
+    {
+      question: 'What is the best way to set a default value for a prop in a modern React functional component?',
+      options: [
+        'Use ComponentName.defaultProps = {} below the component definition',
+        'Use defaultProps as a special prop name inside the component\'s JSX return',
+        'Use JavaScript default parameter values in the destructuring syntax of the component function',
+        'Use React.memo() to wrap the component and provide defaults in the memo configuration'
+      ],
+      correct: 2,
+      explanation: 'Default parameter values in destructuring — like function Button({ variant = "primary" }) — is the modern idiomatic approach that leverages standard JavaScript syntax, replacing the older ComponentName.defaultProps pattern.'
+    },
+    {
+      question: 'What is "prop drilling" and when does it become a problem?',
+      options: [
+        'Passing too many props to a single component, making it too complex and hard to test',
+        'Accessing props inside deeply nested JSX within a component, causing performance issues',
+        'Passing data through many intermediate components that do not use the data themselves, just to get it to a deeply nested component that needs it',
+        'Drilling down into a prop object with many levels of dot notation to access a deeply nested value'
+      ],
+      correct: 2,
+      explanation: 'Prop drilling occurs when data must be passed through multiple intermediate components that have no use for it — these middle components just forward the prop — which makes the code fragile and hard to maintain as the tree grows deeper.'
+    },
+    {
+      question: 'What does the spread operator do when used with props: <Button {...buttonProps} />?',
+      options: [
+        'It merges the buttonProps object with the Button component\'s existing default props',
+        'It spreads all properties of the buttonProps object as individual props on the Button component, equivalent to writing each prop out manually',
+        'It passes the entire buttonProps object as a single prop called "buttonProps" inside the component',
+        'It creates a shallow copy of buttonProps and passes the copy to prevent the parent from accidentally modifying the data'
+      ],
+      correct: 1,
+      explanation: 'The spread operator with JSX props expands an object\'s key-value pairs into individual prop assignments — <Button {...buttonProps} /> is exactly equivalent to listing each property as a separate prop like <Button label={buttonProps.label} variant={buttonProps.variant} /> and so on.'
+    }
+  ]
+})
+
+await addModule('React Development', {
+  title: 'State and useState — Making Components Dynamic',
+  description: 'Understand what state is, why it is different from regular variables, how useState works, how to update state correctly, and the common patterns for managing state in React components.',
+  orderIndex: 4,
+  content: `## Why Regular Variables Are Not Enough
+
+You have learned that React re-renders a component when something changes. But what triggers that re-render? Props changing (when the parent re-renders with new props) is one trigger. But what about changes that happen inside the component itself — a user clicking a button, typing in an input, or a timer firing?
+
+The naive solution would be to use a regular JavaScript variable:
+
+\`\`\`jsx
+function Counter() {
+  let count = 0  // regular variable
+
+  function increment() {
+    count = count + 1
+    console.log('count is now:', count)  // logs correctly!
+  }
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>+</button>
+    </div>
+  )
+}
+\`\`\`
+
+If you run this, you will notice that clicking the button does nothing — the number on screen stays at 0. But the console shows the count increasing. What is happening?
+
+Two things explain this:
+
+**First,** every time React renders a component, it calls the component function from scratch. \`count\` is initialised to \`0\` on every render. So even if you increment it, the next render starts fresh.
+
+**Second,** changing a regular variable does not tell React that anything changed. React has no way to know it should re-render. Without a re-render, the JSX is not re-evaluated, and the screen never updates.
+
+State is the solution to both problems. \`useState\` gives you a variable that:
+1. **Persists between renders** — React remembers its value
+2. **Triggers a re-render when changed** — telling React the UI needs to update
+
+## Introducing useState
+
+\`useState\` is a React Hook — a special function that lets you "hook into" React features from a functional component. You call it at the top of your component with an initial value, and it returns a pair: the current value, and a function to update it.
+
+\`\`\`jsx
+import { useState } from 'react'
+
+function Counter() {
+  const [count, setCount] = useState(0)
+  //     ↑ current  ↑ setter   ↑ initial value
+
+  function increment() {
+    setCount(count + 1)
+  }
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>+</button>
+    </div>
+  )
+}
+\`\`\`
+
+Now clicking the button works. Let's trace what happens:
+
+1. Component renders, \`count\` is \`0\`, button shows on screen
+2. User clicks the button, \`increment\` runs, calls \`setCount(1)\`
+3. React schedules a re-render with \`count = 1\`
+4. Component function runs again, this time \`useState(0)\` returns \`[1, setCount]\` — React remembered the new value
+5. The JSX reflects \`count = 1\`, screen updates to show 1
+
+The naming convention \`[value, setValue]\` is universal — use descriptive names that reflect what the state holds:
+
+\`\`\`jsx
+const [isOpen, setIsOpen] = useState(false)
+const [username, setUsername] = useState('')
+const [items, setItems] = useState([])
+const [user, setUser] = useState(null)
+const [step, setStep] = useState(1)
+\`\`\`
+
+## The Functional Update Pattern
+
+There is a subtle but important issue with updating state based on the current value. Consider:
+
+\`\`\`jsx
+// This can be buggy
+function increment() {
+  setCount(count + 1)
+}
+\`\`\`
+
+The problem is that \`count\` is captured in the function's closure at the moment the function was created. If React batches multiple state updates (which it does in some situations), \`count\` might be stale by the time the setter runs.
+
+The safe pattern for updates that depend on the previous value is the **functional update form** — pass a function to the setter instead of a value:
+
+\`\`\`jsx
+// Safe — React guarantees prevCount is the latest value
+function increment() {
+  setCount(prevCount => prevCount + 1)
+}
+
+function decrement() {
+  setCount(prevCount => prevCount - 1)
+}
+
+function double() {
+  setCount(prevCount => prevCount * 2)
+}
+\`\`\`
+
+When you pass a function, React calls it with the guaranteed current state value as the argument. The returned value becomes the new state.
+
+When should you use functional updates? When the new state depends on the old state. When you are setting state to a completely new value unrelated to the old one (like \`setIsOpen(true)\`), you do not need it.
+
+## State with Objects
+
+State can hold any JavaScript value — including objects. When state is an object, you must replace the entire object when updating — you cannot mutate it.
+
+\`\`\`jsx
+function ProfileForm() {
+  const [user, setUser] = useState({
+    name: 'Alice',
+    email: 'alice@example.com',
+    bio: '',
+  })
+
+  function updateName(newName) {
+    // Wrong — mutating state directly
+    user.name = newName
+    setUser(user)  // React may not re-render because same object reference
+
+    // Right — create a new object with spread
+    setUser({ ...user, name: newName })
+  }
+
+  function updateEmail(newEmail) {
+    setUser(prevUser => ({ ...prevUser, email: newEmail }))
+  }
+
+  return (
+    <form>
+      <input
+        value={user.name}
+        onChange={e => setUser({ ...user, name: e.target.value })}
+      />
+      <input
+        value={user.email}
+        onChange={e => setUser({ ...user, email: e.target.value })}
+      />
+      <textarea
+        value={user.bio}
+        onChange={e => setUser({ ...user, bio: e.target.value })}
+      />
+    </form>
+  )
+}
+\`\`\`
+
+The spread operator \`{ ...user, name: newName }\` creates a new object with all existing properties plus the updated one. React compares object references — if you mutate an existing object and pass it to the setter, React sees the same reference and may skip the re-render.
+
+## State with Arrays
+
+Arrays in state also require creating new arrays rather than mutating the existing one:
+
+\`\`\`jsx
+function TaskList() {
+  const [tasks, setTasks] = useState([
+    { id: 1, text: 'Learn React', done: false },
+    { id: 2, text: 'Build something', done: false },
+  ])
+
+  // Adding an item — spread existing and add new
+  function addTask(text) {
+    const newTask = {
+      id: Date.now(),  // simple unique ID
+      text,
+      done: false,
+    }
+    setTasks([...tasks, newTask])
+  }
+
+  // Removing an item — filter to exclude
+  function removeTask(id) {
+    setTasks(tasks.filter(task => task.id !== id))
+  }
+
+  // Updating an item — map and replace
+  function toggleTask(id) {
+    setTasks(tasks.map(task =>
+      task.id === id ? { ...task, done: !task.done } : task
+    ))
+  }
+
+  return (
+    <div>
+      {tasks.map(task => (
+        <div key={task.id}>
+          <span style={{ textDecoration: task.done ? 'line-through' : 'none' }}>
+            {task.text}
+          </span>
+          <button onClick={() => toggleTask(task.id)}>Toggle</button>
+          <button onClick={() => removeTask(task.id)}>Delete</button>
+        </div>
+      ))}
+      <button onClick={() => addTask('New task')}>Add Task</button>
+    </div>
+  )
+}
+\`\`\`
+
+The three key patterns for array state:
+- **Add:** \`[...existing, newItem]\`
+- **Remove:** \`existing.filter(item => item.id !== targetId)\`
+- **Update:** \`existing.map(item => item.id === targetId ? updatedItem : item)\`
+
+Never use \`push\`, \`pop\`, \`splice\`, or \`sort\` directly on state arrays — these mutate the original array. Always produce a new one.
+
+## Multiple State Variables vs One Object
+
+A common question is whether to use many \`useState\` calls or one big state object. The answer in modern React is generally: **use multiple state variables for unrelated pieces of state, and objects for state that changes together.**
+
+\`\`\`jsx
+// Multiple variables — good when data is unrelated
+function SearchPage() {
+  const [query, setQuery] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [results, setResults] = useState([])
+  const [error, setError] = useState(null)
+  // ...
+}
+
+// One object — good when fields always update together
+function ModalState() {
+  const [modal, setModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+  })
+
+  function openModal(title, message, type = 'info') {
+    setModal({ isOpen: true, title, message, type })
+  }
+
+  function closeModal() {
+    setModal(prev => ({ ...prev, isOpen: false }))
+  }
+}
+\`\`\`
+
+The heuristic: if two pieces of state always change together, group them. If they are independent, keep them separate.
+
+## Lifting State Up
+
+State should live in the component that needs it. When multiple components need the same piece of state, move it to their closest common ancestor — this is called **lifting state up**.
+
+\`\`\`jsx
+// Before lifting — each component has its own counter (independent)
+function CounterA() {
+  const [count, setCount] = useState(0)
+  return <button onClick={() => setCount(c => c + 1)}>A: {count}</button>
+}
+
+function CounterB() {
+  const [count, setCount] = useState(0)
+  return <button onClick={() => setCount(c => c + 1)}>B: {count}</button>
+}
+// A and B have independent counts
+
+// After lifting — parent owns the state, shares with children
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <p>Total: {count}</p>
+      <CounterA count={count} onIncrement={() => setCount(c => c + 1)} />
+      <CounterB count={count} onIncrement={() => setCount(c => c + 1)} />
+    </div>
+  )
+}
+// Now A and B share the same count
+\`\`\`
+
+Lifting state is a fundamental React pattern. When you find yourself needing two components to be in sync, lift the state to their common ancestor.
+
+## Derived State — Compute, Don't Store
+
+A common mistake is storing values in state that can be computed from other state. This leads to synchronisation bugs.
+
+\`\`\`jsx
+// Anti-pattern — derived state
+function CartComponent() {
+  const [items, setItems] = useState([...])
+  const [total, setTotal] = useState(0)  // Wrong! Derived from items
+
+  function addItem(item) {
+    const newItems = [...items, item]
+    setItems(newItems)
+    setTotal(newItems.reduce((sum, i) => sum + i.price, 0))  // Easy to forget
+  }
+}
+
+// Better — compute from source of truth
+function CartComponent() {
+  const [items, setItems] = useState([...])
+
+  // Computed on every render — always accurate
+  const total = items.reduce((sum, item) => sum + item.price, 0)
+  const itemCount = items.length
+  const hasItems = items.length > 0
+
+  function addItem(item) {
+    setItems([...items, item])  // Only update the source; rest computes automatically
+  }
+}
+\`\`\`
+
+If a value can be derived from existing state or props, do not put it in state — compute it during render. This is simpler, less error-prone, and always accurate.
+
+## A Complete useState Example — Shopping Cart
+
+\`\`\`jsx
+import { useState } from 'react'
+
+const PRODUCTS = [
+  { id: 1, name: 'React T-Shirt', price: 25 },
+  { id: 2, name: 'JavaScript Mug', price: 15 },
+  { id: 3, name: 'Node.js Hoodie', price: 45 },
+]
+
+function ShoppingApp() {
+  const [cartItems, setCartItems] = useState([])
+  const [lastAdded, setLastAdded] = useState(null)
+
+  // Derived state — no separate useState
+  const cartTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+
+  function addToCart(product) {
+    setCartItems(prev => {
+      const existing = prev.find(item => item.id === product.id)
+      if (existing) {
+        return prev.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      }
+      return [...prev, { ...product, quantity: 1 }]
+    })
+    setLastAdded(product.name)
+  }
+
+  function removeFromCart(productId) {
+    setCartItems(prev => prev.filter(item => item.id !== productId))
+  }
+
+  return (
+    <div className="app">
+      <header>
+        <h1>Dev Store</h1>
+        <span className="cart-count">{cartCount} items — \${cartTotal.toFixed(2)}</span>
+      </header>
+
+      {lastAdded && <p className="toast">Added {lastAdded} to cart!</p>}
+
+      <div className="products">
+        {PRODUCTS.map(product => (
+          <div key={product.id} className="product">
+            <h3>{product.name}</h3>
+            <p>\${product.price}</p>
+            <button onClick={() => addToCart(product)}>Add to Cart</button>
+          </div>
+        ))}
+      </div>
+
+      <div className="cart">
+        <h2>Cart</h2>
+        {cartItems.length === 0 ? (
+          <p>Your cart is empty</p>
+        ) : (
+          cartItems.map(item => (
+            <div key={item.id} className="cart-item">
+              <span>{item.name} × {item.quantity}</span>
+              <span>\${(item.price * item.quantity).toFixed(2)}</span>
+              <button onClick={() => removeFromCart(item.id)}>×</button>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )
+}
+\`\`\`
+
+This example demonstrates multiple state variables, functional updates, object state, array state patterns, and derived state working together in a realistic application.
+
+State is the heart of React's dynamism. Once you truly understand that the UI is a direct reflection of state — that changing state triggers a re-render that reflects the new state — React's behaviour becomes entirely predictable.`,
+  quizzes: [
+    {
+      question: 'Why does changing a regular JavaScript variable inside a React component not update what the user sees on screen?',
+      options: [
+        'React blocks variable mutations inside components for security reasons',
+        'JavaScript variables inside functions are immutable and cannot be changed',
+        'Changing a regular variable does not tell React anything changed, so no re-render is scheduled, and the screen never updates with the new value',
+        'Regular variables are reset to their initial values after each render cycle'
+      ],
+      correct: 2,
+      explanation: 'React only re-renders a component when state or props change — a regular variable mutation is invisible to React, so no re-render is triggered and the JSX is never re-evaluated, leaving the screen stuck at the old value.'
+    },
+    {
+      question: 'When updating state that depends on the previous value, why should you use the functional update form setCount(prev => prev + 1) instead of setCount(count + 1)?',
+      options: [
+        'The functional form is faster because React can skip the closure lookup',
+        'setCount(count + 1) does not work at all — React requires a function to be passed to all state setters',
+        'The count variable in a closure may be stale if React batches updates, while the functional form receives the guaranteed latest state value as its argument',
+        'The functional form prevents unnecessary re-renders by allowing React to compare the function reference instead of the value'
+      ],
+      correct: 2,
+      explanation: 'React may batch multiple state updates together, meaning the count in your closure could be outdated by the time the setter runs — the functional form receives the actual current state as its argument, guaranteeing the update is based on the latest value.'
+    },
+    {
+      question: 'Why must you create a new array rather than mutate the existing one when updating array state?',
+      options: [
+        'React freezes all state arrays to prevent accidental modification',
+        'Array mutations like push() and splice() do not return a value, so the setter receives undefined',
+        'React detects state changes by comparing references — mutating the existing array keeps the same reference, so React sees no change and may skip the re-render',
+        'Mutating arrays in state causes an error because JavaScript arrays in React are stored as tuples'
+      ],
+      correct: 2,
+      explanation: 'React uses reference equality to detect changes — mutating an existing array produces the same object reference, which React interprets as no change and may skip re-rendering; creating a new array produces a new reference that React recognises as a change.'
+    },
+    {
+      question: 'What is "derived state" and why is it better to compute it during render than store it in useState?',
+      options: [
+        'Derived state is state inherited from a parent component, and it should be stored locally to prevent unnecessary parent re-renders',
+        'Derived state is a value that can be computed from existing state or props — storing it separately in useState creates synchronisation risk; computing it during render keeps it always accurate with no extra state to manage',
+        'Derived state is state that React automatically derives from your component\'s return value and stores for performance',
+        'Derived state refers to state that is passed down from parent components and must be stored to prevent prop drilling'
+      ],
+      correct: 1,
+      explanation: 'Values that can be computed from state or props should not be stored in separate useState variables — every update to the source requires also updating the derived state correctly, and it is easy to forget, causing bugs; computing during render is always consistent.'
+    },
+    {
+      question: 'What does "lifting state up" mean and when should you do it?',
+      options: [
+        'Moving all state into a global store at the top of the application to make it accessible everywhere',
+        'Moving state from a child component to a parent component when multiple sibling components need access to the same piece of state',
+        'Moving useState calls to the top of the component function to comply with the Rules of Hooks',
+        'Converting local state to derived state by computing it from props instead of storing it'
+      ],
+      correct: 1,
+      explanation: 'Lifting state up means moving state to the closest common ancestor of the components that need it — when two sibling components need to share or be in sync with the same data, their common parent owns the state and passes it down to each child via props.'
+    }
+  ]
+})
+
+await addModule('React Development', {
+  title: 'useEffect — Handling Side Effects and Lifecycle',
+  description: 'Understand what side effects are in React, how useEffect coordinates them with the render cycle, how to control when effects run with dependencies, and how to properly clean up effects.',
+  orderIndex: 5,
+  content: `## What Is a Side Effect?
+
+React components have one primary job: given some props and state, return JSX that describes the UI. The render process is designed to be a pure function — the same inputs always produce the same output, with no interaction with the outside world.
+
+But real applications need to do things that go beyond rendering. They need to:
+- Fetch data from an API
+- Set up timers and intervals
+- Subscribe to external events (WebSockets, browser events)
+- Interact with browser APIs (localStorage, geolocation, title)
+- Set up third-party library integrations
+
+These operations are called **side effects** — they affect something outside the component's render output. The problem is that the render function runs frequently and needs to be fast and predictable. You cannot do a network request or set up a subscription directly inside the render — it would run on every render, create memory leaks, and produce unpredictable behaviour.
+
+\`useEffect\` is React's way of saying: "Run this code, but not during render — run it after React has committed the output to the DOM."
+
+## The Mental Model for useEffect
+
+The best mental model is not "lifecycle methods" (the React class component concept). The better model is: **\`useEffect\` synchronises your component with something external.**
+
+- Synchronise with a server: fetch user data when the user ID changes
+- Synchronise with a timer: start a countdown when the component appears
+- Synchronise with browser storage: save settings when they change
+- Synchronise with a WebSocket: connect when the component mounts, disconnect when it unmounts
+
+When you frame effects as synchronisation, questions like "when should this run?" answer themselves: "Whenever the things it depends on change."
+
+## Basic useEffect Syntax
+
+\`\`\`jsx
+import { useState, useEffect } from 'react'
+
+function DocumentTitle({ page }) {
+  useEffect(() => {
+    // This runs after the component renders
+    document.title = \`\${page} — My App\`
+  })
+
+  return <h1>{page}</h1>
+}
+\`\`\`
+
+With no second argument, the effect runs after every render. That is often not what you want — setting the document title on every render is wasteful if it has not changed.
+
+## The Dependency Array
+
+The second argument to \`useEffect\` is the **dependency array** — a list of values that the effect depends on. React runs the effect after render only if one of the dependencies changed since the last render.
+
+\`\`\`jsx
+useEffect(() => {
+  document.title = \`\${page} — My App\`
+}, [page])  // only re-run when page changes
+\`\`\`
+
+There are three forms:
+
+**No dependency array — runs after every render:**
+\`\`\`jsx
+useEffect(() => {
+  // Runs after every render
+  console.log('Component rendered')
+})
+\`\`\`
+
+**Empty dependency array — runs once after mount:**
+\`\`\`jsx
+useEffect(() => {
+  // Runs once after the first render
+  console.log('Component mounted')
+  fetchInitialData()
+}, [])
+\`\`\`
+
+**With dependencies — runs when dependencies change:**
+\`\`\`jsx
+useEffect(() => {
+  // Runs after mount AND whenever userId changes
+  fetchUser(userId)
+}, [userId])
+\`\`\`
+
+The golden rule: **the dependency array should contain every reactive value used inside the effect.** A reactive value is anything that could change between renders — state variables, props, and values derived from them. If you use \`userId\` inside the effect, \`userId\` goes in the dependency array.
+
+Omitting dependencies that should be there leads to **stale closures** — the effect uses outdated values without knowing it. React's ESLint plugin (\`eslint-plugin-react-hooks\`) warns you when dependencies are missing and is strongly recommended.
+
+## Cleanup Functions
+
+Some effects need to be cleaned up when the component unmounts or before the effect runs again. Without cleanup, you get memory leaks and bugs. Common examples: timers, subscriptions, event listeners, and WebSocket connections.
+
+You clean up by returning a function from the effect:
+
+\`\`\`jsx
+function Timer() {
+  const [seconds, setSeconds] = useState(0)
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setSeconds(prev => prev + 1)
+    }, 1000)
+
+    // Cleanup function — React calls this when:
+    // 1. The component unmounts
+    // 2. Before the effect runs again (due to dependencies changing)
+    return () => {
+      clearInterval(intervalId)
+    }
+  }, [])  // empty deps — set up once, clean up on unmount
+
+  return <p>Elapsed: {seconds}s</p>
+}
+\`\`\`
+
+Without the cleanup, every time this component mounted it would create a new interval, and old intervals would never be cleared — a classic memory leak.
+
+Another example — event listeners:
+
+\`\`\`jsx
+function MouseTracker() {
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    function handleMouseMove(event) {
+      setPosition({ x: event.clientX, y: event.clientY })
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [])  // Set up once, clean up on unmount
+
+  return <p>Mouse: {position.x}, {position.y}</p>
+}
+\`\`\`
+
+## Fetching Data with useEffect
+
+Fetching data is the most common use of \`useEffect\`. The pattern is always the same: when a dependency changes (often an ID or query), fetch new data, and update state with the result.
+
+\`\`\`jsx
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    setIsLoading(true)
+    setError(null)
+
+    fetch(\`https://api.example.com/users/\${userId}\`)
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch user')
+        return response.json()
+      })
+      .then(data => {
+        setUser(data)
+        setIsLoading(false)
+      })
+      .catch(err => {
+        setError(err.message)
+        setIsLoading(false)
+      })
+  }, [userId])  // Re-fetch whenever userId changes
+
+  if (isLoading) return <p>Loading...</p>
+  if (error) return <p>Error: {error}</p>
+  if (!user) return null
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+    </div>
+  )
+}
+\`\`\`
+
+This is correct but has a subtle bug — what if \`userId\` changes before the first fetch completes? The second fetch completes and sets state, then the first fetch completes and overwrites with stale data (a **race condition**).
+
+The solution is an **AbortController** to cancel the previous fetch:
+
+\`\`\`jsx
+useEffect(() => {
+  const controller = new AbortController()
+
+  setIsLoading(true)
+  setError(null)
+
+  fetch(\`https://api.example.com/users/\${userId}\`, {
+    signal: controller.signal
+  })
+    .then(res => res.json())
+    .then(data => {
+      setUser(data)
+      setIsLoading(false)
+    })
+    .catch(err => {
+      if (err.name === 'AbortError') return  // Ignore cancelled requests
+      setError(err.message)
+      setIsLoading(false)
+    })
+
+  return () => controller.abort()  // Cancel fetch on cleanup
+}, [userId])
+\`\`\`
+
+When \`userId\` changes, React runs the cleanup (aborts the old fetch) before running the effect again (starting the new fetch). Race condition solved.
+
+## Common useEffect Patterns
+
+**Document title sync:**
+\`\`\`jsx
+useEffect(() => {
+  document.title = title
+}, [title])
+\`\`\`
+
+**Local storage sync:**
+\`\`\`jsx
+useEffect(() => {
+  localStorage.setItem('theme', theme)
+}, [theme])
+
+// Load from localStorage on mount
+const [theme, setTheme] = useState(() => {
+  return localStorage.getItem('theme') || 'light'
+})
+\`\`\`
+
+Note the lazy initialiser — \`useState\` accepts a function as initial value, which is called once on mount. This is the pattern for initialising from localStorage.
+
+**Scroll lock when modal is open:**
+\`\`\`jsx
+useEffect(() => {
+  if (isOpen) {
+    document.body.style.overflow = 'hidden'
+  }
+  return () => {
+    document.body.style.overflow = 'unset'
+  }
+}, [isOpen])
+\`\`\`
+
+**WebSocket connection:**
+\`\`\`jsx
+useEffect(() => {
+  const socket = new WebSocket(\`wss://api.example.com/chat/\${roomId}\`)
+
+  socket.onmessage = event => {
+    setMessages(prev => [...prev, JSON.parse(event.data)])
+  }
+
+  socket.onerror = () => setError('Connection failed')
+
+  return () => socket.close()
+}, [roomId])
+\`\`\`
+
+**Debounced search:**
+\`\`\`jsx
+function SearchResults({ query }) {
+  const [results, setResults] = useState([])
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([])
+      return
+    }
+
+    // Wait 300ms after query stops changing before fetching
+    const timeoutId = setTimeout(() => {
+      fetch(\`/api/search?q=\${encodeURIComponent(query)}\`)
+        .then(res => res.json())
+        .then(data => setResults(data))
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [query])
+
+  return (
+    <ul>
+      {results.map(result => (
+        <li key={result.id}>{result.title}</li>
+      ))}
+    </ul>
+  )
+}
+\`\`\`
+
+The cleanup cancels the previous timeout before the new one starts — so if the user is typing, the fetch only happens after they pause for 300ms.
+
+## Rules of Hooks
+
+useEffect is a Hook, and all React Hooks follow two rules:
+
+**Rule 1: Only call Hooks at the top level.** Never call Hooks inside loops, conditions, or nested functions. Hooks must be called in the same order every render so React can match them to their stored state.
+
+\`\`\`jsx
+// Wrong
+function Component({ condition }) {
+  if (condition) {
+    useEffect(() => { ... })  // Never!
+  }
+}
+
+// Right — put the condition inside the effect
+function Component({ condition }) {
+  useEffect(() => {
+    if (condition) {
+      // ...
+    }
+  }, [condition])
+}
+\`\`\`
+
+**Rule 2: Only call Hooks from React function components or custom Hooks.** Not from regular JavaScript functions, class components, or event handlers.
+
+These rules exist because React uses call order to track which Hook corresponds to which state. Violating them causes React to mix up Hook state between renders.
+
+## Custom Hooks — Extracting Effect Logic
+
+When you find yourself writing the same effect pattern in multiple components, extract it into a **custom Hook** — a function whose name starts with \`use\` that calls React Hooks internally.
+
+\`\`\`jsx
+// Custom hook for fetching any resource
+function useFetch(url) {
+  const [data, setData] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    setIsLoading(true)
+    setError(null)
+
+    fetch(url, { signal: controller.signal })
+      .then(res => {
+        if (!res.ok) throw new Error(\`HTTP error \${res.status}\`)
+        return res.json()
+      })
+      .then(data => {
+        setData(data)
+        setIsLoading(false)
+      })
+      .catch(err => {
+        if (err.name === 'AbortError') return
+        setError(err.message)
+        setIsLoading(false)
+      })
+
+    return () => controller.abort()
+  }, [url])
+
+  return { data, isLoading, error }
+}
+
+// Use the custom hook in any component
+function UserProfile({ userId }) {
+  const { data: user, isLoading, error } = useFetch(
+    \`https://api.example.com/users/\${userId}\`
+  )
+
+  if (isLoading) return <p>Loading...</p>
+  if (error) return <p>Error: {error}</p>
+  return <h1>{user.name}</h1>
+}
+
+function PostList({ authorId }) {
+  const { data: posts, isLoading, error } = useFetch(
+    \`https://api.example.com/posts?author=\${authorId}\`
+  )
+
+  if (isLoading) return <p>Loading posts...</p>
+  if (error) return <p>Failed to load posts</p>
+  return posts.map(post => <div key={post.id}>{post.title}</div>)
+}
+\`\`\`
+
+Custom Hooks are the React way to share stateful logic between components. They are not a special React feature — they are just conventions. Any function that uses React Hooks and whose name starts with \`use\` is a custom Hook.
+
+\`useEffect\` is the most powerful and most subtle of React's Hooks. The key to using it well is the synchronisation mental model: identify what external thing your component needs to stay in sync with, make that the effect's job, and always clean up when the sync is no longer needed.`,
+  quizzes: [
+    {
+      question: 'What is a "side effect" in the context of React components?',
+      options: [
+        'An unintended error caused by a bug in a component\'s render function',
+        'Any operation that interacts with something outside the component\'s render output — such as fetching data, setting timers, or updating the document title',
+        'A prop that has an unintended secondary effect on the component\'s appearance',
+        'State that is modified by a child component instead of the component that owns it'
+      ],
+      correct: 1,
+      explanation: 'Side effects are operations that go beyond returning JSX — they interact with external systems like APIs, browser APIs, or event subscriptions, and they need to be coordinated with the render cycle, which is what useEffect is designed to do.'
+    },
+    {
+      question: 'What is the difference between useEffect with no dependency array, an empty array, and an array with values?',
+      options: [
+        'All three are identical — React ignores the dependency array and runs effects after every render',
+        'No array runs after every render; empty array [] runs only once after the first render; [value] runs after the first render and again whenever value changes',
+        'No array runs once on mount; empty array runs on every render; [value] runs only when value is initially set',
+        'The dependency array only affects when the cleanup function runs, not when the effect itself runs'
+      ],
+      correct: 1,
+      explanation: 'The dependency array controls when the effect re-runs: with no array every render triggers it, with [] only the initial mount triggers it, and with [value] the initial mount plus any render where value changed from its previous render value triggers it.'
+    },
+    {
+      question: 'Why is a cleanup function necessary for a setInterval inside useEffect?',
+      options: [
+        'setInterval requires a cleanup function as its second argument to work correctly in React',
+        'Without cleanup, the interval continues running after the component unmounts, creating a memory leak and attempting to update state on an unmounted component',
+        'React automatically pauses intervals during re-renders, and the cleanup function tells React when to resume them',
+        'The cleanup function converts the interval from asynchronous to synchronous to prevent timing issues'
+      ],
+      correct: 1,
+      explanation: 'Without clearInterval in the cleanup, the interval created when the component mounts continues ticking after the component is removed from the page — the callback still runs and calls setState on a component that no longer exists, causing a memory leak and React warnings.'
+    },
+    {
+      question: 'What is a race condition in data fetching and how does AbortController solve it?',
+      options: [
+        'A race condition occurs when two effects run simultaneously — AbortController ensures only one effect can run at a time',
+        'A race condition occurs when a fast dependency change causes a second fetch to complete before the first, resulting in stale data being displayed — AbortController cancels the previous fetch in the cleanup so only the latest result is used',
+        'A race condition occurs when state updates conflict with each other — AbortController queues state updates to process them in order',
+        'A race condition occurs when the network is slow — AbortController implements retry logic to resolve slow requests'
+      ],
+      correct: 1,
+      explanation: 'When dependencies change rapidly, multiple fetches can be in flight simultaneously and arrive out of order — AbortController in the cleanup cancels the previous in-flight request when the effect re-runs, ensuring only the response to the latest request updates state.'
+    },
+    {
+      question: 'What is a custom Hook and what problem does it solve?',
+      options: [
+        'A component built into React that provides additional lifecycle management beyond what useState and useEffect offer',
+        'A JavaScript function whose name starts with "use" that calls React Hooks internally, allowing stateful logic to be extracted and reused across multiple components without duplication',
+        'A hook that overrides React\'s built-in rendering behaviour for performance-critical components',
+        'A configuration file that customises how React processes Hook calls in a specific component tree'
+      ],
+      correct: 1,
+      explanation: 'Custom Hooks are simply functions that use React Hooks and follow the "use" naming convention — they let you extract repeated stateful logic (like data fetching with loading and error state) into a reusable unit that any component can call, eliminating code duplication.'
+    }
+  ]
+})
+
+await addModule('React Development', {
+  title: 'Handling Events and Forms in React',
+  description: 'Learn React\'s event handling model, how to build controlled form inputs where React owns the value, how to validate forms, and how to structure form state for complex multi-field forms.',
+  orderIndex: 6,
+  content: `## Events in React — Familiar but Different
+
+If you have worked with DOM events in vanilla JavaScript, React events will feel familiar. But React wraps the native browser events in its own system, and there are important differences in how you attach handlers.
+
+In vanilla JavaScript:
+\`\`\`javascript
+button.addEventListener('click', handleClick)
+\`\`\`
+
+In React:
+\`\`\`jsx
+<button onClick={handleClick}>Click me</button>
+\`\`\`
+
+The differences:
+- Event names are **camelCase** in React (\`onClick\`, \`onChange\`, \`onSubmit\`) not lowercase (\`onclick\`, \`onchange\`)
+- You pass a **function reference** in JSX, not a string
+- You never call \`addEventListener\` — event listeners are declaratively declared in JSX
+- React uses **Synthetic Events** — wrappers around native events that normalise behaviour across browsers
+
+\`\`\`jsx
+function EventExamples() {
+  function handleClick(event) {
+    console.log('Clicked!', event.type)  // "click"
+    console.log(event.target)            // the button element
+  }
+
+  function handleMouseEnter() {
+    console.log('Mouse entered!')
+  }
+
+  function handleKeyDown(event) {
+    console.log('Key:', event.key)
+    if (event.key === 'Enter') console.log('Enter pressed!')
+  }
+
+  return (
+    <div>
+      <button onClick={handleClick}>Click</button>
+      <div onMouseEnter={handleMouseEnter}>Hover me</div>
+      <input onKeyDown={handleKeyDown} placeholder="Type here" />
+    </div>
+  )
+}
+\`\`\`
+
+React's Synthetic Event system means you get the same event object structure regardless of which browser the user is on. The event object has all the properties you expect: \`type\`, \`target\`, \`currentTarget\`, \`preventDefault\`, \`stopPropagation\`, and so on.
+
+## Passing Arguments to Event Handlers
+
+A common pattern is passing extra data to an event handler — like the ID of the item being clicked:
+
+\`\`\`jsx
+// Wrong — calls the function immediately during render
+<button onClick={handleDelete(item.id)}>Delete</button>
+
+// Right — wrap in an arrow function so it's called on click, not during render
+<button onClick={() => handleDelete(item.id)}>Delete</button>
+
+// Also right — works when you need the event object too
+<button onClick={(event) => handleClick(event, item.id)}>Click</button>
+\`\`\`
+
+The most common mistake is calling the function instead of passing it. \`onClick={handleDelete(item.id)}\` runs \`handleDelete\` immediately during render (not on click) and passes its return value as the handler. The arrow function wrapper defers the call until the click actually happens.
+
+## Controlled vs Uncontrolled Inputs
+
+This is the most conceptually important part of React forms.
+
+In HTML, a form input maintains its own internal state — the browser tracks what the user has typed. This is called an **uncontrolled** input — the DOM controls the value.
+
+React introduces **controlled** inputs — where React (via state) controls the value. The input's displayed value is always determined by a state variable, and every keystroke updates that state variable, which re-renders the input with the new value.
+
+\`\`\`jsx
+// Uncontrolled — DOM owns the value
+<input type="text" defaultValue="Alice" />
+
+// Controlled — React owns the value
+function ControlledInput() {
+  const [name, setName] = useState('Alice')
+
+  return (
+    <input
+      type="text"
+      value={name}
+      onChange={event => setName(event.target.value)}
+    />
+  )
+}
+\`\`\`
+
+In a controlled input, setting \`value\` without an \`onChange\` handler makes the input read-only — the user cannot type because the value is always set to the state variable, and the state variable never changes.
+
+**Why use controlled inputs?**
+- The input's value is always in sync with state — no need to read the DOM to get the value
+- You can validate and transform input on every keystroke
+- You can reset the form by simply resetting state
+- You can programmatically change the value by updating state
+
+Controlled inputs are the standard React approach. Use uncontrolled inputs only when integrating with third-party DOM-focused libraries or when form performance is a serious concern.
+
+## Building a Form Step by Step
+
+Let's build a realistic registration form to illustrate every concept:
+
+\`\`\`jsx
+import { useState } from 'react'
+
+function RegistrationForm() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    agreeToTerms: false,
+  })
+  const [errors, setErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+
+  // Generic change handler for text inputs
+  function handleChange(event) {
+    const { name, value, type, checked } = event.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }))
+
+    // Clear error when user starts correcting the field
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+  }
+
+  function validate() {
+    const newErrors = {}
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required'
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+
+    if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters'
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match'
+    }
+
+    if (!formData.agreeToTerms) {
+      newErrors.agreeToTerms = 'You must agree to the terms'
+    }
+
+    return newErrors
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+
+    const validationErrors = validate()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      setSubmitSuccess(true)
+    } catch (error) {
+      setErrors({ submit: 'Registration failed. Please try again.' })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (submitSuccess) {
+    return (
+      <div className="success">
+        <h2>Welcome, {formData.name}!</h2>
+        <p>Your account has been created successfully.</p>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} noValidate>
+      <h1>Create Account</h1>
+
+      <div className="field">
+        <label htmlFor="name">Full Name</label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          value={formData.name}
+          onChange={handleChange}
+          className={errors.name ? 'input-error' : ''}
+          placeholder="Alice Smith"
+        />
+        {errors.name && <span className="error-msg">{errors.name}</span>}
+      </div>
+
+      <div className="field">
+        <label htmlFor="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          className={errors.email ? 'input-error' : ''}
+          placeholder="alice@example.com"
+        />
+        {errors.email && <span className="error-msg">{errors.email}</span>}
+      </div>
+
+      <div className="field">
+        <label htmlFor="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange}
+          className={errors.password ? 'input-error' : ''}
+        />
+        {errors.password && <span className="error-msg">{errors.password}</span>}
+      </div>
+
+      <div className="field">
+        <label htmlFor="confirmPassword">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          className={errors.confirmPassword ? 'input-error' : ''}
+        />
+        {errors.confirmPassword && (
+          <span className="error-msg">{errors.confirmPassword}</span>
+        )}
+      </div>
+
+      <div className="field field-checkbox">
+        <input
+          id="agreeToTerms"
+          name="agreeToTerms"
+          type="checkbox"
+          checked={formData.agreeToTerms}
+          onChange={handleChange}
+        />
+        <label htmlFor="agreeToTerms">I agree to the Terms of Service</label>
+        {errors.agreeToTerms && (
+          <span className="error-msg">{errors.agreeToTerms}</span>
+        )}
+      </div>
+
+      {errors.submit && <div className="error-banner">{errors.submit}</div>}
+
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Creating account...' : 'Create Account'}
+      </button>
+    </form>
+  )
+}
+\`\`\`
+
+Let's unpack the key patterns in this form.
+
+## The Generic Change Handler Pattern
+
+The \`handleChange\` function handles all fields using the \`name\` attribute:
+
+\`\`\`jsx
+function handleChange(event) {
+  const { name, value, type, checked } = event.target
+  setFormData(prev => ({
+    ...prev,
+    [name]: type === 'checkbox' ? checked : value,
+  }))
+}
+\`\`\`
+
+The \`name\` attribute on each input matches the property name in the \`formData\` object. The computed property key \`[name]\` updates the right field dynamically. Checkboxes use \`checked\` instead of \`value\`, so the handler checks the input type to grab the right property.
+
+This pattern means you never have to write a separate handler function for each field — one generic handler covers all of them.
+
+## Validation Patterns
+
+Validation belongs in your form logic, not in the component's JSX. A separate \`validate\` function is clean and testable:
+
+\`\`\`jsx
+function validate(values) {
+  const errors = {}
+
+  // Required field
+  if (!values.name.trim()) errors.name = 'Name is required'
+
+  // Email format
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(values.email)) {
+    errors.email = 'Invalid email address'
+  }
+
+  // Minimum length
+  if (values.password.length < 8) {
+    errors.password = 'At least 8 characters required'
+  }
+
+  // Cross-field validation
+  if (values.password !== values.confirmPassword) {
+    errors.confirmPassword = 'Passwords must match'
+  }
+
+  return errors
+}
+\`\`\`
+
+The validate function returns an errors object where keys match field names. Empty object means all valid; any keys mean failures. This pattern scales to any number of fields.
+
+## Select, Radio, and Textarea
+
+All form elements follow the same controlled pattern:
+
+\`\`\`jsx
+// Select dropdown
+<select name="country" value={formData.country} onChange={handleChange}>
+  <option value="">Select a country</option>
+  <option value="AU">Australia</option>
+  <option value="US">United States</option>
+  <option value="GB">United Kingdom</option>
+</select>
+
+// Radio buttons
+<div>
+  {['beginner', 'intermediate', 'advanced'].map(level => (
+    <label key={level}>
+      <input
+        type="radio"
+        name="skillLevel"
+        value={level}
+        checked={formData.skillLevel === level}
+        onChange={handleChange}
+      />
+      {level.charAt(0).toUpperCase() + level.slice(1)}
+    </label>
+  ))}
+</div>
+
+// Textarea
+<textarea
+  name="bio"
+  value={formData.bio}
+  onChange={handleChange}
+  rows={4}
+  maxLength={500}
+  placeholder="Tell us about yourself..."
+/>
+<p className="char-count">{formData.bio.length}/500</p>
+\`\`\`
+
+All of these use \`value\` (or \`checked\` for radio/checkbox) and \`onChange\` — the same controlled pattern applied consistently.
+
+## Form Submission and API Integration
+
+\`\`\`jsx
+async function handleSubmit(event) {
+  event.preventDefault()  // Stop the form from reloading the page
+
+  // Validate first
+  const validationErrors = validate(formData)
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors)
+    return  // Stop submission
+  }
+
+  // Submit to API
+  setIsSubmitting(true)
+
+  try {
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Registration failed')
+    }
+
+    setSubmitSuccess(true)
+  } catch (error) {
+    setErrors({ submit: error.message })
+  } finally {
+    setIsSubmitting(false)
+  }
+}
+\`\`\`
+
+The \`finally\` block runs whether the try succeeded or failed — using it to reset \`isSubmitting\` ensures the button never stays permanently disabled.
+
+## Resetting and Clearing Forms
+
+Because state controls the values, resetting is trivial:
+
+\`\`\`jsx
+function resetForm() {
+  setFormData({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    agreeToTerms: false,
+  })
+  setErrors({})
+}
+\`\`\`
+
+No DOM manipulation, no ref calls, no form.reset() — just set state back to the initial values. This is one of the most concrete benefits of controlled inputs.
+
+Events and forms are where React applications become truly interactive. The controlled input pattern, the generic change handler, and the validate-then-submit flow are patterns you will use in almost every form you ever build in React. Learn them thoroughly and they become second nature.`,
+  quizzes: [
+    {
+      question: 'What is a controlled input in React and what makes it "controlled"?',
+      options: [
+        'An input that has validation rules applied to it through the required and pattern HTML attributes',
+        'An input whose displayed value is determined by React state, and every change is handled by an onChange handler that updates that state — React owns the value rather than the DOM',
+        'An input that is disabled and cannot be modified by the user — React controls access to it',
+        'An input that is wrapped in a React.memo() call to control when it re-renders'
+      ],
+      correct: 1,
+      explanation: 'A controlled input sets value from state and onChange to update that state on every keystroke — React is the single source of truth for the input\'s value, keeping it always in sync with state rather than relying on the DOM\'s internal tracking.'
+    },
+    {
+      question: 'Why does <button onClick={handleDelete(item.id)}> cause a bug?',
+      options: [
+        'onClick requires a string event name, not a function call',
+        'handleDelete is called immediately during render rather than on click, because the parentheses invoke the function — its return value becomes the handler instead',
+        'You cannot pass arguments to event handlers in React — only the event object is allowed',
+        'The item.id argument is not accessible inside the onClick scope due to closure restrictions'
+      ],
+      correct: 1,
+      explanation: 'Writing handleDelete(item.id) immediately calls the function during the render phase and assigns its return value as the handler — to defer the call until click, wrap it: onClick={() => handleDelete(item.id)}.'
+    },
+    {
+      question: 'In the generic change handler pattern, what is the purpose of [name] with square brackets in the state update?',
+      options: [
+        'It accesses an array element at the index stored in the name variable',
+        'It is a destructuring syntax that extracts the name property from the event target',
+        'It is a computed property key — it uses the value of the name variable as the property name in the object, allowing one handler to update any field dynamically',
+        'It prevents the property from being enumerated when the object is spread'
+      ],
+      correct: 2,
+      explanation: 'Computed property keys ([variable]) use the value of the variable as the property name at runtime — since name equals the input\'s name attribute (like "email" or "password"), one handler can update any field by setting the right property in the state object.'
+    },
+    {
+      question: 'Why should form validation be done in a separate validate function that returns an errors object, rather than inline in the JSX?',
+      options: [
+        'React requires validation to be in a separate function for security — inline validation is blocked by the content security policy',
+        'Inline validation in JSX runs on every render which is too slow for complex forms',
+        'A separate validate function is easier to test, can be reused, keeps the JSX clean, and makes the validation logic easy to read and maintain independently of the rendering logic',
+        'JSX does not support boolean expressions long enough for validation rules'
+      ],
+      correct: 2,
+      explanation: 'Separating validation into its own function follows the single responsibility principle — the function can be unit tested in isolation, the JSX stays focused on rendering, and the validation rules are readable as a cohesive block rather than scattered through the markup.'
+    },
+    {
+      question: 'What is the advantage of using a finally block in an async form submission handler?',
+      options: [
+        'finally makes the async function synchronous so the form cannot be submitted again until the current submission completes',
+        'finally runs whether the try block succeeded or threw an error, ensuring cleanup like setIsSubmitting(false) always executes and the submit button does not remain permanently disabled',
+        'finally is required by React\'s form handling system to signal that the submission cycle is complete',
+        'finally prevents the component from unmounting while the submission is in progress'
+      ],
+      correct: 1,
+      explanation: 'A finally block executes regardless of whether the try succeeded or catch handled an error — putting setIsSubmitting(false) there guarantees the button always returns to its enabled state after the submission attempt, preventing it from getting permanently stuck in a loading state.'
+    }
+  ]
+})
+
+await addModule('React Development', {
+  title: 'Fetching Data from an API in React',
+  description: 'Learn how to fetch data from external APIs in React, handle loading and error states gracefully, avoid common pitfalls like memory leaks and race conditions, and build reusable data-fetching patterns.',
+  orderIndex: 7,
+  content: `## Data Fetching Is Central to Real Applications
+
+Almost every real React application fetches data from an external source — a REST API, a GraphQL endpoint, a database-backed server. A to-do app syncs with a backend. A dashboard loads analytics. A social feed pulls posts. Understanding how to fetch data correctly in React — not just making the fetch work, but handling all the states and edge cases — is what separates toy apps from production-quality applications.
+
+You already know the basics: \`useEffect\` runs after render, \`fetch\` retrieves data, \`useState\` holds the result. But correct data fetching in React involves several considerations that are not obvious at first:
+- What does the user see while data is loading?
+- What does the user see if the fetch fails?
+- What happens if the user navigates away before the fetch completes?
+- What happens if they trigger a new fetch before the previous one finishes?
+- How do you avoid re-fetching data you already have?
+
+This module addresses all of these systematically.
+
+## The Three States of Async Data
+
+Every piece of data fetched from an API is in one of exactly three states at any given moment:
+
+1. **Loading** — the request is in flight, data is not yet available
+2. **Success** — data arrived and can be displayed
+3. **Error** — the request failed and an error should be communicated
+
+Your UI must handle all three states. Forgetting the loading or error states is the most common mistake in React data fetching, and it leads to blank screens, silent failures, and confused users.
+
+\`\`\`jsx
+import { useState, useEffect } from 'react'
+
+function PostList() {
+  const [posts, setPosts] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/posts?_limit=10')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(\`HTTP error: \${response.status}\`)
+        }
+        return response.json()
+      })
+      .then(data => {
+        setPosts(data)
+        setIsLoading(false)
+      })
+      .catch(error => {
+        setError(error.message)
+        setIsLoading(false)
+      })
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="loading-state">
+        <div className="spinner" />
+        <p>Loading posts...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="error-state">
+        <p>Failed to load posts: {error}</p>
+        <button onClick={() => window.location.reload()}>Try Again</button>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {posts.map(post => (
+        <article key={post.id}>
+          <h2>{post.title}</h2>
+          <p>{post.body}</p>
+        </article>
+      ))}
+    </div>
+  )
+}
+\`\`\`
+
+Notice the early returns for loading and error states. This pattern — render guards at the top — keeps the main render path clean.
+
+## Using async/await Instead of .then()
+
+The \`fetch\` API returns Promises, and you can use async/await for a cleaner syntax. However, you cannot make the \`useEffect\` callback itself async:
+
+\`\`\`jsx
+// Wrong — useEffect callback cannot be async
+useEffect(async () => {
+  const data = await fetch('/api/posts')
+  // ...
+}, [])
+
+// Right — define an async function inside and call it
+useEffect(() => {
+  async function fetchPosts() {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=10')
+
+      if (!response.ok) {
+        throw new Error(\`HTTP error: \${response.status}\`)
+      }
+
+      const data = await response.json()
+      setPosts(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  fetchPosts()
+}, [])
+\`\`\`
+
+The reason: \`useEffect\` expects its callback to return either nothing or a cleanup function. An async function always returns a Promise, which \`useEffect\` would try to use as a cleanup function (and fail silently). Defining an async function inside and calling it immediately is the correct pattern.
+
+## Fetching with Dependencies — Responding to User Input
+
+When a user selects a category, types a search term, or clicks on a user ID, you need to fetch new data in response. This is where the dependency array becomes critical:
+
+\`\`\`jsx
+function PostsByUser({ userId }) {
+  const [posts, setPosts] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    if (!userId) return  // Don't fetch if no userId
+
+    let cancelled = false  // Flag to handle cleanup
+
+    async function fetchUserPosts() {
+      setIsLoading(true)
+      setError(null)
+      setPosts([])  // Clear previous posts immediately
+
+      try {
+        const response = await fetch(
+          \`https://jsonplaceholder.typicode.com/posts?userId=\${userId}\`
+        )
+
+        if (!response.ok) throw new Error('Failed to fetch posts')
+
+        const data = await response.json()
+
+        if (!cancelled) {  // Only update state if not cancelled
+          setPosts(data)
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.message)
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    fetchUserPosts()
+
+    return () => {
+      cancelled = true  // Prevent state updates from completed fetch
+    }
+  }, [userId])  // Re-run whenever userId changes
+
+  // ... render
+}
+\`\`\`
+
+The \`cancelled\` flag prevents state updates after the component has unmounted or the dependency has changed. This handles both the memory leak (updating unmounted component) and the race condition (slow fetch for user 1 arriving after fast fetch for user 2 has already set state).
+
+The AbortController approach from the previous module is an alternative — both patterns are valid. AbortController actually cancels the network request; the flag approach lets the request complete but ignores the result.
+
+## Pagination — Loading Data in Pages
+
+Many APIs return data paginated. Here is a pattern for loading page by page:
+
+\`\`\`jsx
+function PaginatedPosts() {
+  const [posts, setPosts] = useState([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const POSTS_PER_PAGE = 10
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function fetchPage() {
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const response = await fetch(
+          \`https://jsonplaceholder.typicode.com/posts?_page=\${page}&_limit=\${POSTS_PER_PAGE}\`
+        )
+
+        if (!response.ok) throw new Error('Fetch failed')
+
+        // JSONPlaceholder returns total count in header
+        const total = response.headers.get('x-total-count')
+        const data = await response.json()
+
+        if (!cancelled) {
+          setPosts(data)
+          if (total) setTotalPages(Math.ceil(total / POSTS_PER_PAGE))
+        }
+      } catch (err) {
+        if (!cancelled) setError(err.message)
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+
+    fetchPage()
+    return () => { cancelled = true }
+  }, [page])
+
+  return (
+    <div>
+      {isLoading && <p>Loading page {page}...</p>}
+      {error && <p>Error: {error}</p>}
+
+      {!isLoading && posts.map(post => (
+        <article key={post.id}>
+          <h3>{post.title}</h3>
+        </article>
+      ))}
+
+      <div className="pagination">
+        <button
+          onClick={() => setPage(p => p - 1)}
+          disabled={page === 1 || isLoading}
+        >
+          ← Previous
+        </button>
+        <span>Page {page}{totalPages ? \` of \${totalPages}\` : ''}</span>
+        <button
+          onClick={() => setPage(p => p + 1)}
+          disabled={(totalPages && page >= totalPages) || isLoading}
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+  )
+}
+\`\`\`
+
+Incrementing \`page\` triggers the \`useEffect\` (because \`page\` is in the dependency array), which fetches the new page. The previous results are replaced. The pagination buttons update \`page\` state, creating a clean data flow.
+
+## Building a Complete Data Fetching Hook
+
+The \`useFetch\` custom Hook from the previous module is an excellent starting point. Let's expand it into a production-quality version:
+
+\`\`\`jsx
+import { useState, useEffect, useCallback } from 'react'
+
+function useFetch(url, options = {}) {
+  const [data, setData] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const fetchData = useCallback(async () => {
+    if (!url) return
+
+    const controller = new AbortController()
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      })
+
+      if (!response.ok) {
+        throw new Error(\`HTTP \${response.status}: \${response.statusText}\`)
+      }
+
+      const json = await response.json()
+      setData(json)
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        setError(err.message)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+
+    return () => controller.abort()
+  }, [url])
+
+  useEffect(() => {
+    const cleanup = fetchData()
+    return cleanup
+  }, [fetchData])
+
+  return { data, isLoading, error, refetch: fetchData }
+}
+
+// Usage
+function UserProfile({ userId }) {
+  const {
+    data: user,
+    isLoading,
+    error,
+    refetch,
+  } = useFetch(\`https://jsonplaceholder.typicode.com/users/\${userId}\`)
+
+  if (isLoading) return <p>Loading profile...</p>
+  if (error) return (
+    <div>
+      <p>Error: {error}</p>
+      <button onClick={refetch}>Retry</button>
+    </div>
+  )
+  if (!user) return null
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+      <p>{user.company.name}</p>
+    </div>
+  )
+}
+\`\`\`
+
+The \`refetch\` function lets the user retry on error, which significantly improves UX.
+
+## POST, PUT, DELETE — Mutating Data
+
+Data fetching is not only GET requests. Here is the pattern for creating, updating, and deleting:
+
+\`\`\`jsx
+function CreatePostForm() {
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+  const [createdPost, setCreatedPost] = useState(null)
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          body,
+          userId: 1,
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to create post')
+
+      const newPost = await response.json()
+      setCreatedPost(newPost)
+      setTitle('')
+      setBody('')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div>
+      {createdPost && (
+        <div className="success">
+          <p>Post created with ID: {createdPost.id}</p>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <input
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="Post title"
+          required
+        />
+        <textarea
+          value={body}
+          onChange={e => setBody(e.target.value)}
+          placeholder="Post content"
+          required
+        />
+        {error && <p className="error">{error}</p>}
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Creating...' : 'Create Post'}
+        </button>
+      </form>
+    </div>
+  )
+}
+\`\`\`
+
+## Handling Authentication Headers
+
+Real APIs often require authentication tokens in request headers:
+
+\`\`\`jsx
+const API_BASE = 'https://api.example.com'
+
+async function apiFetch(endpoint, options = {}) {
+  const token = localStorage.getItem('authToken')
+
+  const response = await fetch(\`\${API_BASE}\${endpoint}\`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: \`Bearer \${token}\` }),
+      ...options.headers,
+    },
+  })
+
+  if (response.status === 401) {
+    // Token expired or invalid — redirect to login
+    localStorage.removeItem('authToken')
+    window.location.href = '/login'
+    return
+  }
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.message || \`HTTP \${response.status}\`)
+  }
+
+  return response.json()
+}
+
+// Usage in a component
+useEffect(() => {
+  async function loadData() {
+    try {
+      const data = await apiFetch('/api/user/profile')
+      setProfile(data)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+  loadData()
+}, [])
+\`\`\`
+
+A shared \`apiFetch\` utility function handles authentication headers, base URL, and common error cases in one place — much better than duplicating headers in every \`fetch\` call.
+
+## Loading Skeletons — Better Loading UX
+
+Instead of just "Loading...", skeleton screens give users a preview of the content structure:
+
+\`\`\`jsx
+function PostSkeleton() {
+  return (
+    <div className="post-skeleton">
+      <div className="skeleton skeleton-title" />
+      <div className="skeleton skeleton-line" />
+      <div className="skeleton skeleton-line" />
+      <div className="skeleton skeleton-line short" />
+    </div>
+  )
+}
+
+function PostList() {
+  const { data: posts, isLoading, error } = useFetch('/api/posts')
+
+  if (isLoading) {
+    return (
+      <div>
+        {Array.from({ length: 5 }, (_, i) => (
+          <PostSkeleton key={i} />
+        ))}
+      </div>
+    )
+  }
+
+  // ... rest of component
+}
+\`\`\`
+
+CSS for skeleton animation:
+\`\`\`javascript
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+\`\`\`
+
+Data fetching done well significantly improves the perceived quality of an application. Handling all three states, avoiding race conditions, providing good loading UX, and making retry easy — these are the habits of professional React development.`,
+  quizzes: [
+    {
+      question: 'Why can\'t you make the useEffect callback itself an async function?',
+      options: [
+        'Async functions are not allowed inside React components due to the Rules of Hooks',
+        'useEffect expects its callback to return nothing or a cleanup function — an async function always returns a Promise, which useEffect would try to use as a cleanup function and fail silently',
+        'Async callbacks in useEffect cause infinite loops because they resolve on a different render cycle',
+        'React\'s rendering engine cannot handle asynchronous functions in the component lifecycle'
+      ],
+      correct: 1,
+      explanation: 'useEffect\'s cleanup mechanism expects a function or undefined as the return value — async functions implicitly return Promises, which React would treat as the cleanup function, causing incorrect behaviour; the solution is to define and immediately call an async function inside the effect.'
+    },
+    {
+      question: 'What is the purpose of the "cancelled" flag pattern in a useEffect data fetch?',
+      options: [
+        'It cancels the network request immediately, freeing up browser resources for other requests',
+        'It tells React to skip the re-render caused by setState to avoid unnecessary DOM updates',
+        'It prevents state updates from a completed fetch from running after the component has unmounted or the dependency has changed, avoiding memory leaks and stale data from race conditions',
+        'It marks the fetch as non-critical so the browser can deprioritise it during heavy rendering'
+      ],
+      correct: 2,
+      explanation: 'The cancelled flag is set to true in the cleanup function — state update calls check this flag before running, so if the component unmounts or deps change while a fetch is in flight, the resulting setState calls are suppressed, preventing both the unmounted-component warning and race condition bugs.'
+    },
+    {
+      question: 'Why is it important to check response.ok before calling response.json() in a fetch request?',
+      options: [
+        'response.json() fails if called on an unsuccessful response because the body is always empty',
+        'HTTP error responses (4xx, 5xx) resolve the fetch Promise successfully — without checking response.ok, a 404 or 500 would be treated as success and the error would go unhandled',
+        'response.ok converts the response to JSON automatically, so calling json() afterwards causes a double-parse error',
+        'Browsers block access to the response body unless response.ok is confirmed first for security reasons'
+      ],
+      correct: 1,
+      explanation: 'The fetch Promise only rejects on network errors — HTTP error status codes like 404 or 500 still resolve successfully; checking response.ok (which is true only for 2xx status codes) lets you detect and throw for these HTTP errors explicitly.'
+    },
+    {
+      question: 'What does adding a userId to the useEffect dependency array accomplish in a UserPosts component?',
+      options: [
+        'It caches the fetched posts under the userId key so subsequent renders with the same userId skip the fetch',
+        'It causes the effect to re-run whenever userId changes, fetching the new user\'s posts automatically — the effect stays synchronised with the current userId prop',
+        'It prevents the effect from running until the userId has been validated by the parent component',
+        'It makes the fetch include the userId in the request headers for authentication'
+      ],
+      correct: 1,
+      explanation: 'The dependency array tells React when to re-run the effect — including userId means every time the userId prop changes (because a different user was selected), the effect runs again and fetches that user\'s posts, keeping the displayed data in sync with the current userId.'
+    },
+    {
+      question: 'What is a skeleton loading screen and why is it better UX than a spinner?',
+      options: [
+        'A skeleton screen uses HTML5 canvas to draw a low-resolution preview of the content before the real content loads',
+        'A skeleton screen shows placeholders that match the shape and layout of the expected content, giving users a preview of the structure and reducing the perception of wait time compared to a generic spinner',
+        'A skeleton screen is a React pattern where a minimal version of the component renders first, then gradually hydrates with real data',
+        'A skeleton screen caches the previous render and shows it while new data loads to prevent blank screens during navigation'
+      ],
+      correct: 1,
+      explanation: 'Skeleton screens show styled placeholders in the shape of the incoming content — this tells users what kind of content to expect, reduces the jarring transition from nothing to something, and psychologically makes the load feel faster than a spinner that gives no structural preview.'
+    }
+  ]
+})
+
+await addModule('React Development', {
+  title: 'Putting It All Together — Build a Complete React App',
+  description: 'Apply every concept from this track to design and build a complete GitHub User Search application — combining components, props, state, effects, event handling, and API fetching into a polished, production-quality React app.',
+  orderIndex: 8,
+  content: `## The Integration Module
+
+Every module in this track has given you one layer of the React mental model. Components gave you the building block. Props gave you the wiring between components. State gave you dynamism. useEffect gave you coordination with the outside world. Events and forms gave you user interaction. Data fetching gave you real-world data.
+
+Now you build something real. Not a toy counter, not an isolated example — a complete, polished application that a user could actually use.
+
+The application: a **GitHub User Search app** that lets users search for any GitHub username, displays their profile information, and shows a list of their public repositories sorted by stars. It will use the real GitHub API with no authentication required.
+
+Features:
+- Search input with debounced fetching
+- Profile card showing avatar, name, bio, and stats
+- Repository list sorted by star count
+- Loading, error, and empty states for every data operation
+- Clean, well-structured component hierarchy
+
+## Planning the Application
+
+Before writing a line of code, plan the structure.
+
+**Data needs:**
+- Search query (string) — state in the main App component
+- User profile (object or null) — fetched when query changes
+- User repositories (array) — fetched when profile loads
+- Loading state for each fetch
+- Error state for each fetch
+
+**Component hierarchy:**
+\`\`\`
+App
+├── SearchBar          (search input + submit button)
+├── UserProfile        (avatar, name, bio, stats)
+│   └── StatBadge      (individual stat: repos, followers, following)
+├── RepositoryList     (maps over repos)
+│   └── RepositoryCard (individual repo: name, description, stars, language)
+└── StatusMessage      (loading / error / empty states)
+\`\`\`
+
+**Data flow:**
+- App owns all state (query, user, repos, loading, error)
+- SearchBar receives the query and an onChange handler as props
+- UserProfile receives the user object as props
+- RepositoryList receives the repos array as props
+- StatusMessages receive booleans and strings as props
+
+This follows React's one-way data flow: state lives in the ancestor, flows down as props, events flow back up via callbacks.
+
+## Setting Up the Project
+
+\`\`\`javascript
+npm create vite@latest github-search -- --template react
+cd github-search
+npm install
+npm run dev
+\`\`\`
+
+Create this folder structure:
+\`\`\`
+src/
+  components/
+    SearchBar.jsx
+    UserProfile.jsx
+    StatBadge.jsx
+    RepositoryList.jsx
+    RepositoryCard.jsx
+    StatusMessage.jsx
+  hooks/
+    useGitHubUser.js
+  App.jsx
+  App.css
+  main.jsx
+\`\`\`
+
+## The Custom Hook — useGitHubUser
+
+Encapsulating all the data-fetching logic in a custom hook keeps \`App.jsx\` clean and makes the fetching logic independently testable and reusable.
+
+\`\`\`javascript
+// src/hooks/useGitHubUser.js
+import { useState, useEffect } from 'react'
+
+const GITHUB_API = 'https://api.github.com'
+
+export function useGitHubUser(username) {
+  const [user, setUser] = useState(null)
+  const [repos, setRepos] = useState([])
+  const [isLoadingUser, setIsLoadingUser] = useState(false)
+  const [isLoadingRepos, setIsLoadingRepos] = useState(false)
+  const [userError, setUserError] = useState(null)
+  const [reposError, setReposError] = useState(null)
+
+  // Fetch user profile when username changes
+  useEffect(() => {
+    if (!username.trim()) {
+      setUser(null)
+      setRepos([])
+      return
+    }
+
+    const controller = new AbortController()
+    setIsLoadingUser(true)
+    setUserError(null)
+    setUser(null)
+
+    fetch(\`\${GITHUB_API}/users/\${username}\`, { signal: controller.signal })
+      .then(res => {
+        if (res.status === 404) throw new Error('User not found')
+        if (!res.ok) throw new Error(\`GitHub API error: \${res.status}\`)
+        return res.json()
+      })
+      .then(data => {
+        setUser(data)
+        setIsLoadingUser(false)
+      })
+      .catch(err => {
+        if (err.name === 'AbortError') return
+        setUserError(err.message)
+        setIsLoadingUser(false)
+      })
+
+    return () => controller.abort()
+  }, [username])
+
+  // Fetch repos when user loads successfully
+  useEffect(() => {
+    if (!user) {
+      setRepos([])
+      return
+    }
+
+    const controller = new AbortController()
+    setIsLoadingRepos(true)
+    setReposError(null)
+
+    fetch(
+      \`\${GITHUB_API}/users/\${user.login}/repos?per_page=100&sort=updated\`,
+      { signal: controller.signal }
+    )
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load repositories')
+        return res.json()
+      })
+      .then(data => {
+        // Sort by stars descending
+        const sorted = data.sort((a, b) => b.stargazers_count - a.stargazers_count)
+        setRepos(sorted)
+        setIsLoadingRepos(false)
+      })
+      .catch(err => {
+        if (err.name === 'AbortError') return
+        setReposError(err.message)
+        setIsLoadingRepos(false)
+      })
+
+    return () => controller.abort()
+  }, [user])
+
+  return { user, repos, isLoadingUser, isLoadingRepos, userError, reposError }
+}
+\`\`\`
+
+Two separate effects — one for the user, one for the repos — each with their own loading and error state. The repo fetch depends on \`user\` being set, so it only fires after a successful user fetch.
+
+## The Small Components
+
+Build from the inside out — start with the smallest components:
+
+\`\`\`jsx
+// src/components/StatBadge.jsx
+export default function StatBadge({ label, value }) {
+  return (
+    <div className="stat-badge">
+      <span className="stat-value">
+        {value >= 1000 ? \`\${(value / 1000).toFixed(1)}k\` : value}
+      </span>
+      <span className="stat-label">{label}</span>
+    </div>
+  )
+}
+\`\`\`
+
+\`\`\`jsx
+// src/components/RepositoryCard.jsx
+export default function RepositoryCard({ repo }) {
+  const LANGUAGE_COLOURS = {
+    JavaScript: '#f1e05a',
+    TypeScript: '#3178c6',
+    Python: '#3572A5',
+    CSS: '#563d7c',
+    HTML: '#e34c26',
+  }
+
+  return (
+    
+      href={repo.html_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="repo-card"
+    >
+      <div className="repo-header">
+        <h3 className="repo-name">{repo.name}</h3>
+        {repo.fork && <span className="fork-badge">Fork</span>}
+      </div>
+
+      {repo.description && (
+        <p className="repo-description">{repo.description}</p>
+      )}
+
+      <div className="repo-stats">
+        {repo.language && (
+          <span className="repo-language">
+            <span
+              className="language-dot"
+              style={{
+                backgroundColor: LANGUAGE_COLOURS[repo.language] || '#8b949e'
+              }}
+            />
+            {repo.language}
+          </span>
+        )}
+
+        <span className="repo-stars">
+          ⭐ {repo.stargazers_count.toLocaleString()}
+        </span>
+
+        <span className="repo-forks">
+          🍴 {repo.forks_count.toLocaleString()}
+        </span>
+      </div>
+    </a>
+  )
+}
+\`\`\`
+
+\`\`\`jsx
+// src/components/StatusMessage.jsx
+export default function StatusMessage({ type, message, children }) {
+  const icons = { loading: '⏳', error: '⚠️', empty: '🔍', info: 'ℹ️' }
+
+  return (
+    <div className={\`status-message status-\${type}\`}>
+      <span className="status-icon">{icons[type]}</span>
+      {message && <p>{message}</p>}
+      {children}
+    </div>
+  )
+}
+\`\`\`
+
+## The Larger Components
+
+\`\`\`jsx
+// src/components/SearchBar.jsx
+import { useState } from 'react'
+
+export default function SearchBar({ onSearch, isLoading }) {
+  const [inputValue, setInputValue] = useState('')
+
+  function handleSubmit(event) {
+    event.preventDefault()
+    const trimmed = inputValue.trim()
+    if (trimmed) onSearch(trimmed)
+  }
+
+  return (
+    <form className="search-bar" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={inputValue}
+        onChange={e => setInputValue(e.target.value)}
+        placeholder="Search GitHub username..."
+        disabled={isLoading}
+        autoFocus
+      />
+      <button
+        type="submit"
+        disabled={!inputValue.trim() || isLoading}
+      >
+        {isLoading ? 'Searching...' : 'Search'}
+      </button>
+    </form>
+  )
+}
+\`\`\`
+
+\`\`\`jsx
+// src/components/UserProfile.jsx
+import StatBadge from './StatBadge'
+
+export default function UserProfile({ user }) {
+  return (
+    <div className="user-profile">
+      <div className="user-avatar-section">
+        <img
+          src={user.avatar_url}
+          alt={\`\${user.login}'s avatar\`}
+          className="user-avatar"
+        />
+        
+          href={user.html_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="user-github-link"
+        >
+          View on GitHub ↗
+        </a>
+      </div>
+
+      <div className="user-info">
+        <h1 className="user-name">{user.name || user.login}</h1>
+        {user.name && <p className="user-login">@{user.login}</p>}
+        {user.bio && <p className="user-bio">{user.bio}</p>}
+
+        <div className="user-details">
+          {user.company && <span>🏢 {user.company}</span>}
+          {user.location && <span>📍 {user.location}</span>}
+          {user.blog && (
+            <a href={user.blog} target="_blank" rel="noopener noreferrer">
+              🔗 {user.blog}
+            </a>
+          )}
+        </div>
+
+        <div className="user-stats">
+          <StatBadge label="Repos" value={user.public_repos} />
+          <StatBadge label="Followers" value={user.followers} />
+          <StatBadge label="Following" value={user.following} />
+          <StatBadge label="Gists" value={user.public_gists} />
+        </div>
+
+        <p className="user-since">
+          Member since {new Date(user.created_at).getFullYear()}
+        </p>
+      </div>
+    </div>
+  )
+}
+\`\`\`
+
+\`\`\`jsx
+// src/components/RepositoryList.jsx
+import RepositoryCard from './RepositoryCard'
+import StatusMessage from './StatusMessage'
+
+export default function RepositoryList({ repos, isLoading, error }) {
+  if (isLoading) {
+    return <StatusMessage type="loading" message="Loading repositories..." />
+  }
+
+  if (error) {
+    return <StatusMessage type="error" message={error} />
+  }
+
+  if (repos.length === 0) {
+    return <StatusMessage type="empty" message="No public repositories found." />
+  }
+
+  return (
+    <div className="repo-list">
+      <h2 className="repo-list-title">
+        Public Repositories ({repos.length})
+      </h2>
+      <div className="repo-grid">
+        {repos.map(repo => (
+          <RepositoryCard key={repo.id} repo={repo} />
+        ))}
+      </div>
+    </div>
+  )
+}
+\`\`\`
+
+## App.jsx — Orchestrating Everything
+
+\`\`\`jsx
+// src/App.jsx
+import { useState } from 'react'
+import SearchBar from './components/SearchBar'
+import UserProfile from './components/UserProfile'
+import RepositoryList from './components/RepositoryList'
+import StatusMessage from './components/StatusMessage'
+import { useGitHubUser } from './hooks/useGitHubUser'
+import './App.css'
+
+export default function App() {
+  const [searchedUsername, setSearchedUsername] = useState('')
+
+  const {
+    user,
+    repos,
+    isLoadingUser,
+    isLoadingRepos,
+    userError,
+    reposError,
+  } = useGitHubUser(searchedUsername)
+
+  function handleSearch(username) {
+    setSearchedUsername(username)
+  }
+
+  return (
+    <div className="app">
+      <header className="app-header">
+        <h1>GitHub Search</h1>
+        <p>Search for any GitHub user to see their profile and repositories</p>
+      </header>
+
+      <main className="app-main">
+        <SearchBar onSearch={handleSearch} isLoading={isLoadingUser} />
+
+        {/* Initial state — no search yet */}
+        {!searchedUsername && (
+          <StatusMessage type="info" message="Enter a GitHub username to get started." />
+        )}
+
+        {/* Loading user */}
+        {isLoadingUser && (
+          <StatusMessage type="loading" message={\`Searching for "\${searchedUsername}"...\`} />
+        )}
+
+        {/* User error */}
+        {userError && !isLoadingUser && (
+          <StatusMessage type="error" message={userError} />
+        )}
+
+        {/* User found */}
+        {user && !isLoadingUser && (
+          <>
+            <UserProfile user={user} />
+            <RepositoryList
+              repos={repos}
+              isLoading={isLoadingRepos}
+              error={reposError}
+            />
+          </>
+        )}
+      </main>
+
+      <footer className="app-footer">
+        <p>Data from the GitHub API · Built with React</p>
+      </footer>
+    </div>
+  )
+}
+\`\`\`
+
+## What Each Module Contributed
+
+Look at the complete application and trace every concept:
+
+**Module 2 — Components:** Every UI piece is a component. SearchBar, UserProfile, StatBadge, RepositoryCard, RepositoryList, StatusMessage. Each does one thing.
+
+**Module 3 — Props:** Every component receives data from its parent. \`UserProfile\` receives \`user\`. \`RepositoryCard\` receives \`repo\`. \`SearchBar\` receives \`onSearch\` and \`isLoading\`. Events flow up via callbacks (\`onSearch\`). Data flows down via props.
+
+**Module 4 — State:** \`searchedUsername\` in App drives everything. SearchBar has its own \`inputValue\` state for the controlled input. State is lifted to the appropriate level.
+
+**Module 5 — useEffect:** Two effects in \`useGitHubUser\` — one depending on \`username\`, one depending on \`user\`. Each handles its own loading/error state and cleanup via AbortController.
+
+**Module 6 — Events and Forms:** SearchBar is a controlled form with a submit handler. \`event.preventDefault()\` prevents page reload. The input uses \`value\` and \`onChange\`.
+
+**Module 7 — Data Fetching:** Real GitHub API calls with proper error handling (including 404 detection), race condition prevention via AbortController, loading states, and error states.
+
+## The React Architecture Pattern
+
+This application demonstrates the architecture pattern that scales from small apps to large ones:
+
+**Separate concerns clearly:**
+- Fetching logic → custom hooks
+- UI logic → components
+- State → the component that needs it or its ancestor
+
+**Data flows one way:**
+- State lives at the top (App or custom hook)
+- Flows down as props
+- Events bubble up via callbacks
+
+**Every async operation has three states:**
+- Loading → show indicator
+- Error → show message with recovery option
+- Success → show data
+
+**Components are small and focused:**
+- Each component has one job
+- Complex UIs compose simple components
+- If a component is getting complex, split it
+
+## Where React Takes You Next
+
+This track has given you the complete core of React. You can build component hierarchies, manage state, handle effects, interact with APIs, process forms, and structure a real application. These are not beginner skills — this is how professional React applications are built.
+
+From here, the natural progressions are:
+
+**Next.js** — the full-stack React framework. Server-side rendering, static generation, file-based routing, and API routes. The majority of production React applications are Next.js applications.
+
+**State management** — for applications where state is needed across many components. Zustand is beginner-friendly. Redux Toolkit is the enterprise standard. Both build on the state concepts you already understand.
+
+**TanStack Query** — a data-fetching library that handles caching, background refetching, optimistic updates, and pagination. It replaces the manual fetch patterns from Module 7 with a much more powerful system.
+
+**TypeScript** — adding static types to React. TypeScript catches prop type errors at compile time, makes components self-documenting, and is standard in professional React development.
+
+**Testing** — React Testing Library is the standard for testing React components. It tests components the way users interact with them rather than implementation details.
+
+Each of these is a layer on top of the React foundation you now have. The component model, the one-way data flow, the state management patterns, the effect model — all of it persists and scales. You are not starting over with each tool; you are extending the same mental model you built in this track.
+
+React rewards the investment you make in understanding it deeply. The developers who truly understand why React works the way it does — not just the syntax, but the mental models — are the ones who build applications that are fast, maintainable, and a pleasure to work on. You have built that foundation.`,
+  quizzes: [
+    {
+      question: 'In the GitHub Search app, why does the App component own the searchedUsername state rather than the SearchBar component?',
+      options: [
+        'Because SearchBar components are not allowed to have state in React',
+        'Because SearchBar needs to be a controlled component, and controlled components cannot have their own state',
+        'Because searchedUsername is needed by the useGitHubUser hook which is called in App — state lives where it is used, and the data it controls (user, repos) needs to be accessible at the App level',
+        'Because putting state in SearchBar would cause unnecessary re-renders of the entire application on every keystroke'
+      ],
+      correct: 2,
+      explanation: 'State lives in the component that uses it or needs to share it — searchedUsername drives the API calls in useGitHubUser (called in App) and determines what UserProfile and RepositoryList display, so App is the correct owner; SearchBar has its own inputValue state for the typed text that only it needs.'
+    },
+    {
+      question: 'Why are two separate useEffect calls used in useGitHubUser — one for the user and one for repos — instead of one effect that does both?',
+      options: [
+        'React enforces a maximum of one useEffect per data fetch for performance reasons',
+        'Fetching repos depends on the user being loaded first — a separate effect depending on user naturally sequences the requests and each effect can independently manage its own loading and error state',
+        'Two effects run in parallel, making the total fetch time faster than a single sequential effect',
+        'The repos fetch requires a different cleanup mechanism than the user fetch, which is only possible in separate effects'
+      ],
+      correct: 1,
+      explanation: 'The repos fetch needs the user\'s login name which only exists after a successful user fetch — making the repos effect depend on user naturally creates the sequential dependency, while allowing each operation to have isolated loading, error, and cleanup state.'
+    },
+    {
+      question: 'In the SearchBar component, why does the input have its own inputValue state rather than directly updating the parent\'s searchedUsername on every keystroke?',
+      options: [
+        'Directly updating the parent on every keystroke would cause the API to be called for every character typed, creating excessive network requests',
+        'Parent state cannot be updated from child components — it is read-only from the child\'s perspective',
+        'The input needs to be a controlled component, and its internal inputValue state is required for that pattern to work',
+        'Both A and C — the input needs controlled component state for the value prop, and keeping the value local prevents API calls on every keystroke until the form is submitted'
+      ],
+      correct: 3,
+      explanation: 'SearchBar uses local inputValue for the controlled input pattern (value + onChange) while only calling onSearch (which updates the parent) on form submission — this prevents the API from being triggered on every character typed while still maintaining a controlled input.'
+    },
+    {
+      question: 'Why does the RepositoryCard component use an <a> tag with target="_blank" and rel="noopener noreferrer"?',
+      options: [
+        'The rel attribute is required by the GitHub API terms of service for all links to GitHub',
+        'target="_blank" opens the link in a new tab, and rel="noopener noreferrer" is a security measure that prevents the opened page from accessing the opener via window.opener',
+        'noopener noreferrer improves SEO by telling search engines not to follow GitHub links from the application',
+        'These attributes are required for React Router to correctly intercept and handle the navigation event'
+      ],
+      correct: 1,
+      explanation: 'Opening links in new tabs with target="_blank" creates a security risk where the opened page can manipulate the opener page via window.opener — rel="noopener noreferrer" eliminates this by removing the reference to the opener, which is a standard security practice for external links.'
+    },
+    {
+      question: 'What architectural principle does extracting the data-fetching logic into useGitHubUser demonstrate, and why is it valuable?',
+      options: [
+        'It demonstrates code splitting, which reduces the initial bundle size by loading the hook asynchronously',
+        'It demonstrates the separation of concerns — fetching logic lives in a custom hook that is independently testable and reusable, while App.jsx focuses purely on rendering and composition without data-fetching implementation details',
+        'It demonstrates memoisation — the custom hook caches GitHub API responses so repeated searches for the same user avoid network requests',
+        'It demonstrates the observer pattern — the hook subscribes to GitHub\'s streaming API and notifies App whenever new data arrives'
+      ],
+      correct: 1,
+      explanation: 'Extracting fetching into useGitHubUser separates concerns — the hook owns all the data-fetching complexity (multiple effects, loading states, error handling, AbortControllers) while App.jsx stays clean, readable, and focused on composition; the hook can also be reused in any other component that needs GitHub user data.'
+    }
+  ]
+})
   // ════════════════════════════════════════════════════════
   // END OF MODULES
   // ════════════════════════════════════════════════════════
