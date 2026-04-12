@@ -3237,6 +3237,3382 @@ Start with two or three sessions per week, not seven. Build consistency first. I
     }
   ]
 })
+await addModule('JavaScript for Beginners', {
+  title: 'What is JavaScript and How the Web Works',
+  description: 'Understand what JavaScript is, why it exists, and how HTML, CSS, and JavaScript work together to create everything you see and interact with on the web.',
+  orderIndex: 1,
+  content: `## The Web Is a Three-Layer Cake
+
+Before you write a single line of JavaScript, you need to understand where it lives and why it exists. The web is built from three technologies that each handle a completely different job, and JavaScript's role only makes sense once you understand the other two.
+
+Think of a web page like a house. **HTML** is the structure — the walls, floors, roof, and rooms. It defines what exists on the page: headings, paragraphs, buttons, images, forms. Without HTML, there is nothing to look at. But a house made of bare concrete and timber is not particularly pleasant to live in.
+
+**CSS** is the interior design — the paint, the furniture, the lighting. It controls how HTML elements look: colours, fonts, sizes, spacing, layout. CSS makes the page beautiful, but it is entirely passive. CSS cannot respond to you. It cannot say "when the user clicks this button, change the colour." It just sits there looking nice.
+
+**JavaScript** is the electricity — the thing that makes the house actually do things. The lights that turn on when you walk into a room. The thermostat that responds to your input. The security system that reacts to events. JavaScript is the only one of the three languages that can make a web page respond, change, and behave dynamically in real time.
+
+This is the crucial insight: HTML and CSS produce static pages. JavaScript is what makes them alive.
+
+## A Brief History — Why JavaScript Exists
+
+In 1995, a developer named Brendan Eich was working at Netscape and was given ten days to create a programming language for the web browser. The result was JavaScript — a language designed specifically to run inside browsers and make web pages interactive.
+
+It was not a perfect language at birth. It was rushed, and it has quirks that still cause confusion today. But it had one enormous advantage: it shipped with Netscape Navigator, which was the dominant browser of the era. Because it was already there, in millions of browsers, it became the standard. Every major browser eventually added support for it.
+
+Today, JavaScript is the only programming language that runs natively in every web browser on earth. That is not a small thing. It means that any JavaScript you write can be executed by anyone with a browser — no installation required, no compilation step, nothing. You write the code, they open the page, the code runs. That accessibility is why JavaScript became, and remains, the most widely used programming language in the world.
+
+Beyond browsers, JavaScript now runs on servers (via Node.js), on mobile devices, on desktop applications, and on embedded systems. But its home — the thing it was born to do — is the browser, and that is where you are going to start.
+
+## How a Web Page Actually Loads
+
+When you type a URL into your browser and press Enter, a sequence of events unfolds that most people never think about. Understanding this sequence explains exactly where your JavaScript fits into the picture.
+
+**Step 1 — DNS Lookup.** Your browser takes the domain name (like \`google.com\`) and looks up its corresponding IP address — the numerical address of the actual server that hosts the page. This is like looking up a phone number in a directory.
+
+**Step 2 — HTTP Request.** Your browser sends a request to that server over the internet using a protocol called HTTP (or HTTPS, the secure version). It is essentially asking: "Please send me the files for this page."
+
+**Step 3 — Server Response.** The server receives the request and responds by sending back files — typically starting with an HTML file.
+
+**Step 4 — Parsing HTML.** Your browser reads the HTML file from top to bottom. As it encounters references to CSS files and JavaScript files, it fetches those too. As it reads the HTML, it builds a data structure in memory called the **DOM** — the Document Object Model — which is a tree-like representation of every element on the page.
+
+**Step 5 — Applying CSS.** The browser applies the CSS rules to the DOM elements, calculating how everything should look.
+
+**Step 6 — Executing JavaScript.** The browser runs any JavaScript that is linked or embedded in the page. This JavaScript can read and modify the DOM, respond to user actions, fetch more data from servers, and fundamentally change anything about the page.
+
+**Step 7 — Rendering.** The browser paints the final result onto your screen.
+
+The key takeaway is that JavaScript runs after the page structure exists. It has access to the entire HTML structure through the DOM, and it can modify anything about it — add elements, remove them, change their content, change their styles, show or hide them — all in response to what the user does.
+
+## Your First JavaScript — Three Ways to Run It
+
+You do not need to install anything to start writing JavaScript. Your browser already has a JavaScript engine built in. Let's look at three ways to run JavaScript, starting from the simplest.
+
+**Method 1: The Browser Console**
+
+Every major browser has developer tools with a JavaScript console. In Chrome or Firefox, press F12 (or Cmd+Option+I on Mac), then click the Console tab. You can type JavaScript directly here and it runs immediately.
+
+Try typing this:
+
+\`\`\`javascript
+console.log("Hello, JavaScript!")
+\`\`\`
+
+Press Enter. You should see your message appear. \`console.log()\` is JavaScript's way of printing output — it is the equivalent of Python's \`print()\`. You will use it constantly for testing and debugging.
+
+**Method 2: A Script Tag in HTML**
+
+The standard way to add JavaScript to a web page is with a \`<script>\` tag in your HTML file. Create a file called \`index.html\` and add this:
+
+\`\`\`javascript
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My First JavaScript Page</title>
+  </head>
+  <body>
+    <h1>Hello World</h1>
+
+    <script>
+      console.log("JavaScript is running!")
+      alert("Welcome to my page!")
+    </script>
+  </body>
+</html>
+\`\`\`
+
+Open this file in your browser. You will see the alert pop up, and the console message will appear in your developer tools. Notice that the \`<script>\` tag is placed at the bottom of the \`<body>\`. This is important — it ensures the HTML is fully loaded before JavaScript tries to interact with it.
+
+**Method 3: An External JavaScript File**
+
+For real projects, you keep JavaScript in a separate \`.js\` file and link it from your HTML. This keeps your code organised and means the same JavaScript can be used across multiple pages.
+
+Create \`script.js\`:
+
+\`\`\`javascript
+console.log("This is from an external file!")
+\`\`\`
+
+Then in your \`index.html\`, replace the inline script with:
+
+\`\`\`javascript
+<script src="script.js"></script>
+\`\`\`
+
+This is the approach you will use for almost every real project. It keeps concerns separated: HTML for structure, CSS for style, JavaScript for behaviour.
+
+## JavaScript vs Python — Key Differences for Beginners
+
+Since you already know some Python, the most helpful thing is to map what you know onto what is different. JavaScript and Python are more similar than different in their fundamentals — both have variables, functions, loops, and conditionals — but the syntax has some important differences.
+
+**Semicolons.** JavaScript traditionally ends statements with a semicolon (\`;\`). In practice, modern JavaScript has a feature called automatic semicolon insertion that often lets you omit them, but many developers still include them for clarity. You will see both styles.
+
+\`\`\`javascript
+console.log("With semicolon");
+console.log("Without semicolon")
+\`\`\`
+
+**Curly braces instead of indentation.** Python uses indentation to define blocks of code. JavaScript uses curly braces \`{}\`. Indentation in JavaScript is a style choice for readability, not a syntactic requirement.
+
+\`\`\`javascript
+// Python uses indentation
+// if x > 0:
+//     print("positive")
+
+// JavaScript uses curly braces
+if (x > 0) {
+  console.log("positive")
+}
+\`\`\`
+
+**\`let\` and \`const\` instead of just variable names.** In Python, you create a variable by just writing its name. In JavaScript, you use keywords to declare variables. We will cover this in detail in the next module.
+
+\`\`\`javascript
+// Python: name = "Alice"
+// JavaScript:
+let name = "Alice"
+const PI = 3.14159
+\`\`\`
+
+**Comments.** Python uses \`#\` for single-line comments. JavaScript uses \`//\` for single-line comments and \`/* */\` for multi-line comments.
+
+\`\`\`javascript
+// This is a single-line comment
+
+/*
+  This is a
+  multi-line comment
+*/
+\`\`\`
+
+## What JavaScript Can Do — The Big Picture
+
+You have learned where JavaScript lives and how it loads. Before diving into syntax, it helps to have a mental picture of what JavaScript is actually capable of, so you know what you are working toward.
+
+**DOM Manipulation.** JavaScript can read and change anything on the page — update text, change colours, show or hide elements, add new elements, remove existing ones. When you click a "dark mode" button and the whole page changes colour scheme, that is JavaScript.
+
+**Event Handling.** JavaScript can respond to anything the user does — clicks, key presses, mouse movements, form submissions, scrolling. This is the foundation of interactive interfaces.
+
+**Data Fetching.** JavaScript can communicate with servers in the background — fetching new data and updating the page without a full reload. This is how social media feeds update, how search suggestions appear, and how maps load new tiles as you scroll.
+
+**Form Validation.** JavaScript can check whether a user has filled in a form correctly before it is submitted — highlighting empty required fields, checking email formats, ensuring passwords meet requirements.
+
+**Animations and Visual Effects.** JavaScript can move elements around the page, trigger CSS transitions, create canvas-based graphics, and build full game engines.
+
+**Local Storage.** JavaScript can save data in the user's browser — so a to-do list app can remember your tasks even after you close the tab.
+
+You are not going to build all of these things in this module. But by the time you finish this track, you will have touched most of them. Every concept you learn — variables, functions, conditions, loops, arrays, objects — builds toward these real capabilities.
+
+## The JavaScript Engine — What Actually Runs Your Code
+
+One more piece of context that will make you a better JavaScript developer: understanding, at a high level, what happens when your JavaScript code runs.
+
+Every browser contains a JavaScript engine — a program specifically designed to read JavaScript and execute it. Chrome uses an engine called V8. Firefox uses SpiderMonkey. Safari uses JavaScriptCore. These engines are extraordinarily sophisticated pieces of software that have been optimised over decades to run JavaScript as fast as possible.
+
+When your browser encounters a \`<script>\` tag, the JavaScript engine takes over. It reads your code, parses it to understand its structure, compiles it to lower-level instructions that the computer can execute directly, and then runs those instructions.
+
+This process is largely invisible to you as a developer. But it has one important implication: JavaScript is a **single-threaded** language, meaning it does one thing at a time. It cannot genuinely do two things simultaneously in the same thread. This is why JavaScript has a very particular way of handling things that take time — like fetching data from a server — called asynchronous programming. You will encounter this concept later in your JavaScript journey.
+
+For now, the key point is that your code runs in the browser, one line at a time, from top to bottom (with the branching and looping you will learn about in later modules). The browser is your runtime environment, the console is your output window, and the developer tools are your debugging headquarters.
+
+## Setting Up Your Development Environment
+
+You do not need anything fancy to write JavaScript. Here is the minimal setup that will serve you well through this entire track:
+
+**A text editor.** Visual Studio Code is the industry standard and it is free. It has excellent JavaScript support, syntax highlighting, and extensions that make your life much easier. Download it from code.visualstudio.com.
+
+**A browser with developer tools.** Chrome or Firefox are both excellent. You will use the developer tools constantly — F12 is your new best friend.
+
+**A local file structure.** For each project, create a folder containing an \`index.html\` and a \`script.js\`. That is genuinely all you need to start.
+
+You do not need a server for most of what you will learn in this track. You can open your HTML file directly in the browser by double-clicking it, and JavaScript will run. Some advanced features (like fetching data from APIs) require a local server, but there are simple tools like the VS Code Live Server extension that handle this when you need it.
+
+## Where You Are Going
+
+This first module has given you the conceptual foundation: what JavaScript is, where it came from, how the web loads pages, where JavaScript fits in that process, and what it is capable of. You have written your first line of JavaScript and you have seen the three ways to run it.
+
+From here, the track moves from concepts to code. The next module covers variables and data types — the building blocks of any JavaScript program. Then functions, control flow, arrays, objects, the DOM, events, and finally a complete mini-application that brings everything together.
+
+Every module builds on the previous one. The concepts are not isolated — they combine. By the end of this track, you will not just know JavaScript syntax. You will understand how to think in JavaScript, which is a different and more valuable thing.
+
+The web is the most accessible platform in human history. JavaScript is the language that makes it interactive. You are in exactly the right place to start learning it.`,
+  quizzes: [
+    {
+      question: 'What is the primary role of JavaScript in a web page, compared to HTML and CSS?',
+      options: [
+        'JavaScript defines the structure and content of the page',
+        'JavaScript controls the visual appearance, colours, and layout',
+        'JavaScript makes the page dynamic and interactive, responding to user actions and changing content in real time',
+        'JavaScript handles the communication between the browser and the DNS server'
+      ],
+      correct: 2,
+      explanation: 'HTML provides structure, CSS provides styling, and JavaScript provides behaviour — it is the only one of the three that can respond to user actions and modify the page dynamically after it has loaded.'
+    },
+    {
+      question: 'Why is the <script> tag typically placed at the bottom of the <body> in an HTML file?',
+      options: [
+        'Because JavaScript files are larger than HTML files and browsers load them last automatically',
+        'Because placing it at the bottom ensures the HTML elements exist in the DOM before JavaScript tries to interact with them',
+        'Because the browser\'s CSS engine must finish before the JavaScript engine can start',
+        'Because script tags at the top of the page are ignored by modern browsers'
+      ],
+      correct: 1,
+      explanation: 'JavaScript often needs to access and manipulate HTML elements — if the script runs before those elements have been parsed and added to the DOM, the elements will not exist yet and the code will fail.'
+    },
+    {
+      question: 'Which of the following correctly describes how JavaScript differs from Python in defining code blocks?',
+      options: [
+        'JavaScript uses indentation to define code blocks, just like Python',
+        'JavaScript uses square brackets [] to define code blocks',
+        'JavaScript uses curly braces {} to define code blocks, while Python uses indentation',
+        'JavaScript does not support code blocks — all code runs sequentially at the top level'
+      ],
+      correct: 2,
+      explanation: 'Python relies on mandatory indentation to define the scope of blocks like if-statements and loops, while JavaScript uses curly braces — indentation in JavaScript is purely a stylistic convention for readability.'
+    },
+    {
+      question: 'What is the DOM in the context of how browsers process web pages?',
+      options: [
+        'A security protocol that browsers use to verify the authenticity of JavaScript files',
+        'A tree-like data structure the browser builds in memory that represents every element on the page, which JavaScript can read and modify',
+        'The browser\'s internal engine that compiles and executes JavaScript code',
+        'A standardised file format for storing web page content offline'
+      ],
+      correct: 1,
+      explanation: 'When a browser parses HTML, it builds the Document Object Model — a structured, in-memory representation of every element — which JavaScript can then traverse, read, and modify to change what the user sees.'
+    },
+    {
+      question: 'What does console.log() do in JavaScript?',
+      options: [
+        'It displays a pop-up alert dialog to the user',
+        'It saves output to a log file on the server',
+        'It sends data to an external monitoring service',
+        'It prints output to the browser\'s developer tools console, used primarily for testing and debugging'
+      ],
+      correct: 3,
+      explanation: 'console.log() is JavaScript\'s equivalent of Python\'s print() — it outputs values to the browser\'s console, which is visible in developer tools and is the primary tool developers use to inspect values and debug their code.'
+    }
+  ]
+})
+
+await addModule('JavaScript for Beginners', {
+  title: 'Variables, Data Types, and the Console',
+  description: 'Learn how to store and work with data in JavaScript using let, const, and var, understand the core data types, and master the console as your primary debugging tool.',
+  orderIndex: 2,
+  content: `## Data Is the Raw Material of Every Program
+
+Every program, no matter how complex, is ultimately about data. It takes data in, transforms it, and produces data out. Before you can write any meaningful JavaScript, you need to understand how JavaScript stores and represents data.
+
+In Python, you created a variable by simply writing its name: \`name = "Alice"\`. JavaScript is slightly more explicit — you use a keyword to declare that you are creating a variable. This explicitness is actually useful, because it prevents accidental creation of variables and makes your intentions clear to anyone reading the code.
+
+JavaScript gives you three keywords for declaring variables: \`var\`, \`let\`, and \`const\`. Understanding the difference between them is one of the first things that trips up JavaScript beginners, so let's address it directly.
+
+## var, let, and const — What's the Difference?
+
+**\`var\`** is the original way to declare variables in JavaScript. It has been in the language since the beginning. However, \`var\` has some genuinely confusing behaviours related to scope — the area of the program where the variable can be accessed — that have caused countless bugs over the years. Modern JavaScript development largely avoids \`var\` in favour of \`let\` and \`const\`. You will see \`var\` in older code and tutorials, so you need to know it exists, but you should not use it in new code.
+
+\`\`\`javascript
+var oldWay = "This still works, but avoid it"
+\`\`\`
+
+**\`let\`** is the modern way to declare a variable whose value will change over time. You use \`let\` when you know you will need to reassign the variable later.
+
+\`\`\`javascript
+let score = 0
+score = 10       // reassigning is fine with let
+score = score + 5
+console.log(score) // 15
+\`\`\`
+
+**\`const\`** declares a variable whose binding cannot be reassigned. Once you assign a value to a \`const\`, you cannot point that name at a different value. Use \`const\` by default — only reach for \`let\` when you know the variable needs to change.
+
+\`\`\`javascript
+const PI = 3.14159
+const siteName = "ALDSS"
+
+PI = 3  // TypeError! Cannot reassign a const
+\`\`\`
+
+Why use \`const\` by default? Because it makes your code easier to reason about. When you see a \`const\`, you immediately know that value will not change throughout its scope. When you see a \`let\`, you know to look for where it gets reassigned. This distinction carries information.
+
+A practical rule: **start with \`const\`. Change to \`let\` only when you need to reassign.** You will find that most variables in well-written JavaScript are \`const\`.
+
+One important nuance: \`const\` prevents reassignment of the binding, but for objects and arrays it does not prevent mutation of the contents. We will revisit this in the arrays and objects module.
+
+## JavaScript's Core Data Types
+
+JavaScript has several built-in data types. Understanding them is foundational because different types support different operations, and JavaScript's type system has some specific behaviours you need to know.
+
+### Strings
+
+A string is a sequence of characters — text. You can create strings with single quotes, double quotes, or backticks. All three work, but each has a common use case.
+
+\`\`\`javascript
+const firstName = "Alice"
+const lastName = 'Smith'
+const greeting = \`Hello, \${firstName}!\`  // template literal
+\`\`\`
+
+The backtick version is called a **template literal**, and it is one of the most useful features in modern JavaScript. The \`\${}\` syntax lets you embed expressions directly inside the string — no string concatenation required. This is similar to Python's f-strings.
+
+\`\`\`javascript
+const age = 20
+const message = \`\${firstName} is \${age} years old.\`
+console.log(message) // "Alice is 20 years old."
+\`\`\`
+
+Strings have a \`length\` property and many useful methods:
+
+\`\`\`javascript
+const word = "JavaScript"
+console.log(word.length)           // 10
+console.log(word.toUpperCase())    // "JAVASCRIPT"
+console.log(word.toLowerCase())    // "javascript"
+console.log(word.includes("Script")) // true
+console.log(word.slice(0, 4))     // "Java"
+console.log(word.replace("Java", "Type")) // "TypeScript"
+\`\`\`
+
+### Numbers
+
+JavaScript has just one number type — it handles both integers and decimals. There is no separate \`int\` and \`float\` as in Python.
+
+\`\`\`javascript
+const count = 42
+const price = 9.99
+const temperature = -5
+
+console.log(10 + 3)   // 13
+console.log(10 - 3)   // 7
+console.log(10 * 3)   // 30
+console.log(10 / 3)   // 3.3333...
+console.log(10 % 3)   // 1  (remainder/modulo)
+console.log(10 ** 3)  // 1000 (exponentiation)
+\`\`\`
+
+JavaScript has a built-in \`Math\` object with useful functions:
+
+\`\`\`javascript
+console.log(Math.round(4.7))   // 5
+console.log(Math.floor(4.7))   // 4
+console.log(Math.ceil(4.2))    // 5
+console.log(Math.max(3, 7, 2)) // 7
+console.log(Math.min(3, 7, 2)) // 2
+console.log(Math.abs(-10))     // 10
+console.log(Math.random())     // random decimal between 0 and 1
+\`\`\`
+
+There are two special number values worth knowing: \`Infinity\` (the result of dividing by zero, for example) and \`NaN\` — "Not a Number" — which appears when a mathematical operation fails, such as trying to do arithmetic with a non-numeric string.
+
+\`\`\`javascript
+console.log(10 / 0)        // Infinity
+console.log("hello" * 2)   // NaN
+console.log(isNaN("hello")) // true
+\`\`\`
+
+### Booleans
+
+Booleans are the same as in Python — \`true\` or \`false\` (note: lowercase in JavaScript, unlike Python's capitalised \`True\` and \`False\`).
+
+\`\`\`javascript
+const isLoggedIn = true
+const hasPermission = false
+
+console.log(10 > 5)     // true
+console.log(10 === 5)   // false
+console.log(10 !== 5)   // true
+\`\`\`
+
+Notice \`===\` for equality comparison. JavaScript has two equality operators and the difference matters enormously.
+
+\`==\` (loose equality) compares values after attempting type conversion. This leads to surprising results:
+
+\`\`\`javascript
+console.log(5 == "5")   // true (!) — JavaScript converts the string to a number
+console.log(0 == false) // true (!) — JavaScript converts both to the same type
+\`\`\`
+
+\`===\` (strict equality) compares both value AND type with no conversion:
+
+\`\`\`javascript
+console.log(5 === "5")   // false — different types
+console.log(0 === false) // false — different types
+console.log(5 === 5)     // true
+\`\`\`
+
+**Always use \`===\` and \`!==\`.** The loose equality operators (\`==\` and \`!=\`) exist for historical reasons and are a common source of bugs. Strict equality is always more predictable.
+
+### null and undefined
+
+JavaScript has two ways of representing "nothing", and understanding the difference prevents a lot of confusion.
+
+**\`undefined\`** is what JavaScript uses when something has no value yet. If you declare a variable without assigning it, it is \`undefined\`. If you call a function that does not explicitly return anything, the result is \`undefined\`. It is JavaScript's built-in default for "not yet assigned."
+
+\`\`\`javascript
+let something
+console.log(something) // undefined
+
+function doNothing() {}
+console.log(doNothing()) // undefined
+\`\`\`
+
+**\`null\`** is an intentional absence of value. You write it explicitly to say "this variable has no value right now, and that is deliberate." It is the programmer's signal, not JavaScript's default.
+
+\`\`\`javascript
+let selectedUser = null  // no user selected yet
+// later...
+selectedUser = { name: "Alice" }
+\`\`\`
+
+The practical rule: you will rarely write \`undefined\` yourself. You will see it appear as a result of operations. You write \`null\` intentionally to represent "empty" or "not yet set."
+
+### typeof — Checking a Variable's Type
+
+JavaScript gives you the \`typeof\` operator to check what type a value is. This is particularly useful for debugging.
+
+\`\`\`javascript
+console.log(typeof "hello")     // "string"
+console.log(typeof 42)          // "number"
+console.log(typeof true)        // "boolean"
+console.log(typeof undefined)   // "undefined"
+console.log(typeof null)        // "object" — a famous JavaScript bug!
+console.log(typeof {})          // "object"
+console.log(typeof [])          // "object"
+console.log(typeof function(){}) // "function"
+\`\`\`
+
+Note that \`typeof null\` returns \`"object"\` — this is a well-known bug from JavaScript's early days that has never been fixed for backward compatibility reasons. Just know it exists.
+
+## Type Coercion — JavaScript's Most Notorious Feature
+
+JavaScript will automatically convert values from one type to another in certain situations. This is called **type coercion**, and it is the source of some of JavaScript's most surprising behaviours.
+
+The most common place this appears is with the \`+\` operator. When you use \`+\` with a string and a number, JavaScript converts the number to a string and concatenates:
+
+\`\`\`javascript
+console.log("5" + 3)    // "53" — not 8!
+console.log("5" - 3)    // 2 — subtraction has no string version, so converts "5" to 5
+console.log("5" * 3)    // 15
+\`\`\`
+
+This is why \`===\` is important — strict equality avoids coercion entirely. And this is why you should be careful about the types you are working with, particularly when getting values from user input (which is always a string, even if the user typed a number).
+
+To explicitly convert between types:
+
+\`\`\`javascript
+// String to Number
+const input = "42"
+const num = Number(input)      // 42
+const num2 = parseInt(input)   // 42 (for integers)
+const num3 = parseFloat("3.14") // 3.14
+
+// Number to String
+const n = 42
+const str = String(n)          // "42"
+const str2 = n.toString()      // "42"
+
+// To Boolean
+const bool1 = Boolean(0)       // false
+const bool2 = Boolean("")      // false
+const bool3 = Boolean("hello") // true
+const bool4 = Boolean(42)      // true
+\`\`\`
+
+## Mastering the Console
+
+The browser console is your most important tool as a JavaScript developer. It is not just for \`console.log\`. Let's look at everything it can do.
+
+**console.log()** — the workhorse. Use it to inspect values at any point in your code.
+
+\`\`\`javascript
+const user = "Alice"
+const score = 95
+console.log(user, score)  // you can log multiple values at once
+console.log("Score:", score)  // label your output for clarity
+\`\`\`
+
+**console.error()** — displays output in red with an error icon. Use for error messages.
+
+\`\`\`javascript
+console.error("Something went wrong!")
+\`\`\`
+
+**console.warn()** — displays output in yellow. Use for warnings.
+
+\`\`\`javascript
+console.warn("This approach is deprecated")
+\`\`\`
+
+**console.table()** — displays arrays and objects as a formatted table. Extremely useful for inspecting structured data.
+
+\`\`\`javascript
+const students = [
+  { name: "Alice", score: 95 },
+  { name: "Bob", score: 82 },
+  { name: "Carol", score: 91 }
+]
+console.table(students)
+\`\`\`
+
+**console.group() and console.groupEnd()** — group related log messages together.
+
+\`\`\`javascript
+console.group("User Details")
+console.log("Name: Alice")
+console.log("Age: 20")
+console.groupEnd()
+\`\`\`
+
+**console.time() and console.timeEnd()** — measure how long something takes to run.
+
+\`\`\`javascript
+console.time("loop")
+for (let i = 0; i < 100000; i++) {}
+console.timeEnd("loop")
+\`\`\`
+
+Beyond logging, the console lets you:
+- Run arbitrary JavaScript expressions by typing them directly
+- Inspect JavaScript errors that appear in red (click them to see the exact file and line number)
+- Navigate to the Sources tab to step through your code line by line with the debugger
+
+Developing a habit of using the console actively — logging values to understand what your code is doing, reading errors carefully, using the debugger — will make you a dramatically better developer faster than almost anything else.
+
+## Variable Scope — Where Variables Live
+
+Scope defines where in your code a variable can be accessed. JavaScript has three levels of scope: global, function, and block.
+
+A variable declared at the top level — outside any function or block — is **global**. It can be accessed anywhere in your program. In browser JavaScript, global variables become properties of the \`window\` object.
+
+\`\`\`javascript
+const appName = "ALDSS"  // global scope
+
+function greet() {
+  console.log(appName)  // can access global variable
+}
+greet() // "ALDSS"
+\`\`\`
+
+A variable declared with \`let\` or \`const\` inside curly braces has **block scope** — it only exists within those braces.
+
+\`\`\`javascript
+{
+  let blockVariable = "I'm inside a block"
+  console.log(blockVariable) // works fine
+}
+console.log(blockVariable) // ReferenceError! Not accessible here
+\`\`\`
+
+This applies to if-statements, loops, and functions — any pair of curly braces creates a new block scope for \`let\` and \`const\`.
+
+\`\`\`javascript
+if (true) {
+  let message = "inside if"
+  console.log(message) // "inside if"
+}
+console.log(message) // ReferenceError!
+\`\`\`
+
+This is one of the reasons \`var\` is problematic — \`var\` is function-scoped, not block-scoped, so \`var\` inside an if-block leaks out into the surrounding function. \`let\` and \`const\` do not have this problem.
+
+## Putting It Together — A Simple Program
+
+Let's combine what you have learned into a small, concrete program that uses multiple variable types, string manipulation, and console output:
+
+\`\`\`javascript
+// Student grade calculator
+const studentName = "Alice Johnson"
+const scores = [88, 92, 79, 95, 84]
+
+// Calculate average using reduce (we'll cover arrays properly later)
+const total = 88 + 92 + 79 + 95 + 84
+const average = total / scores.length
+
+// Build a grade letter
+let grade
+if (average >= 90) {
+  grade = "A"
+} else if (average >= 80) {
+  grade = "B"
+} else if (average >= 70) {
+  grade = "C"
+} else {
+  grade = "F"
+}
+
+// Display results
+console.log(\`Student: \${studentName}\`)
+console.log(\`Average Score: \${average.toFixed(1)}\`)
+console.log(\`Grade: \${grade}\`)
+console.log(\`Pass/Fail: \${average >= 50 ? "PASS" : "FAIL"}\`)
+\`\`\`
+
+Notice \`average.toFixed(1)\` — this is a number method that rounds the number to one decimal place and returns it as a string, perfect for display purposes.
+
+The last line uses something called a **ternary operator** — \`condition ? valueIfTrue : valueIfFalse\` — a compact way to write a simple if/else. You will see this everywhere in JavaScript.
+
+## The Building Blocks Are Ready
+
+You now have a solid understanding of how JavaScript stores and represents data. You know the difference between \`let\`, \`const\`, and \`var\`. You understand strings, numbers, booleans, \`null\`, and \`undefined\`. You know why \`===\` is important and when type coercion can surprise you. And you have a proper relationship with the console as your primary tool for understanding what your code is doing.
+
+These are the fundamental building blocks. Every program you write will use them. In the next module, you will learn about functions — the mechanism for organising your code into reusable, named pieces of logic that you can call whenever you need them.`,
+  quizzes: [
+    {
+      question: 'What is the key difference between let and const in JavaScript?',
+      options: [
+        'let variables can hold any data type, while const can only hold numbers and strings',
+        'const variables cannot be reassigned after their initial value is set, while let variables can be reassigned',
+        'let creates a global variable, while const creates a block-scoped variable',
+        'There is no practical difference — they are interchangeable in modern JavaScript'
+      ],
+      correct: 1,
+      explanation: 'const prevents the variable binding from being reassigned to a different value — if you try to do so, JavaScript throws a TypeError — while let allows reassignment throughout its scope.'
+    },
+    {
+      question: 'What will console.log("5" + 3) output, and why?',
+      options: [
+        '8, because JavaScript always converts strings to numbers for arithmetic',
+        '"53", because the + operator with a string causes JavaScript to convert the number to a string and concatenate',
+        'NaN, because you cannot use + between a string and a number',
+        'An error, because the types are incompatible'
+      ],
+      correct: 1,
+      explanation: 'When the + operator encounters a string operand, JavaScript performs string concatenation rather than numeric addition, converting the number 3 to the string "3" and joining it to "5" to produce "53".'
+    },
+    {
+      question: 'Why should you use === instead of == for comparisons in JavaScript?',
+      options: [
+        'Because === is faster to execute than == in modern JavaScript engines',
+        'Because == only works with numbers, while === works with all data types',
+        'Because == performs type coercion before comparing, leading to surprising results like 5 == "5" being true, while === compares both value and type with no conversion',
+        'Because === is required for comparing objects and arrays, while == only works for primitives'
+      ],
+      correct: 2,
+      explanation: 'Loose equality (==) converts operands to a common type before comparing, which produces counterintuitive results — strict equality (===) requires both the value and the type to match, making comparisons predictable and safe.'
+    },
+    {
+      question: 'What is the difference between null and undefined in JavaScript?',
+      options: [
+        'They are identical — both represent the absence of a value and can be used interchangeably',
+        'undefined means a variable was declared but not assigned a value (JavaScript\'s default); null is explicitly assigned by the programmer to intentionally represent "no value"',
+        'null is JavaScript\'s default for unassigned variables; undefined is explicitly set by the programmer',
+        'undefined only appears in function return values, while null only appears in variable declarations'
+      ],
+      correct: 1,
+      explanation: 'undefined is JavaScript\'s automatic default when a variable has no value — you will see it appear as a result of operations; null is an intentional programmer signal meaning "this is deliberately empty right now."'
+    },
+    {
+      question: 'What does a template literal (backtick string) allow you to do that regular quoted strings do not?',
+      options: [
+        'Store strings that span multiple lines and embed JavaScript expressions directly inside the string using ${} syntax',
+        'Create strings that cannot be accidentally modified, making them safer than single or double-quoted strings',
+        'Apply CSS styling directly to the string when it is displayed in the browser',
+        'Access individual characters of the string using array-style indexing'
+      ],
+      correct: 0,
+      explanation: 'Template literals use backticks and support two features regular strings lack: multi-line strings (without needing escape characters) and string interpolation via ${expression}, which evaluates the expression and embeds its result directly in the string.'
+    }
+  ]
+})
+
+await addModule('JavaScript for Beginners', {
+  title: 'Functions — Writing Reusable Logic',
+  description: 'Learn how to define and call functions in JavaScript, understand different function syntaxes, work with parameters and return values, and write code that is organised, reusable, and easy to reason about.',
+  orderIndex: 3,
+  content: `## Why Functions Exist
+
+Imagine you are building a quiz application. Every time a user answers a question, you need to check their answer, update their score, and display a message. Without functions, you would write the same logic every time an answer is submitted. That is not just tedious — it is dangerous. If you need to change how scoring works, you have to find every place you wrote that logic and change each one. Miss one, and your app behaves inconsistently.
+
+Functions solve this by giving you a way to write logic once, give it a name, and call it as many times as you need from anywhere in your code. Change the function, and every place that calls it automatically gets the updated behaviour.
+
+But functions are more than just a copy-paste avoidance tool. They are the primary way you organise and structure JavaScript programs. They allow you to break complex problems into smaller, named pieces. They make your code readable — a well-named function communicates intent immediately. They are the building blocks from which everything more complex is assembled.
+
+You already know what functions are from Python. In this module, you will learn that JavaScript functions have several different syntaxes, each with subtly different behaviours, and understanding when to use each one is an important part of writing idiomatic JavaScript.
+
+## Declaring Functions — The Classic Way
+
+The most straightforward way to create a function in JavaScript is a **function declaration**. The syntax uses the \`function\` keyword, followed by a name, parameters in parentheses, and the function body in curly braces.
+
+\`\`\`javascript
+function greet(name) {
+  const message = \`Hello, \${name}!\`
+  return message
+}
+
+const result = greet("Alice")
+console.log(result) // "Hello, Alice!"
+\`\`\`
+
+This is essentially the same pattern you know from Python's \`def\`, just with different syntax. Let's unpack the parts:
+
+- \`function\` — the keyword that tells JavaScript you are defining a function
+- \`greet\` — the name you give the function (use verbs or verb phrases: \`calculateScore\`, \`validateEmail\`, \`showMessage\`)
+- \`(name)\` — the parameter list — the inputs the function expects
+- \`{ ... }\` — the function body — the code that runs when the function is called
+- \`return\` — sends a value back to whoever called the function
+
+Function declarations have a special property called **hoisting**: JavaScript moves the function definition to the top of its scope before any code runs. This means you can call a function declaration before it appears in your file:
+
+\`\`\`javascript
+console.log(add(2, 3)) // 5 — works even though add is defined below
+
+function add(a, b) {
+  return a + b
+}
+\`\`\`
+
+This works, but it is generally better practice to define functions before using them — relying on hoisting makes code harder to read.
+
+## Function Expressions — Functions as Values
+
+One of the most important ideas in JavaScript is that **functions are values**. Just like a number or a string can be stored in a variable, so can a function. When you store a function in a variable, it is called a **function expression**.
+
+\`\`\`javascript
+const greet = function(name) {
+  return \`Hello, \${name}!\`
+}
+
+console.log(greet("Bob")) // "Hello, Bob!"
+\`\`\`
+
+The function here has no name after the \`function\` keyword — it is an **anonymous function** assigned to the variable \`greet\`. The variable name becomes the way you call it.
+
+Function expressions are NOT hoisted. This means you cannot call them before they are defined:
+
+\`\`\`javascript
+console.log(multiply(2, 3)) // ReferenceError!
+
+const multiply = function(a, b) {
+  return a * b
+}
+\`\`\`
+
+Because functions are values, they can be passed as arguments to other functions, returned from functions, and stored in arrays or objects. This is a fundamental concept in JavaScript called **first-class functions**, and it enables a whole category of powerful programming patterns you will encounter as you progress.
+
+## Arrow Functions — The Modern Syntax
+
+ES6 (a major JavaScript update from 2015) introduced **arrow functions**, a shorter syntax for writing function expressions. Arrow functions have become the dominant style in modern JavaScript code, so you need to be very comfortable with them.
+
+\`\`\`javascript
+// Traditional function expression
+const double = function(x) {
+  return x * 2
+}
+
+// Arrow function — equivalent
+const double = (x) => {
+  return x * 2
+}
+
+// Shorter: when there's one parameter, parentheses are optional
+const double = x => {
+  return x * 2
+}
+
+// Even shorter: when the body is a single expression, you can omit the braces and return
+const double = x => x * 2
+
+console.log(double(5)) // 10
+\`\`\`
+
+These four versions all do exactly the same thing. The progression from verbose to concise is common in JavaScript — you start with the full form to understand what is happening, then use the shorter forms when they make the code clearer.
+
+For functions with multiple parameters:
+
+\`\`\`javascript
+const add = (a, b) => a + b
+const greet = (name, greeting) => \`\${greeting}, \${name}!\`
+
+console.log(add(3, 4))           // 7
+console.log(greet("Alice", "Hi")) // "Hi, Alice!"
+\`\`\`
+
+For functions with no parameters, use empty parentheses:
+
+\`\`\`javascript
+const sayHello = () => "Hello!"
+console.log(sayHello()) // "Hello!"
+\`\`\`
+
+For multi-line arrow functions, keep the curly braces and explicit return:
+
+\`\`\`javascript
+const calculateGrade = score => {
+  if (score >= 90) return "A"
+  if (score >= 80) return "B"
+  if (score >= 70) return "C"
+  return "F"
+}
+
+console.log(calculateGrade(85)) // "B"
+\`\`\`
+
+Arrow functions have one important technical difference from regular functions: they do not have their own \`this\` binding. This matters in object-oriented JavaScript and event handling — we will address it in the events module. For now, the practical rule is: **use arrow functions for short, simple operations; use function declarations for functions that need a name and may use \`this\`**.
+
+## Parameters, Arguments, and Defaults
+
+**Parameters** are the names listed in the function definition. **Arguments** are the actual values passed when the function is called. You already know this distinction from Python — the names are the same in JavaScript.
+
+\`\`\`javascript
+function introduce(firstName, lastName, age) {
+  return \`I'm \${firstName} \${lastName}, \${age} years old.\`
+}
+
+// firstName, lastName, age are parameters
+// "Alice", "Smith", 20 are arguments
+console.log(introduce("Alice", "Smith", 20))
+\`\`\`
+
+**Default parameters** allow you to specify a fallback value that is used when an argument is not provided:
+
+\`\`\`javascript
+function greet(name = "stranger", greeting = "Hello") {
+  return \`\${greeting}, \${name}!\`
+}
+
+console.log(greet("Alice", "Hi"))  // "Hi, Alice!"
+console.log(greet("Bob"))          // "Hello, Bob!"
+console.log(greet())               // "Hello, stranger!"
+\`\`\`
+
+Default parameters make functions more flexible and reduce the need for defensive checks inside the function body.
+
+**Rest parameters** allow a function to accept any number of arguments as an array:
+
+\`\`\`javascript
+function sum(...numbers) {
+  let total = 0
+  for (const n of numbers) {
+    total += n
+  }
+  return total
+}
+
+console.log(sum(1, 2, 3))       // 6
+console.log(sum(1, 2, 3, 4, 5)) // 15
+\`\`\`
+
+The \`...\` spread syntax before the parameter name collects all remaining arguments into an array. This is useful when you genuinely do not know how many arguments will be passed.
+
+## Return Values — Getting Data Out
+
+The \`return\` statement does two things: it specifies the value to send back to the caller, and it immediately exits the function. Any code after a \`return\` statement in the same block is unreachable.
+
+\`\`\`javascript
+function findMax(a, b) {
+  if (a > b) {
+    return a  // exits here if a > b
+  }
+  return b    // only reached if a <= b
+}
+
+console.log(findMax(7, 3))  // 7
+console.log(findMax(3, 9))  // 9
+\`\`\`
+
+A function without an explicit \`return\` statement returns \`undefined\`:
+
+\`\`\`javascript
+function logMessage(message) {
+  console.log(message)
+  // no return statement
+}
+
+const result = logMessage("Hello")
+console.log(result) // undefined
+\`\`\`
+
+Functions that produce a side effect (like logging, modifying the DOM, or saving data) often do not need to return a value. Functions that compute something almost always should return the result rather than logging it — logging inside a function makes it harder to test and reuse.
+
+## Scope Inside Functions
+
+Every function creates its own scope. Variables declared inside a function with \`let\` or \`const\` are local to that function and cannot be accessed from outside.
+
+\`\`\`javascript
+function calculateArea(width, height) {
+  const area = width * height  // local to this function
+  return area
+}
+
+console.log(calculateArea(5, 3)) // 15
+console.log(area) // ReferenceError! area doesn't exist out here
+\`\`\`
+
+Functions can access variables from their outer scope — this is called **closure**, and it is one of JavaScript's most powerful features. A function remembers the variables from the scope where it was defined, even after that scope has closed.
+
+\`\`\`javascript
+function makeCounter() {
+  let count = 0  // this variable is enclosed by the returned function
+
+  return function() {
+    count++
+    return count
+  }
+}
+
+const counter = makeCounter()
+console.log(counter()) // 1
+console.log(counter()) // 2
+console.log(counter()) // 3
+
+const counter2 = makeCounter()
+console.log(counter2()) // 1 — fresh counter, own enclosed count variable
+\`\`\`
+
+This is closure in action. The inner function retains access to \`count\` even though \`makeCounter\` has returned. Each call to \`makeCounter\` creates a new, independent \`count\` variable. Closures are what make patterns like private variables and factory functions possible in JavaScript.
+
+## Functions as Arguments — Higher-Order Functions
+
+Because functions are values in JavaScript, you can pass them as arguments to other functions. A function that accepts another function as an argument (or returns a function) is called a **higher-order function**. This pattern is extremely common in JavaScript, particularly with arrays.
+
+\`\`\`javascript
+function applyOperation(numbers, operation) {
+  const results = []
+  for (const n of numbers) {
+    results.push(operation(n))
+  }
+  return results
+}
+
+const double = x => x * 2
+const square = x => x * x
+
+const nums = [1, 2, 3, 4, 5]
+
+console.log(applyOperation(nums, double)) // [2, 4, 6, 8, 10]
+console.log(applyOperation(nums, square)) // [1, 4, 9, 16, 25]
+\`\`\`
+
+You can also pass functions inline without naming them:
+
+\`\`\`javascript
+console.log(applyOperation(nums, x => x + 10)) // [11, 12, 13, 14, 15]
+\`\`\`
+
+Built-in array methods like \`forEach\`, \`map\`, \`filter\`, and \`reduce\` all use this pattern — they take a function as an argument and apply it to each element. We will explore these in depth in the arrays module.
+
+## Writing Good Functions — Practical Principles
+
+Knowing the syntax is one thing. Writing functions that are genuinely useful and maintainable is another. Here are the principles that separate good functions from messy ones.
+
+**One function, one job.** A function should do one thing. If you are writing a function and the name requires the word "and" — \`validateAndSaveUser\`, for example — that is a signal to split it into two functions.
+
+**Name functions clearly.** Functions should be named with verbs that describe what they do. \`calculateTotal\`, \`validateEmail\`, \`showErrorMessage\`, \`fetchUserData\`. A function whose name immediately communicates its purpose makes the code that calls it readable without needing comments.
+
+**Keep functions short.** A function that fits on one screen is much easier to understand than one that requires scrolling. If a function is getting long, it probably contains multiple distinct tasks that should be separated.
+
+**Functions should be predictable.** Given the same inputs, a function should always produce the same output. Functions that depend on external state or produce different results depending on factors outside their parameters are harder to test and reason about.
+
+**Return values, do not log them.** A function that computes something should return the result. The caller can decide whether to log it, display it, store it, or pass it somewhere else. A function that logs its own result is less reusable.
+
+## A Complete Example
+
+Let's put everything together in a realistic program — a simple grade calculator that uses multiple functions:
+
+\`\`\`javascript
+// Pure utility functions
+const sum = (...nums) => nums.reduce((total, n) => total + n, 0)
+const average = scores => sum(...scores) / scores.length
+
+const getLetterGrade = score => {
+  if (score >= 90) return { letter: "A", label: "Distinction" }
+  if (score >= 80) return { letter: "B", label: "Credit" }
+  if (score >= 70) return { letter: "C", label: "Pass" }
+  if (score >= 50) return { letter: "D", label: "Marginal Pass" }
+  return { letter: "F", label: "Fail" }
+}
+
+// Main reporting function
+function generateReport(studentName, scores) {
+  const avg = average(scores)
+  const { letter, label } = getLetterGrade(avg)
+
+  return {
+    name: studentName,
+    scores,
+    average: avg.toFixed(1),
+    grade: letter,
+    result: label
+  }
+}
+
+// Run it
+const report = generateReport("Alice Johnson", [88, 92, 79, 95, 84])
+console.table(report)
+\`\`\`
+
+Notice how each function has a single clear job. \`sum\` adds numbers. \`average\` calculates a mean. \`getLetterGrade\` maps a score to a grade. \`generateReport\` orchestrates the others. This decomposition makes each piece easy to understand, test, and modify independently.
+
+## Functions Are the Heart of JavaScript
+
+Everything in JavaScript eventually involves functions. Array methods are functions. Event handlers are functions. The callbacks you pass to asynchronous operations are functions. The components you build in frameworks like React are functions.
+
+The time you invest in truly understanding functions — not just the syntax, but the concepts of scope, closures, first-class functions, and higher-order functions — will pay dividends for the entire rest of your JavaScript journey. These ideas are not advanced topics you can skip past. They are the foundation.
+
+In the next module, you will learn about control flow — the conditions and loops that give your functions decision-making power and the ability to process data at scale.`,
+  quizzes: [
+    {
+      question: 'What is the key difference between a function declaration and a function expression in JavaScript?',
+      options: [
+        'Function declarations can accept parameters, while function expressions cannot',
+        'Function declarations are hoisted to the top of their scope and can be called before they appear in the code, while function expressions are not hoisted',
+        'Function expressions use the function keyword, while function declarations use const or let',
+        'Function declarations are only valid at the top level of a file, while function expressions can be nested inside other functions'
+      ],
+      correct: 1,
+      explanation: 'Hoisting moves function declarations to the top of their scope before execution, allowing them to be called before they appear in the source code — function expressions are not hoisted and will throw a ReferenceError if called before they are defined.'
+    },
+    {
+      question: 'What will the following arrow function return? const multiply = (a, b) => a * b',
+      options: [
+        'undefined, because there is no explicit return statement',
+        'An error, because arrow functions require curly braces',
+        'The product of a and b — arrow functions with a single expression body implicitly return that expression',
+        'The string "a * b" because without return, the expression is treated as a string'
+      ],
+      correct: 2,
+      explanation: 'When an arrow function body is a single expression without curly braces, JavaScript implicitly returns the value of that expression — this concise form is equivalent to writing { return a * b }.'
+    },
+    {
+      question: 'What is a closure in JavaScript?',
+      options: [
+        'A syntax error that occurs when a function is missing its closing curly brace',
+        'A function that has been assigned to a variable using const or let',
+        'A function that retains access to variables from its outer scope even after that outer scope has finished executing',
+        'A method for preventing variables from being modified by functions outside their scope'
+      ],
+      correct: 2,
+      explanation: 'Closure means that an inner function remembers and can access variables from the scope where it was defined — even after the outer function has returned — enabling patterns like private state and factory functions.'
+    },
+    {
+      question: 'What does the rest parameter syntax (...numbers) do in a function definition?',
+      options: [
+        'It spreads an existing array into individual arguments when calling the function',
+        'It marks the remaining parameters as optional, giving them a default value of undefined',
+        'It collects all remaining arguments passed to the function into a single array called numbers',
+        'It prevents the function from accepting more than the specified number of arguments'
+      ],
+      correct: 2,
+      explanation: 'The rest parameter syntax (...paramName) collects all remaining arguments into an array, allowing a function to accept any number of arguments and work with them as a collection.'
+    },
+    {
+      question: 'What does it mean that JavaScript functions are "first-class values"?',
+      options: [
+        'Functions defined with the function keyword have higher priority than arrow functions during execution',
+        'Functions can be stored in variables, passed as arguments to other functions, and returned from functions — they are treated like any other value',
+        'The first function defined in a file is given special privileges and runs before the rest of the code',
+        'Functions declared with const are immutable and cannot be overwritten, making them first-class citizens'
+      ],
+      correct: 1,
+      explanation: 'First-class functions means functions are treated as values in JavaScript — they can be assigned to variables, passed as arguments, returned from other functions, and stored in data structures, enabling powerful patterns like higher-order functions and callbacks.'
+    }
+  ]
+})
+
+await addModule('JavaScript for Beginners', {
+  title: 'Control Flow — Conditions and Loops',
+  description: 'Learn how to make decisions in JavaScript with if/else, switch, and the ternary operator, and how to repeat operations efficiently with for, while, and the modern for...of and for...in loops.',
+  orderIndex: 4,
+  content: `## Making Programs That Think
+
+A program that always does the same thing regardless of its inputs is not very useful. Real programs need to respond differently to different situations. When a user logs in, check whether their credentials are correct. When they submit a form, validate each field. When processing a list of students, calculate the grade for each one. This is what **control flow** enables — the ability to make decisions and repeat operations.
+
+You already understand control flow from Python. The concepts are identical in JavaScript — conditionals and loops work the same way conceptually. The syntax differs, and JavaScript adds a few constructs that Python does not have in the same form. This module will move quickly through the familiar territory and spend more time on the JavaScript-specific features and idioms.
+
+## if / else if / else — The Foundation of Decision-Making
+
+The basic conditional structure in JavaScript works exactly like Python, with two syntax differences: conditions go in parentheses, and blocks go in curly braces.
+
+\`\`\`javascript
+const score = 78
+
+if (score >= 90) {
+  console.log("Grade: A")
+} else if (score >= 80) {
+  console.log("Grade: B")
+} else if (score >= 70) {
+  console.log("Grade: C")
+} else if (score >= 50) {
+  console.log("Grade: D")
+} else {
+  console.log("Grade: F")
+}
+// Output: "Grade: C"
+\`\`\`
+
+JavaScript evaluates conditions from top to bottom and executes the first block whose condition is true. Once a match is found, the rest of the chain is skipped.
+
+**Comparison operators** in JavaScript:
+- \`===\` strictly equal (same value and type)
+- \`!==\` strictly not equal
+- \`>\` greater than
+- \`<\` less than
+- \`>=\` greater than or equal
+- \`<=\` less than or equal
+
+**Logical operators** for combining conditions:
+- \`&&\` AND — both conditions must be true
+- \`||\` OR — at least one must be true
+- \`!\` NOT — inverts a boolean
+
+\`\`\`javascript
+const age = 20
+const hasID = true
+
+if (age >= 18 && hasID) {
+  console.log("Entry permitted")
+}
+
+const isWeekend = false
+const isHoliday = true
+
+if (isWeekend || isHoliday) {
+  console.log("Day off!")
+}
+
+const isRaining = false
+if (!isRaining) {
+  console.log("Go outside!")
+}
+\`\`\`
+
+## Truthy and Falsy — JavaScript's Implicit Booleans
+
+JavaScript has a concept that Python shares but that is particularly prominent in JavaScript: **truthy** and **falsy** values. When a non-boolean value is used in a condition, JavaScript automatically converts it to a boolean. Values that convert to \`false\` are called **falsy**; everything else is **truthy**.
+
+The falsy values in JavaScript are exactly six:
+- \`false\`
+- \`0\` (the number zero)
+- \`""\` (an empty string)
+- \`null\`
+- \`undefined\`
+- \`NaN\`
+
+Every other value is truthy — non-zero numbers, non-empty strings, objects, arrays (even empty ones), functions.
+
+\`\`\`javascript
+const username = ""
+
+if (username) {
+  console.log(\`Hello, \${username}!\`)
+} else {
+  console.log("Please enter a username")
+}
+// Output: "Please enter a username" — empty string is falsy
+\`\`\`
+
+This is used constantly in JavaScript for checking whether a value exists or is meaningful. Instead of \`if (username !== null && username !== undefined && username !== "")\`, you can just write \`if (username)\`.
+
+## The Ternary Operator — Inline Conditionals
+
+For simple if/else that assigns a value based on a condition, the ternary operator provides a concise alternative:
+
+\`\`\`javascript
+const age = 20
+const status = age >= 18 ? "adult" : "minor"
+console.log(status) // "adult"
+\`\`\`
+
+The syntax is: \`condition ? valueIfTrue : valueIfFalse\`
+
+Ternary operators are excellent for short, clear conditionals. They become harder to read when nested, so do not chain them deeply:
+
+\`\`\`javascript
+// Fine — simple ternary
+const label = score >= 50 ? "Pass" : "Fail"
+
+// Avoid — nested ternary is hard to read
+const grade = score >= 90 ? "A" : score >= 80 ? "B" : score >= 70 ? "C" : "F"
+// Use if/else if for this instead
+\`\`\`
+
+## Short-Circuit Evaluation — || and && as Value Operators
+
+In JavaScript, \`||\` and \`&&\` do not just return true or false — they return one of their operands. This enables two extremely common JavaScript patterns.
+
+**The \`||\` default value pattern:** Returns the left side if it is truthy; otherwise returns the right side.
+
+\`\`\`javascript
+const userName = ""
+const displayName = userName || "Guest"
+console.log(displayName) // "Guest" — empty string is falsy, so || returns the right side
+
+const userAge = 25
+const displayAge = userAge || 0
+console.log(displayAge) // 25 — 25 is truthy, so || returns the left side
+\`\`\`
+
+**The \`&&\` guard pattern:** Returns the left side if it is falsy (short-circuits); otherwise returns the right side.
+
+\`\`\`javascript
+const user = { name: "Alice" }
+
+// Only access user.name if user exists
+const name = user && user.name
+console.log(name) // "Alice"
+
+const noUser = null
+const noName = noUser && noUser.name
+console.log(noName) // null — short-circuits at noUser because null is falsy
+\`\`\`
+
+These patterns are everywhere in JavaScript code. The nullish coalescing operator \`??\` is a more specific version of \`||\` that only falls back when the left side is \`null\` or \`undefined\` (not for \`0\` or \`""\`):
+
+\`\`\`javascript
+const count = 0
+console.log(count || 10)   // 10 — 0 is falsy
+console.log(count ?? 10)   // 0 — ?? only falls back for null/undefined
+\`\`\`
+
+## The switch Statement
+
+When you have a single variable or expression that you want to compare against many specific values, a \`switch\` statement can be cleaner than a long \`else if\` chain:
+
+\`\`\`javascript
+const day = "Monday"
+
+switch (day) {
+  case "Monday":
+  case "Tuesday":
+  case "Wednesday":
+  case "Thursday":
+  case "Friday":
+    console.log("Weekday")
+    break
+  case "Saturday":
+  case "Sunday":
+    console.log("Weekend")
+    break
+  default:
+    console.log("Unknown day")
+}
+\`\`\`
+
+Critical detail: the \`break\` statement at the end of each case is essential. Without it, JavaScript will "fall through" to the next case and execute that code too, even if its condition does not match. This fall-through behaviour is occasionally useful (as shown above with Monday-Friday all sharing the same output) but is usually a bug. Always include \`break\` unless you specifically intend fall-through.
+
+The \`default\` case runs if no other case matches — it is the \`else\` of the switch statement.
+
+## for Loops — Repeating with a Counter
+
+The classic \`for\` loop in JavaScript uses three parts in its declaration: initialization, condition, and update.
+
+\`\`\`javascript
+for (let i = 0; i < 5; i++) {
+  console.log(\`Iteration \${i}\`)
+}
+// 0, 1, 2, 3, 4
+\`\`\`
+
+Breaking this down:
+- \`let i = 0\` — run once before the loop starts; creates the counter variable
+- \`i < 5\` — checked before each iteration; if false, the loop stops
+- \`i++\` — runs after each iteration; \`i++\` is shorthand for \`i = i + 1\`
+
+For loops are most useful when you need the index, or when you need to loop a specific number of times:
+
+\`\`\`javascript
+const scores = [88, 92, 79, 95, 84]
+
+for (let i = 0; i < scores.length; i++) {
+  console.log(\`Score \${i + 1}: \${scores[i]}\`)
+}
+\`\`\`
+
+You can also loop backwards or step by different increments:
+
+\`\`\`javascript
+// Countdown
+for (let i = 10; i >= 0; i--) {
+  console.log(i)
+}
+
+// Every other number
+for (let i = 0; i <= 20; i += 2) {
+  console.log(i) // 0, 2, 4, 6, ... 20
+}
+\`\`\`
+
+## while Loops — Repeating While a Condition Holds
+
+A \`while\` loop repeats as long as its condition is true. Use it when you do not know in advance how many iterations you need:
+
+\`\`\`javascript
+let attempts = 0
+let correct = false
+
+while (!correct && attempts < 3) {
+  attempts++
+  console.log(\`Attempt \${attempts}\`)
+  // In a real program, you would check user input here
+  if (attempts === 2) correct = true
+}
+
+console.log(correct ? "Correct!" : "Out of attempts")
+\`\`\`
+
+**Important:** always make sure the condition will eventually become false. If it never does, you have an infinite loop that will crash the browser tab.
+
+The \`do...while\` loop is a variant that runs the body at least once before checking the condition:
+
+\`\`\`javascript
+let count = 0
+do {
+  console.log(\`Count: \${count}\`)
+  count++
+} while (count < 3)
+// Always runs at least once, even if count starts at 3
+\`\`\`
+
+## for...of — The Modern Loop for Iterables
+
+The \`for...of\` loop is the cleanest way to iterate over arrays, strings, and other iterable collections. It is the JavaScript equivalent of Python's \`for item in list\`:
+
+\`\`\`javascript
+const fruits = ["apple", "banana", "cherry"]
+
+for (const fruit of fruits) {
+  console.log(fruit)
+}
+// apple, banana, cherry
+\`\`\`
+
+Note \`const\` in the loop — since we are not modifying \`fruit\` inside the loop, we can use \`const\`. Use \`let\` only if you need to reassign the loop variable.
+
+\`for...of\` also works on strings, iterating over each character:
+
+\`\`\`javascript
+const word = "hello"
+for (const char of word) {
+  console.log(char) // h, e, l, l, o
+}
+\`\`\`
+
+When you need both the index and the value, use \`entries()\`:
+
+\`\`\`javascript
+const fruits = ["apple", "banana", "cherry"]
+
+for (const [index, fruit] of fruits.entries()) {
+  console.log(\`\${index}: \${fruit}\`)
+}
+// 0: apple, 1: banana, 2: cherry
+\`\`\`
+
+## for...in — Iterating Over Object Keys
+
+While \`for...of\` works on arrays and iterables, \`for...in\` iterates over the **keys** of an object:
+
+\`\`\`javascript
+const student = {
+  name: "Alice",
+  age: 20,
+  course: "Computer Science"
+}
+
+for (const key in student) {
+  console.log(\`\${key}: \${student[key]}\`)
+}
+// name: Alice
+// age: 20
+// course: Computer Science
+\`\`\`
+
+A word of caution: \`for...in\` is designed for objects, not arrays. While it works on arrays (the keys are the index numbers), it can include inherited properties and the order is not guaranteed in all environments. For arrays, always use \`for...of\` or array methods.
+
+## Breaking Out — break and continue
+
+Two keywords let you control loop execution:
+
+\`break\` exits the loop immediately:
+
+\`\`\`javascript
+const numbers = [3, 7, 12, 4, 19, 8]
+let firstLarge
+
+for (const num of numbers) {
+  if (num > 10) {
+    firstLarge = num
+    break  // stop as soon as we find one
+  }
+}
+console.log(firstLarge) // 12
+\`\`\`
+
+\`continue\` skips the rest of the current iteration and moves to the next:
+
+\`\`\`javascript
+for (let i = 0; i < 10; i++) {
+  if (i % 2 === 0) continue  // skip even numbers
+  console.log(i)  // 1, 3, 5, 7, 9
+}
+\`\`\`
+
+## Bringing It All Together — A Complete Example
+
+Let's write a realistic program that uses multiple control flow constructs together:
+
+\`\`\`javascript
+const students = [
+  { name: "Alice", scores: [88, 92, 79, 95, 84] },
+  { name: "Bob", scores: [65, 70, 58, 72, 69] },
+  { name: "Carol", scores: [95, 98, 100, 92, 96] },
+  { name: "Dave", scores: [45, 52, 38, 61, 47] }
+]
+
+function average(scores) {
+  const total = scores.reduce((sum, s) => sum + s, 0)
+  return total / scores.length
+}
+
+function getGrade(avg) {
+  if (avg >= 90) return "High Distinction"
+  if (avg >= 80) return "Distinction"
+  if (avg >= 70) return "Credit"
+  if (avg >= 50) return "Pass"
+  return "Fail"
+}
+
+console.log("=== Results Report ===")
+
+for (const student of students) {
+  const avg = average(student.scores)
+  const grade = getGrade(avg)
+  const status = avg >= 50 ? "✓ PASS" : "✗ FAIL"
+
+  console.log(\`\${student.name}: \${avg.toFixed(1)} — \${grade} [\${status}]\`)
+}
+
+// Count passes and fails
+let passes = 0
+let fails = 0
+
+for (const student of students) {
+  if (average(student.scores) >= 50) {
+    passes++
+  } else {
+    fails++
+  }
+}
+
+console.log(\`\\nPassed: \${passes}/\${students.length}\`)
+console.log(\`Failed: \${fails}/\${students.length}\`)
+\`\`\`
+
+This program combines everything: functions, loops, conditionals, template literals, and the ternary operator. Each piece does one thing, and they compose cleanly into a useful result.
+
+## Control Flow Is the Logic Layer
+
+Control flow is what turns a collection of data operations into a program that responds to the world. It is where the intelligence lives. Once you are comfortable with conditionals and loops, combined with the functions from the previous module, you can build programs that are genuinely useful.
+
+The next module covers arrays and objects — the data structures you need to work with collections of information, which is what every real application does at its core.`,
+  quizzes: [
+    {
+      question: 'Which of the following values is falsy in JavaScript?',
+      options: [
+        '[] (an empty array)',
+        '"false" (the string containing the word false)',
+        '0 (the number zero)',
+        '{} (an empty object)'
+      ],
+      correct: 2,
+      explanation: 'The six falsy values in JavaScript are false, 0, "" (empty string), null, undefined, and NaN — empty arrays and objects are truthy because they are objects that exist, even if they contain nothing.'
+    },
+    {
+      question: 'What is the purpose of the break statement inside a switch case?',
+      options: [
+        'It ends the entire program execution when a matching case is found',
+        'It prevents fall-through — without it, JavaScript continues executing the code in subsequent cases even if their conditions do not match',
+        'It is required syntax for switch statements to compile correctly',
+        'It re-evaluates the switch expression after each case to check if the value has changed'
+      ],
+      correct: 1,
+      explanation: 'Without break, JavaScript falls through to the next case and executes its code regardless of whether that case\'s condition matches — break exits the switch statement after the matching case executes, which is almost always the intended behaviour.'
+    },
+    {
+      question: 'What is the difference between for...of and for...in loops?',
+      options: [
+        'for...of iterates over the values of an iterable (like an array), while for...in iterates over the keys/property names of an object',
+        'for...of only works on arrays, while for...in works on both arrays and objects',
+        'for...in is faster than for...of for large collections',
+        'for...of and for...in are interchangeable — both produce the same result for arrays and objects'
+      ],
+      correct: 0,
+      explanation: 'for...of gives you each value from an iterable collection (array, string, Set, etc.), while for...in gives you each key (property name) from an object — using for...in on arrays gives you the index numbers as strings, which is usually not what you want.'
+    },
+    {
+      question: 'What does the following expression return when count is 0? count ?? "empty"',
+      options: [
+        '"empty", because 0 is falsy and ?? falls back to the right side for any falsy value',
+        '0, because ?? only falls back to the right side when the left side is null or undefined, not for 0',
+        'undefined, because ?? requires both sides to be the same type',
+        'An error, because ?? cannot be used with numeric values'
+      ],
+      correct: 1,
+      explanation: 'The nullish coalescing operator (??) only falls back to the right side when the left side is null or undefined — unlike ||, it treats 0, false, and "" as meaningful values and returns them, making it more precise for default value patterns.'
+    },
+    {
+      question: 'What does the continue keyword do inside a loop?',
+      options: [
+        'It exits the loop entirely, just like break',
+        'It restarts the loop from the beginning, resetting the counter variable',
+        'It skips the remainder of the current iteration and moves to the next iteration of the loop',
+        'It pauses execution for one tick to allow the browser to render before continuing'
+      ],
+      correct: 2,
+      explanation: 'continue skips the rest of the code in the current loop iteration and immediately starts the next one — unlike break which exits the loop entirely, continue just skips one pass through the loop body.'
+    }
+  ]
+})
+
+await addModule('JavaScript for Beginners', {
+  title: 'Arrays and Objects — Working with Collections',
+  description: 'Master JavaScript\'s two most important data structures — arrays for ordered lists and objects for structured data — including modern methods, destructuring, and the spread operator.',
+  orderIndex: 5,
+  content: `## The Need for Data Structures
+
+Individual variables are fine for storing single values, but real programs work with collections — a list of students, a set of quiz questions, a user's profile data. JavaScript provides two fundamental data structures for this: **arrays** for ordered lists of things, and **objects** for named collections of related data. Together they underpin virtually every JavaScript program you will write.
+
+You already know both of these from Python: arrays are JavaScript's equivalent of lists, and objects are similar to Python dictionaries. The syntax and some behaviours differ, but the core ideas are the same. This module goes deep on both, including the powerful modern JavaScript features — destructuring, spread, and the functional array methods — that make working with collections elegant and expressive.
+
+## Arrays — Ordered Collections
+
+An array is an ordered list of values. You create one with square brackets:
+
+\`\`\`javascript
+const fruits = ["apple", "banana", "cherry"]
+const scores = [88, 92, 79, 95, 84]
+const mixed = [1, "hello", true, null]  // arrays can hold any type
+const empty = []
+\`\`\`
+
+### Accessing and Modifying Elements
+
+Access elements by their zero-based index:
+
+\`\`\`javascript
+const fruits = ["apple", "banana", "cherry"]
+
+console.log(fruits[0])  // "apple"
+console.log(fruits[1])  // "banana"
+console.log(fruits[2])  // "cherry"
+console.log(fruits[3])  // undefined — out of bounds
+\`\`\`
+
+You can modify elements by assigning to an index:
+
+\`\`\`javascript
+fruits[1] = "mango"
+console.log(fruits) // ["apple", "mango", "cherry"]
+\`\`\`
+
+Note: even though \`fruits\` is declared with \`const\`, you can modify its contents. \`const\` prevents reassigning the variable to a different array — it does not prevent mutation of the array itself.
+
+### Essential Array Properties and Methods
+
+**\`length\`** — the number of elements:
+
+\`\`\`javascript
+console.log(fruits.length) // 3
+\`\`\`
+
+**Adding and removing elements:**
+
+\`\`\`javascript
+const arr = [1, 2, 3]
+
+arr.push(4)       // add to end → [1, 2, 3, 4]
+arr.pop()         // remove from end → [1, 2, 3]
+arr.unshift(0)    // add to beginning → [0, 1, 2, 3]
+arr.shift()       // remove from beginning → [1, 2, 3]
+
+// splice(startIndex, deleteCount, ...itemsToInsert)
+arr.splice(1, 0, 99)   // insert 99 at index 1 → [1, 99, 2, 3]
+arr.splice(1, 1)       // remove 1 element at index 1 → [1, 2, 3]
+\`\`\`
+
+**Finding elements:**
+
+\`\`\`javascript
+const nums = [10, 20, 30, 40, 50]
+
+console.log(nums.indexOf(30))    // 2 — index of value, -1 if not found
+console.log(nums.includes(40))   // true
+\`\`\`
+
+**Combining and slicing:**
+
+\`\`\`javascript
+const a = [1, 2, 3]
+const b = [4, 5, 6]
+const combined = a.concat(b)     // [1, 2, 3, 4, 5, 6]
+
+const fruits = ["apple", "banana", "cherry", "date"]
+const middle = fruits.slice(1, 3) // ["banana", "cherry"] — start inclusive, end exclusive
+\`\`\`
+
+**Joining and sorting:**
+
+\`\`\`javascript
+const words = ["JavaScript", "is", "fun"]
+console.log(words.join(" "))   // "JavaScript is fun"
+console.log(words.join(", "))  // "JavaScript, is, fun"
+
+const nums = [3, 1, 4, 1, 5, 9, 2, 6]
+nums.sort((a, b) => a - b)  // sort ascending
+console.log(nums) // [1, 1, 2, 3, 4, 5, 6, 9]
+\`\`\`
+
+The \`sort\` callback requires explanation: when comparing two elements \`a\` and \`b\`, returning a negative number puts \`a\` before \`b\`, returning a positive number puts \`b\` before \`a\`, and returning 0 keeps them in the same order. So \`(a, b) => a - b\` sorts ascending and \`(a, b) => b - a\` sorts descending.
+
+### The Functional Array Methods — The Most Important Part
+
+Modern JavaScript provides a set of higher-order array methods that transform, filter, and aggregate data without requiring manual loops. These methods are central to how experienced JavaScript developers write code, and mastering them will make your code significantly more readable and expressive.
+
+**\`forEach\`** — execute a function for each element (no return value):
+
+\`\`\`javascript
+const fruits = ["apple", "banana", "cherry"]
+
+fruits.forEach(fruit => {
+  console.log(\`I like \${fruit}\`)
+})
+\`\`\`
+
+**\`map\`** — transform each element, return a new array of the same length:
+
+\`\`\`javascript
+const scores = [88, 92, 79, 95, 84]
+const doubled = scores.map(score => score * 2)
+console.log(doubled) // [176, 184, 158, 190, 168]
+
+const names = ["alice", "bob", "carol"]
+const capitalised = names.map(name => name[0].toUpperCase() + name.slice(1))
+console.log(capitalised) // ["Alice", "Bob", "Carol"]
+\`\`\`
+
+**\`filter\`** — keep elements that pass a test, return a new (shorter) array:
+
+\`\`\`javascript
+const scores = [88, 92, 45, 79, 38, 95, 84, 52]
+const passing = scores.filter(score => score >= 50)
+console.log(passing) // [88, 92, 79, 95, 84, 52]
+
+const words = ["apple", "banana", "apricot", "cherry", "avocado"]
+const aWords = words.filter(word => word.startsWith("a"))
+console.log(aWords) // ["apple", "apricot", "avocado"]
+\`\`\`
+
+**\`reduce\`** — accumulate all elements into a single value:
+
+\`\`\`javascript
+const scores = [88, 92, 79, 95, 84]
+const total = scores.reduce((accumulator, current) => accumulator + current, 0)
+console.log(total) // 438
+
+// The 0 is the initial value of the accumulator
+// Each iteration: accumulator + current becomes the new accumulator
+\`\`\`
+
+**\`find\`** — return the first element that passes a test (or undefined):
+
+\`\`\`javascript
+const users = [
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
+  { id: 3, name: "Carol" }
+]
+
+const user = users.find(u => u.id === 2)
+console.log(user) // { id: 2, name: "Bob" }
+\`\`\`
+
+**\`findIndex\`** — return the index of the first matching element (or -1):
+
+\`\`\`javascript
+const scores = [88, 92, 45, 79, 95]
+const firstFailIndex = scores.findIndex(s => s < 50)
+console.log(firstFailIndex) // 2
+\`\`\`
+
+**\`some\`** and **\`every\`** — test conditions across elements:
+
+\`\`\`javascript
+const scores = [88, 92, 45, 79, 95]
+
+console.log(scores.some(s => s < 50))   // true — at least one fails
+console.log(scores.every(s => s >= 50)) // false — not all pass
+console.log(scores.every(s => s > 0))   // true — all are positive
+\`\`\`
+
+**Chaining** — because \`map\` and \`filter\` return new arrays, you can chain these methods:
+
+\`\`\`javascript
+const students = [
+  { name: "Alice", score: 88 },
+  { name: "Bob", score: 45 },
+  { name: "Carol", score: 92 },
+  { name: "Dave", score: 38 }
+]
+
+const topStudentNames = students
+  .filter(s => s.score >= 80)
+  .map(s => s.name)
+
+console.log(topStudentNames) // ["Alice", "Carol"]
+\`\`\`
+
+This chain first filters to only passing students, then maps to just their names. No mutation, no intermediate variables, and the intent reads clearly.
+
+## Objects — Structured Named Data
+
+An object stores data as **key-value pairs**. Each key is a string (or Symbol) that names a piece of data; the value can be anything.
+
+\`\`\`javascript
+const student = {
+  name: "Alice Johnson",
+  age: 20,
+  course: "Computer Science",
+  gpa: 3.8,
+  isEnrolled: true
+}
+\`\`\`
+
+### Accessing Object Properties
+
+Two ways to access values:
+
+\`\`\`javascript
+// Dot notation — use when you know the key name
+console.log(student.name)    // "Alice Johnson"
+console.log(student.gpa)     // 3.8
+
+// Bracket notation — use when the key is dynamic or contains spaces
+const key = "course"
+console.log(student[key])    // "Computer Science"
+console.log(student["name"]) // "Alice Johnson"
+\`\`\`
+
+### Adding, Updating, and Deleting Properties
+
+\`\`\`javascript
+const person = { name: "Alice" }
+
+person.age = 20          // add a new property
+person.name = "Alice J"  // update existing property
+delete person.age        // remove a property
+
+console.log(person) // { name: "Alice J" }
+\`\`\`
+
+### Methods — Functions as Object Properties
+
+When a function is stored as an object property, it is called a **method**:
+
+\`\`\`javascript
+const calculator = {
+  value: 0,
+  add(n) {
+    this.value += n
+    return this
+  },
+  subtract(n) {
+    this.value -= n
+    return this
+  },
+  result() {
+    return this.value
+  }
+}
+
+const answer = calculator.add(10).add(5).subtract(3).result()
+console.log(answer) // 12
+\`\`\`
+
+The \`this\` keyword inside a method refers to the object itself, giving the method access to the object's other properties and methods.
+
+### Useful Object Methods
+
+\`\`\`javascript
+const student = { name: "Alice", age: 20, course: "CS" }
+
+// Get all keys
+console.log(Object.keys(student))    // ["name", "age", "course"]
+
+// Get all values
+console.log(Object.values(student))  // ["Alice", 20, "CS"]
+
+// Get all key-value pairs
+console.log(Object.entries(student))
+// [["name", "Alice"], ["age", 20], ["course", "CS"]]
+
+// Check if a key exists
+console.log("name" in student)  // true
+console.log("gpa" in student)   // false
+\`\`\`
+
+\`Object.entries()\` combined with a \`for...of\` loop is the clean way to iterate over an object:
+
+\`\`\`javascript
+for (const [key, value] of Object.entries(student)) {
+  console.log(\`\${key}: \${value}\`)
+}
+\`\`\`
+
+## Destructuring — Extracting Values Concisely
+
+**Destructuring** is one of the most useful modern JavaScript features. It lets you pull values out of arrays or objects into named variables in one clean statement.
+
+**Array destructuring:**
+
+\`\`\`javascript
+const coordinates = [52.5, 13.4]
+const [latitude, longitude] = coordinates
+console.log(latitude)  // 52.5
+console.log(longitude) // 13.4
+
+// Skip elements with commas
+const [first, , third] = [1, 2, 3]
+console.log(first) // 1, third = 3
+
+// Default values
+const [x = 0, y = 0, z = 0] = [10, 20]
+console.log(z) // 0 — default used
+\`\`\`
+
+**Object destructuring:**
+
+\`\`\`javascript
+const student = { name: "Alice", age: 20, course: "CS", gpa: 3.8 }
+
+const { name, gpa } = student
+console.log(name) // "Alice"
+console.log(gpa)  // 3.8
+
+// Rename while destructuring
+const { name: studentName, gpa: gradePoint } = student
+console.log(studentName) // "Alice"
+
+// Default values
+const { name: n, year = 1 } = student
+console.log(year) // 1 — default used because year doesn't exist in student
+\`\`\`
+
+Destructuring in function parameters is particularly powerful:
+
+\`\`\`javascript
+function printStudent({ name, gpa, course = "Undeclared" }) {
+  console.log(\`\${name} — \${course} — GPA: \${gpa}\`)
+}
+
+printStudent(student) // "Alice — CS — GPA: 3.8"
+\`\`\`
+
+## The Spread Operator — Expanding Collections
+
+The spread operator (\`...\`) expands an array or object into its individual elements. It is one of the most versatile tools in modern JavaScript.
+
+**Spreading arrays:**
+
+\`\`\`javascript
+const first = [1, 2, 3]
+const second = [4, 5, 6]
+const combined = [...first, ...second]  // [1, 2, 3, 4, 5, 6]
+
+// Copy an array
+const original = [1, 2, 3]
+const copy = [...original]
+copy.push(4)
+console.log(original) // [1, 2, 3] — unchanged
+console.log(copy)     // [1, 2, 3, 4]
+\`\`\`
+
+**Spreading objects:**
+
+\`\`\`javascript
+const defaults = { theme: "light", fontSize: 16, language: "en" }
+const userPrefs = { theme: "dark", fontSize: 18 }
+
+// Merge objects — later properties override earlier ones
+const settings = { ...defaults, ...userPrefs }
+console.log(settings)
+// { theme: "dark", fontSize: 18, language: "en" }
+
+// Add properties while spreading
+const updatedStudent = { ...student, gpa: 3.9, graduated: true }
+\`\`\`
+
+The spread operator does **shallow copying** — nested objects are not deep-copied, they are still shared references. For deeply nested objects, you would need a different approach, but for most everyday operations spread is exactly what you need.
+
+## Arrays of Objects — The Real-World Data Pattern
+
+In almost every application, you will work with arrays of objects. This combination is the most common data pattern in JavaScript:
+
+\`\`\`javascript
+const students = [
+  { id: 1, name: "Alice", scores: [88, 92, 79] },
+  { id: 2, name: "Bob", scores: [65, 70, 58] },
+  { id: 3, name: "Carol", scores: [95, 98, 100] }
+]
+
+// Find a student by id
+const alice = students.find(s => s.id === 1)
+
+// Get all names
+const names = students.map(s => s.name)
+
+// Calculate each student's average
+const withAverages = students.map(s => ({
+  ...s,
+  average: s.scores.reduce((sum, n) => sum + n, 0) / s.scores.length
+}))
+
+// Find top scorer
+const topScorer = withAverages.reduce((best, current) =>
+  current.average > best.average ? current : best
+)
+
+console.log(\`Top scorer: \${topScorer.name} (\${topScorer.average.toFixed(1)})\`)
+\`\`\`
+
+This is the kind of data manipulation you will write constantly in real JavaScript applications. The functional array methods — \`map\`, \`filter\`, \`reduce\`, \`find\` — are the professional tools for this job.
+
+## Data Structures Are the Foundation of Applications
+
+Arrays and objects are not just syntax to memorise. They are the fundamental way you model the real world in code. A user is an object. A list of users is an array of objects. A quiz has questions (an array of objects, each with options (an array of strings) and an answer (a number)). An application's state is an object containing arrays of objects.
+
+Once you have strong intuitions about when to reach for an array versus an object, and how to use the functional methods fluently, you will find that most programming problems decompose naturally into data structure operations. The next module will take this further by connecting these data structures to the web page itself — introducing the DOM and showing you how to display, update, and interact with data in the browser.`,
+  quizzes: [
+    {
+      question: 'What is the difference between the map() and filter() array methods?',
+      options: [
+        'map() modifies the original array, while filter() creates a new one',
+        'map() transforms each element and returns a new array of the same length, while filter() keeps only elements that pass a test and returns a shorter array',
+        'filter() works on any data type, while map() only works on arrays of numbers',
+        'map() and filter() do the same thing — they are aliases for each other in modern JavaScript'
+      ],
+      correct: 1,
+      explanation: 'map() applies a transformation function to every element and returns a new array with the same number of elements; filter() applies a test function and returns a new array containing only the elements for which the test returned true, which may be shorter than the original.'
+    },
+    {
+      question: 'What does the spread operator (...) do when used with an array?',
+      options: [
+        'It sorts the elements of the array in ascending order',
+        'It converts the array into an object with numeric keys',
+        'It expands the array into its individual elements, allowing arrays to be combined or copied without mutation',
+        'It removes duplicate values from the array and returns unique elements only'
+      ],
+      correct: 2,
+      explanation: 'The spread operator (...arr) expands an array\'s elements in place — this allows creating combined arrays ([...a, ...b]), copying arrays ([...original]), or passing array elements as individual function arguments.'
+    },
+    {
+      question: 'What will the following code log? const { name, age = 25 } = { name: "Alice", score: 90 }',
+      options: [
+        'An error, because age does not exist in the object being destructured',
+        'name = "Alice", age = undefined, because age is not in the source object',
+        'name = "Alice", age = 25, because destructuring uses the default value when the key is not present',
+        'name = "Alice", age = 90, because destructuring assigns the next available value'
+      ],
+      correct: 2,
+      explanation: 'Object destructuring with default values uses the default when the key is absent or undefined in the source object — since age does not exist in the source, the default value of 25 is assigned.'
+    },
+    {
+      question: 'How does the reduce() method work?',
+      options: [
+        'It removes the last element from an array and returns it, reducing the array\'s length by one',
+        'It filters an array down to only the elements that match a condition, reducing its size',
+        'It applies a function to each element and an accumulator, building up a single output value from all elements',
+        'It reduces the memory usage of an array by compressing repeated values'
+      ],
+      correct: 2,
+      explanation: 'reduce() takes a callback with an accumulator and current value — on each iteration, the callback combines the accumulator with the current element and returns the new accumulator, ultimately producing a single value such as a sum, count, or aggregated object.'
+    },
+    {
+      question: 'Why is it possible to use const with an array and still modify the array\'s contents?',
+      options: [
+        'It is not possible — const prevents any modification of array contents',
+        'const only applies to primitive values; for arrays and objects it behaves like let',
+        'const prevents the variable binding from being reassigned to a different array, but does not prevent mutation of the array\'s contents through methods like push or pop',
+        'const creates a frozen array only when explicitly initialised with Object.freeze()'
+      ],
+      correct: 2,
+      explanation: 'const means the variable cannot be reassigned to point at a different array (arr = [] would throw), but the array itself remains mutable — you can add, remove, or change elements freely because that changes the array\'s contents, not the variable\'s binding.'
+    }
+  ]
+})
+
+await addModule('JavaScript for Beginners', {
+  title: 'The DOM — Making Web Pages Interactive',
+  description: 'Learn how JavaScript interacts with web pages through the Document Object Model — selecting elements, reading and changing content, modifying styles, and creating or removing elements dynamically.',
+  orderIndex: 6,
+  content: `## The Bridge Between JavaScript and the Web Page
+
+Everything you have learned so far has been pure JavaScript logic — variables, functions, loops, arrays, objects. These are powerful tools, but on their own they do not affect anything the user can see. To make web pages interactive, you need a way for JavaScript to reach into the page and change it.
+
+That bridge is the **Document Object Model**, universally known as the **DOM**.
+
+When a browser loads an HTML file, it does not just display the raw text. It parses every HTML element and builds a tree-shaped data structure in memory that represents the entire page. Every heading, paragraph, button, image, and div becomes a **node** in this tree. The root of the tree is the \`document\` object — JavaScript's entry point into the page.
+
+Understanding the DOM is what separates JavaScript from other general-purpose languages. Python can manipulate data, but it cannot natively reach into a web page and change a paragraph's text. JavaScript can — and the DOM is how.
+
+## The DOM Tree
+
+Imagine this HTML:
+
+\`\`\`javascript
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Page</title>
+  </head>
+  <body>
+    <h1 id="title">Welcome</h1>
+    <p class="intro">Hello, world!</p>
+    <ul>
+      <li>Item 1</li>
+      <li>Item 2</li>
+    </ul>
+  </body>
+</html>
+\`\`\`
+
+The DOM represents this as a tree:
+
+- \`document\`
+  - \`html\`
+    - \`head\`
+      - \`title\` ("My Page")
+    - \`body\`
+      - \`h1\` ("Welcome") — has id "title"
+      - \`p\` ("Hello, world!") — has class "intro"
+      - \`ul\`
+        - \`li\` ("Item 1")
+        - \`li\` ("Item 2")
+
+Each element is a **node**, and nodes have relationships: parents, children, and siblings. JavaScript can navigate this tree in any direction and modify any node.
+
+## Selecting Elements — Finding What You Want to Change
+
+Before you can modify an element, you need to find it. The DOM provides several methods for selecting elements, attached to the \`document\` object.
+
+**\`getElementById\`** — select a single element by its \`id\` attribute. IDs should be unique on a page.
+
+\`\`\`javascript
+const title = document.getElementById("title")
+console.log(title)  // <h1 id="title">Welcome</h1>
+\`\`\`
+
+**\`querySelector\`** — select the first element matching a CSS selector. This is the most flexible method and the one you will use most often.
+
+\`\`\`javascript
+// Select by ID
+const title = document.querySelector("#title")
+
+// Select by class
+const intro = document.querySelector(".intro")
+
+// Select by element type
+const firstParagraph = document.querySelector("p")
+
+// Select with compound selectors
+const listItem = document.querySelector("ul li")
+
+// Select by attribute
+const input = document.querySelector("input[type='email']")
+\`\`\`
+
+**\`querySelectorAll\`** — select all elements matching a CSS selector, returning a NodeList.
+
+\`\`\`javascript
+const allListItems = document.querySelectorAll("li")
+const allIntros = document.querySelectorAll(".intro")
+
+// NodeList can be iterated with for...of
+for (const item of allListItems) {
+  console.log(item.textContent)
+}
+
+// Or converted to an array for full array method support
+const itemsArray = Array.from(allListItems)
+itemsArray.forEach(item => console.log(item.textContent))
+\`\`\`
+
+**\`getElementsByClassName\`** and **\`getElementsByTagName\`** exist but are older and less flexible than \`querySelector\`. Stick with \`querySelector\` and \`querySelectorAll\` for new code.
+
+## Reading and Changing Content
+
+Once you have selected an element, you can read and modify what it contains.
+
+**\`textContent\`** — gets or sets the text content of an element, ignoring any HTML tags.
+
+\`\`\`javascript
+const heading = document.querySelector("h1")
+
+// Read
+console.log(heading.textContent) // "Welcome"
+
+// Write
+heading.textContent = "Hello, JavaScript!"
+\`\`\`
+
+**\`innerHTML\`** — gets or sets the HTML content inside an element. Unlike \`textContent\`, this can include HTML tags.
+
+\`\`\`javascript
+const container = document.querySelector(".container")
+
+// Read
+console.log(container.innerHTML) // returns the inner HTML as a string
+
+// Write — can include HTML
+container.innerHTML = "<strong>Bold text</strong> and <em>italic text</em>"
+\`\`\`
+
+**Important security note:** Never use \`innerHTML\` with content that comes from user input or external sources. If a user can control what gets inserted via \`innerHTML\`, they can inject malicious JavaScript — this is called **Cross-Site Scripting (XSS)**. For user-provided content, always use \`textContent\`.
+
+**\`value\`** — for form inputs, this property gets or sets the current value:
+
+\`\`\`javascript
+const emailInput = document.querySelector("#email")
+const enteredEmail = emailInput.value  // get what the user typed
+emailInput.value = ""  // clear the input
+\`\`\`
+
+## Changing Styles
+
+### Inline Styles
+
+Every DOM element has a \`style\` property with sub-properties corresponding to CSS properties. Note: CSS property names with hyphens become camelCase in JavaScript (\`background-color\` → \`backgroundColor\`).
+
+\`\`\`javascript
+const heading = document.querySelector("h1")
+
+heading.style.color = "navy"
+heading.style.fontSize = "2.5rem"
+heading.style.backgroundColor = "lightyellow"
+heading.style.padding = "10px"
+\`\`\`
+
+Inline styles are powerful but can make your code messy. A cleaner approach is to pre-define classes in CSS and toggle them with JavaScript.
+
+### Class Manipulation — The Better Approach
+
+The \`classList\` property gives you a clean interface for working with CSS classes:
+
+\`\`\`javascript
+const button = document.querySelector(".btn")
+
+button.classList.add("active")        // add a class
+button.classList.remove("active")     // remove a class
+button.classList.toggle("dark-mode")  // add if absent, remove if present
+button.classList.contains("active")   // returns true/false
+button.classList.replace("old", "new") // replace one class with another
+\`\`\`
+
+In your CSS file, you define what \`.active\`, \`.dark-mode\`, etc. look like. JavaScript only handles the adding and removing. This keeps styling in CSS and behaviour in JavaScript — the correct separation of concerns.
+
+\`\`\`javascript
+// In CSS:
+// .hidden { display: none; }
+// .highlight { background: yellow; border: 2px solid orange; }
+
+const errorMessage = document.querySelector(".error")
+const card = document.querySelector(".card")
+
+errorMessage.classList.add("hidden")    // hide the error
+card.classList.add("highlight")        // highlight the card
+card.classList.toggle("highlighted")   // toggle based on current state
+\`\`\`
+
+## Reading and Changing Attributes
+
+HTML attributes like \`src\`, \`href\`, \`alt\`, \`disabled\`, and \`data-*\` can be read and modified:
+
+\`\`\`javascript
+const link = document.querySelector("a")
+const image = document.querySelector("img")
+const input = document.querySelector("input")
+
+// Reading attributes
+console.log(link.getAttribute("href"))   // the URL
+console.log(image.getAttribute("alt"))   // the alt text
+
+// Setting attributes
+link.setAttribute("href", "https://example.com")
+image.setAttribute("src", "new-image.jpg")
+
+// Shorthand for common attributes — direct property access
+link.href = "https://example.com"
+image.src = "photo.jpg"
+image.alt = "A description"
+
+// Boolean attributes
+input.disabled = true    // disables the input
+input.disabled = false   // re-enables it
+\`\`\`
+
+Custom \`data-*\` attributes are a clean way to store extra information in HTML elements:
+
+\`\`\`javascript
+// HTML: <button data-user-id="42" data-action="delete">Delete</button>
+const btn = document.querySelector("button")
+console.log(btn.dataset.userId)    // "42"
+console.log(btn.dataset.action)    // "delete"
+\`\`\`
+
+## Creating and Inserting Elements
+
+Beyond modifying existing elements, JavaScript can create entirely new ones and add them to the page.
+
+**\`createElement\`** — create a new element:
+
+\`\`\`javascript
+const newParagraph = document.createElement("p")
+newParagraph.textContent = "This paragraph was created by JavaScript!"
+newParagraph.classList.add("dynamic-content")
+\`\`\`
+
+Creating an element does not add it to the page. You need to append it somewhere:
+
+**\`appendChild\`** — add as the last child of an element:
+\`\`\`javascript
+const container = document.querySelector(".container")
+container.appendChild(newParagraph)
+\`\`\`
+
+**\`prepend\`** — add as the first child:
+\`\`\`javascript
+container.prepend(newParagraph)
+\`\`\`
+
+**\`insertBefore\`** — insert before a specific child:
+\`\`\`javascript
+const referenceElement = document.querySelector(".reference")
+container.insertBefore(newParagraph, referenceElement)
+\`\`\`
+
+**\`insertAdjacentHTML\`** — insert HTML relative to an element (useful for adding multiple elements at once):
+\`\`\`javascript
+container.insertAdjacentHTML("beforeend", "<p>New paragraph</p><p>Another one</p>")
+// positions: "beforebegin", "afterbegin", "beforeend", "afterend"
+\`\`\`
+
+## Removing Elements
+
+\`\`\`javascript
+const elementToRemove = document.querySelector(".outdated")
+elementToRemove.remove()  // removes itself from the DOM
+\`\`\`
+
+## A Complete DOM Example — Dynamic List
+
+Let's build a small but complete example that ties together selecting, creating, modifying, and removing elements:
+
+\`\`\`javascript
+// HTML assumed:
+// <ul id="task-list"></ul>
+// <button id="add-btn">Add Task</button>
+// <button id="clear-btn">Clear All</button>
+
+const taskList = document.querySelector("#task-list")
+const addBtn = document.querySelector("#add-btn")
+const clearBtn = document.querySelector("#clear-btn")
+
+const tasks = ["Learn JavaScript", "Build the DOM", "Create interactive pages"]
+
+function renderTask(taskText) {
+  // Create the list item
+  const li = document.createElement("li")
+  li.textContent = taskText
+
+  // Create a delete button for this task
+  const deleteBtn = document.createElement("button")
+  deleteBtn.textContent = "✕"
+  deleteBtn.style.marginLeft = "10px"
+
+  // When delete is clicked, remove the list item
+  deleteBtn.addEventListener("click", () => {
+    li.remove()
+  })
+
+  li.appendChild(deleteBtn)
+  taskList.appendChild(li)
+}
+
+function renderAllTasks() {
+  taskList.innerHTML = ""  // clear first to avoid duplicates
+  tasks.forEach(task => renderTask(task))
+}
+
+addBtn.addEventListener("click", () => {
+  const newTask = \`Task \${tasks.length + 1}\`
+  tasks.push(newTask)
+  renderTask(newTask)
+})
+
+clearBtn.addEventListener("click", () => {
+  tasks.length = 0       // empty the array
+  taskList.innerHTML = "" // clear the DOM
+})
+
+// Initial render
+renderAllTasks()
+\`\`\`
+
+This example uses \`addEventListener\` — the full event system is the subject of the next module. For now, notice how the DOM manipulation code is organised: there is a function for rendering one task (\`renderTask\`) and a function for rendering all (\`renderAllTasks\`). This separation makes the code easy to maintain and extend.
+
+## Traversing the DOM
+
+Sometimes you need to navigate from one element to its relatives in the tree:
+
+\`\`\`javascript
+const item = document.querySelector("li")
+
+// Going up
+console.log(item.parentElement)           // the <ul>
+console.log(item.parentElement.parentElement) // the <div> containing the ul
+
+// Going down
+const list = document.querySelector("ul")
+console.log(list.children)        // HTMLCollection of <li> children
+console.log(list.firstElementChild) // first <li>
+console.log(list.lastElementChild)  // last <li>
+
+// Going sideways
+console.log(item.nextElementSibling)     // next <li>
+console.log(item.previousElementSibling) // previous <li>
+\`\`\`
+
+## The DOM Is Your Canvas
+
+The DOM is what makes JavaScript feel like the language of the web. Every visual change you make to a web page — showing a message, updating a score, adding an item to a list, toggling dark mode — happens through DOM manipulation.
+
+The pattern you will use repeatedly is: select elements when the page loads, then update them in response to events. The events part — what happens when a user clicks a button, types in an input, or submits a form — is the focus of the next module.`,
+  quizzes: [
+    {
+      question: 'What is the DOM and why does JavaScript need it?',
+      options: [
+        'A programming language that browsers use to parse CSS files before applying them to HTML',
+        'A tree-shaped data structure the browser builds from HTML, which JavaScript uses to read and modify the page\'s content and structure',
+        'A security protocol that controls which JavaScript code is allowed to run in a browser',
+        'A library that must be imported before JavaScript can interact with web page elements'
+      ],
+      correct: 1,
+      explanation: 'The DOM is an in-memory tree representation of every HTML element on the page — JavaScript\'s document object is the entry point to this tree, allowing JavaScript to select, read, modify, create, and remove any element.'
+    },
+    {
+      question: 'What is the key difference between querySelector() and querySelectorAll()?',
+      options: [
+        'querySelector() works with CSS selectors, while querySelectorAll() only works with element tag names',
+        'querySelector() returns the first matching element, while querySelectorAll() returns a NodeList of all matching elements',
+        'querySelectorAll() is faster than querySelector() and should always be used for performance',
+        'querySelector() searches only inside the body, while querySelectorAll() searches the entire document including the head'
+      ],
+      correct: 1,
+      explanation: 'querySelector() stops at the first match and returns that single element (or null if not found), while querySelectorAll() finds every matching element and returns them all as a NodeList that can be iterated.'
+    },
+    {
+      question: 'Why should you use classList.add() and classList.remove() instead of directly setting element.style properties?',
+      options: [
+        'style properties are read-only and cannot be changed after the page loads',
+        'classList methods are faster to execute than style changes in all browsers',
+        'Using classList keeps styling in CSS files where it belongs, while JavaScript only handles the logic of when to add or remove classes — maintaining proper separation of concerns',
+        'style properties only work on block-level elements, while classList works on all element types'
+      ],
+      correct: 2,
+      explanation: 'Defining visual states in CSS classes and toggling those classes with JavaScript maintains separation of concerns — styles live in CSS, behaviour lives in JavaScript — making both easier to maintain and modify independently.'
+    },
+    {
+      question: 'What is the security risk of using innerHTML with user-provided content?',
+      options: [
+        'innerHTML is slow and causes the page to re-render, making applications unresponsive',
+        'innerHTML ignores CSS styles, so any HTML inserted will appear unstyled',
+        'User-provided content inserted via innerHTML can contain malicious script tags, enabling Cross-Site Scripting (XSS) attacks',
+        'innerHTML cannot handle special characters like quotes and apostrophes, causing rendering errors'
+      ],
+      correct: 2,
+      explanation: 'innerHTML parses its content as HTML — if user-provided content contains a script tag or an event handler attribute, the browser will execute it, allowing attackers to run arbitrary JavaScript in your page (XSS). Use textContent for any user-provided data.'
+    },
+    {
+      question: 'What does createElement() do, and what additional step is required after calling it?',
+      options: [
+        'createElement() creates an element and automatically appends it to the end of the document body',
+        'createElement() creates a new DOM element in memory, but it must then be appended to an existing element in the DOM using appendChild(), prepend(), or similar methods before it appears on the page',
+        'createElement() both creates an element and styles it, but requires setAttribute() to be called before it becomes interactive',
+        'createElement() replaces an existing element with a new one of the specified type automatically'
+      ],
+      correct: 1,
+      explanation: 'createElement() creates a new element node but does not attach it anywhere — it exists in memory but is not part of the visible page until you insert it into the DOM tree using methods like appendChild(), prepend(), or insertAdjacentHTML().'
+    }
+  ]
+})
+
+await addModule('JavaScript for Beginners', {
+  title: 'Events and Event Listeners',
+  description: 'Learn how to make web pages respond to user actions using event listeners, understand the event object, handle common events like clicks and keyboard input, and manage event propagation.',
+  orderIndex: 7,
+  content: `## Programs That Respond
+
+So far, most of your JavaScript has run immediately when the page loads — it executes top to bottom and produces a result. But interactive applications are different. They wait. They wait for the user to click something, type something, submit a form, scroll the page, or resize the window. Then they respond.
+
+This is the event-driven programming model, and it is the heart of interactive JavaScript. Instead of writing code that does things immediately, you write code that defines what should happen when specific things occur. The when is defined by **events**, and the responding code is called an **event handler** or **event listener**.
+
+Events are happening constantly. Every time a user moves their mouse, the browser generates an event. Every key press, every scroll, every resize — events. JavaScript lets you listen for specific events on specific elements and run functions when those events occur.
+
+## addEventListener — The Foundation
+
+The primary way to attach an event handler in modern JavaScript is \`addEventListener()\`. You call it on a DOM element and pass two arguments: the event type as a string, and the function to run when that event occurs.
+
+\`\`\`javascript
+const button = document.querySelector("#my-button")
+
+button.addEventListener("click", function() {
+  console.log("Button was clicked!")
+})
+\`\`\`
+
+The function passed as the second argument is called a **callback** — it is not called immediately, it is stored and called later when the event fires. This is the same first-class function concept from the functions module applied to events.
+
+Using arrow functions — the modern style:
+
+\`\`\`javascript
+button.addEventListener("click", () => {
+  console.log("Button was clicked!")
+})
+\`\`\`
+
+You can also define the handler function separately and pass it by reference:
+
+\`\`\`javascript
+function handleClick() {
+  console.log("Clicked!")
+}
+
+button.addEventListener("click", handleClick)
+
+// Removing a listener requires the same function reference
+button.removeEventListener("click", handleClick)
+\`\`\`
+
+This is important: you can only remove an event listener if you have a reference to the exact function that was added. Arrow functions defined inline cannot be removed because there is no reference to them.
+
+## The Event Object
+
+Every event handler callback automatically receives an **event object** as its first argument. This object contains detailed information about the event — what kind of event it was, which element triggered it, where the mouse was, which key was pressed, and much more.
+
+\`\`\`javascript
+button.addEventListener("click", event => {
+  console.log(event.type)         // "click"
+  console.log(event.target)       // the element that was clicked
+  console.log(event.currentTarget) // the element the listener is attached to
+  console.log(event.timeStamp)    // when the event occurred
+  console.log(event.clientX, event.clientY) // mouse position
+})
+\`\`\`
+
+**\`event.target\`** is particularly important — it is the specific element that triggered the event, which may be different from the element the listener is attached to (as we will see with event delegation).
+
+## Common Events
+
+JavaScript supports dozens of event types. Here are the ones you will use most often:
+
+### Mouse Events
+
+\`\`\`javascript
+const box = document.querySelector(".box")
+
+box.addEventListener("click", e => {
+  console.log("Single click at", e.clientX, e.clientY)
+})
+
+box.addEventListener("dblclick", e => {
+  console.log("Double click!")
+})
+
+box.addEventListener("mouseenter", e => {
+  box.classList.add("hovered")
+})
+
+box.addEventListener("mouseleave", e => {
+  box.classList.remove("hovered")
+})
+
+box.addEventListener("mousemove", e => {
+  console.log("Mouse moving:", e.clientX, e.clientY)
+})
+\`\`\`
+
+### Keyboard Events
+
+Keyboard events are usually attached to the document (to catch any key press) or to specific input fields:
+
+\`\`\`javascript
+document.addEventListener("keydown", event => {
+  console.log("Key pressed:", event.key)
+
+  // Check specific keys
+  if (event.key === "Enter") console.log("Enter pressed!")
+  if (event.key === "Escape") console.log("Escape pressed!")
+  if (event.key === "ArrowUp") console.log("Arrow up!")
+
+  // Check modifier keys
+  if (event.ctrlKey && event.key === "s") {
+    event.preventDefault()  // prevent browser save dialog
+    console.log("Ctrl+S captured!")
+  }
+})
+
+document.addEventListener("keyup", event => {
+  console.log("Key released:", event.key)
+})
+\`\`\`
+
+**\`event.key\`** gives you the actual key value as a string: \`"a"\`, \`"Enter"\`, \`"ArrowLeft"\`, \`"Shift"\`, etc. This is what you should use in modern code (as opposed to the older \`event.keyCode\` which used numeric codes).
+
+### Form Events
+
+\`\`\`javascript
+const form = document.querySelector("form")
+const emailInput = document.querySelector("#email")
+const nameInput = document.querySelector("#name")
+
+// Fires each time the input value changes
+emailInput.addEventListener("input", event => {
+  console.log("Current value:", event.target.value)
+})
+
+// Fires when the input loses focus
+emailInput.addEventListener("blur", event => {
+  if (!event.target.value.includes("@")) {
+    console.log("Invalid email!")
+  }
+})
+
+// Fires when the input gains focus
+emailInput.addEventListener("focus", event => {
+  event.target.classList.add("active")
+})
+
+// Fires when the form is submitted
+form.addEventListener("submit", event => {
+  event.preventDefault()  // CRITICAL — prevents page reload
+  const email = emailInput.value
+  const name = nameInput.value
+  console.log(\`Submitted: \${name} — \${email}\`)
+})
+\`\`\`
+
+\`event.preventDefault()\` is one of the most important lines you will write in JavaScript forms. By default, submitting a form causes the browser to reload the page. Calling \`preventDefault()\` stops that default behaviour so your JavaScript can handle the submission instead.
+
+### Window and Document Events
+
+\`\`\`javascript
+// Fires when the DOM is fully loaded (but before images load)
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM ready — safe to select elements")
+  // Your initialisation code goes here
+})
+
+// Fires when everything is loaded (including images)
+window.addEventListener("load", () => {
+  console.log("Everything loaded")
+})
+
+// Fires as the page is scrolled
+window.addEventListener("scroll", () => {
+  const scrolled = window.scrollY
+  if (scrolled > 300) {
+    document.querySelector(".back-to-top").classList.add("visible")
+  }
+})
+
+// Fires when the window is resized
+window.addEventListener("resize", () => {
+  console.log("Width:", window.innerWidth)
+})
+\`\`\`
+
+The \`DOMContentLoaded\` event is particularly important. If your \`<script>\` tag is in the \`<head>\` rather than the bottom of the \`<body>\`, elements do not exist yet when your script runs. Wrapping your code in a \`DOMContentLoaded\` listener ensures the DOM is ready before you try to select elements.
+
+## Event Propagation — Bubbling and Capturing
+
+When you click an element, the event does not just fire on that element. It travels through the DOM tree in two phases: **capturing** (down from document to the target) and **bubbling** (back up from the target to the document). Understanding bubbling is essential because it affects how your listeners fire.
+
+\`\`\`javascript
+// HTML:
+// <div class="outer">
+//   <div class="inner">
+//     <button>Click me</button>
+//   </div>
+// </div>
+
+document.querySelector("button").addEventListener("click", e => {
+  console.log("Button clicked")
+})
+
+document.querySelector(".inner").addEventListener("click", e => {
+  console.log("Inner div")
+})
+
+document.querySelector(".outer").addEventListener("click", e => {
+  console.log("Outer div")
+})
+
+// When the button is clicked, all three fire in order:
+// "Button clicked"
+// "Inner div"
+// "Outer div"
+\`\`\`
+
+The click event fires on the button, then bubbles up to the inner div, then to the outer div. Every ancestor with a listener receives the event.
+
+**\`event.stopPropagation()\`** prevents the event from bubbling further:
+
+\`\`\`javascript
+document.querySelector("button").addEventListener("click", e => {
+  e.stopPropagation()  // stops here — inner and outer div listeners won't fire
+  console.log("Button only")
+})
+\`\`\`
+
+## Event Delegation — A Powerful Pattern
+
+Bubbling is not just a complication to work around — it enables one of the most useful patterns in JavaScript: **event delegation**.
+
+Instead of adding individual event listeners to many similar elements, you add one listener to their common parent. The listener uses \`event.target\` to determine which child was actually clicked.
+
+\`\`\`javascript
+// Without delegation: adding a listener to every list item
+const items = document.querySelectorAll("li")
+items.forEach(item => {
+  item.addEventListener("click", e => {
+    e.target.classList.toggle("completed")
+  })
+})
+// Problem: items added later won't have listeners
+\`\`\`
+
+\`\`\`javascript
+// With delegation: one listener on the parent
+const taskList = document.querySelector("#task-list")
+
+taskList.addEventListener("click", e => {
+  // Only respond if the clicked element is an li
+  if (e.target.tagName === "LI") {
+    e.target.classList.toggle("completed")
+  }
+
+  // Respond to a delete button inside an li
+  if (e.target.classList.contains("delete-btn")) {
+    e.target.parentElement.remove()
+  }
+})
+\`\`\`
+
+Event delegation has two major advantages: it uses one listener instead of many (more efficient), and it works for elements that are added to the DOM after the listener was set up (which breaks per-element listeners).
+
+## A Complete Interactive Example — To-Do List
+
+Let's build a complete to-do list that uses everything in this module:
+
+\`\`\`javascript
+// HTML assumed:
+// <div id="app">
+//   <form id="add-form">
+//     <input id="task-input" type="text" placeholder="Add a task...">
+//     <button type="submit">Add</button>
+//   </form>
+//   <ul id="task-list"></ul>
+//   <p id="task-count">0 tasks</p>
+// </div>
+
+const form = document.querySelector("#add-form")
+const input = document.querySelector("#task-input")
+const taskList = document.querySelector("#task-list")
+const taskCount = document.querySelector("#task-count")
+
+let tasks = []
+
+function updateCount() {
+  const remaining = tasks.filter(t => !t.completed).length
+  taskCount.textContent = \`\${remaining} task\${remaining !== 1 ? "s" : ""} remaining\`
+}
+
+function renderTasks() {
+  taskList.innerHTML = ""
+
+  tasks.forEach((task, index) => {
+    const li = document.createElement("li")
+    li.dataset.index = index
+
+    const span = document.createElement("span")
+    span.textContent = task.text
+    if (task.completed) li.classList.add("completed")
+
+    const deleteBtn = document.createElement("button")
+    deleteBtn.textContent = "Delete"
+    deleteBtn.classList.add("delete-btn")
+
+    li.appendChild(span)
+    li.appendChild(deleteBtn)
+    taskList.appendChild(li)
+  })
+
+  updateCount()
+}
+
+// Add new task on form submit
+form.addEventListener("submit", event => {
+  event.preventDefault()
+  const text = input.value.trim()
+  if (!text) return  // ignore empty submissions
+
+  tasks.push({ text, completed: false })
+  input.value = ""
+  renderTasks()
+})
+
+// Event delegation on the list
+taskList.addEventListener("click", event => {
+  const li = event.target.closest("li")
+  if (!li) return
+
+  const index = parseInt(li.dataset.index)
+
+  if (event.target.classList.contains("delete-btn")) {
+    tasks.splice(index, 1)
+  } else {
+    tasks[index].completed = !tasks[index].completed
+  }
+
+  renderTasks()
+})
+
+// Keyboard shortcut
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    input.value = ""
+    input.blur()
+  }
+})
+
+renderTasks()
+\`\`\`
+
+Notice \`event.target.closest("li")\` — the \`closest()\` method traverses up the DOM tree from the target element until it finds an element matching the selector. This handles the case where the user clicks on the span or button inside the li, not the li itself.
+
+## Events Are the Entry Point to Interactivity
+
+Every interaction in a web application — clicking, typing, submitting, scrolling — flows through events. The event-driven model is not just a feature of JavaScript; it is the fundamental programming model of the browser. Every framework you will encounter (React, Vue, Angular) is built on top of this same event system, even if it abstracts it with different syntax.
+
+With events, DOM manipulation from the previous module, and the data structures from before that, you now have every piece needed to build complete interactive applications. The final module will prove it.`,
+  quizzes: [
+    {
+      question: 'What is event.preventDefault() used for, and when is it essential?',
+      options: [
+        'It stops an event from firing on an element, preventing any handlers from running',
+        'It cancels the event propagation so parent elements do not receive the event',
+        'It prevents the browser\'s default behaviour for that event — such as stopping a form submission from reloading the page — allowing JavaScript to handle the action instead',
+        'It disables the element that fired the event, preventing future interactions until re-enabled'
+      ],
+      correct: 2,
+      explanation: 'Many browser events have built-in default behaviours — form submission reloads the page, clicking a link navigates away, right-clicking shows a context menu. event.preventDefault() cancels these defaults so JavaScript can provide alternative handling.'
+    },
+    {
+      question: 'What is event bubbling?',
+      options: [
+        'The browser\'s process of checking all possible event listeners before deciding which element the event belongs to',
+        'A technique for combining multiple event listeners into a single efficient handler',
+        'After an event fires on an element, it propagates upward through its ancestor elements, triggering any matching event listeners on each parent',
+        'The delay between when a user interaction occurs and when the JavaScript event handler executes'
+      ],
+      correct: 2,
+      explanation: 'Event bubbling means that after an event fires on a target element, it travels up the DOM tree through each parent element — any of these ancestors with a listener for the same event type will also receive and process it.'
+    },
+    {
+      question: 'What is event delegation and what problem does it solve?',
+      options: [
+        'Assigning event handling to a worker thread so the main thread remains responsive',
+        'Attaching one event listener to a parent element instead of many listeners to individual children, using event.target to identify which child was interacted with — this works for dynamically added elements and is more efficient',
+        'Delegating event handling to an external library like jQuery to simplify cross-browser compatibility',
+        'A pattern where events are queued and processed in batch rather than immediately'
+      ],
+      correct: 1,
+      explanation: 'Event delegation exploits bubbling by placing one listener on a parent — events from children bubble up to it, and event.target identifies the specific child that was interacted with. This is more efficient than per-element listeners and automatically handles elements added to the DOM after the listener was set up.'
+    },
+    {
+      question: 'What is the difference between event.target and event.currentTarget?',
+      options: [
+        'event.target is the element the user intended to interact with, while event.currentTarget is the element the browser actually registered the click on',
+        'event.target is the element that originally triggered the event; event.currentTarget is the element that the event listener is attached to — these differ during bubbling',
+        'event.currentTarget changes during event propagation, while event.target stays fixed at the document root',
+        'They are identical — both refer to the element that the event listener is attached to'
+      ],
+      correct: 1,
+      explanation: 'event.target is always the element that originally triggered the event (e.g., a button inside a div), while event.currentTarget is the element the listener is attached to (e.g., the div) — during bubbling these are different elements, which is why event.target is essential for event delegation.'
+    },
+    {
+      question: 'Why is it important to use the "input" event rather than "change" for real-time form validation?',
+      options: [
+        'The "change" event is deprecated and no longer supported in modern browsers',
+        'The "input" event fires on every keystroke as the value changes, enabling real-time feedback, while "change" only fires when the element loses focus after a modification',
+        'The "input" event works on all form elements, while "change" only works on checkboxes and radio buttons',
+        'The "change" event requires event.preventDefault() to work correctly, while "input" does not'
+      ],
+      correct: 1,
+      explanation: 'The "input" event fires immediately on every character typed or deleted, enabling live validation and character counts — "change" only fires when the input loses focus (blur) after being modified, which is too delayed for real-time feedback patterns.'
+    }
+  ]
+})
+
+await addModule('JavaScript for Beginners', {
+  title: 'Putting It All Together — Build a Mini Interactive App',
+  description: 'Apply every concept from this track to design and build a complete interactive quiz application — combining DOM manipulation, events, arrays, objects, functions, and control flow into a real working app.',
+  orderIndex: 8,
+  content: `## From Concepts to a Real Application
+
+Every module in this track has given you a piece of the puzzle. Variables and data types gave you the raw material. Functions gave you organisation. Control flow gave you decision-making. Arrays and objects gave you the ability to model structured data. The DOM gave you the ability to reach into the page and change it. Events gave you the ability to respond to the user.
+
+Now you put it all together.
+
+This module walks you through building a complete interactive quiz application from scratch. It is small enough to finish in one session but substantial enough to demonstrate every major concept from this track working in concert. By the end, you will have a functioning app and — more importantly — a clear understanding of how all the pieces connect.
+
+The quiz app will:
+- Store a set of questions and answers in a data structure
+- Display one question at a time with multiple-choice options
+- Respond to user selections
+- Track the score
+- Show a results screen at the end
+- Allow the user to restart
+
+## Planning Before Coding
+
+Experienced developers always plan before writing code. Jumping straight into implementation leads to tangled, hard-to-change code. A few minutes of design saves hours of refactoring.
+
+**Questions to answer before starting:**
+
+*What data do I need?* A list of questions. Each question has text, multiple options, and a correct answer index. This is clearly an array of objects.
+
+*What state does the app have?* The current question index, the user's score, and whether the quiz is in progress or showing results. State is data that changes over time.
+
+*What does the user interact with?* They click an option to answer. They click a button to restart. These are event listeners.
+
+*What changes on the page?* The question text, the options, the score display, and which screen is visible. These are DOM manipulations.
+
+Once you have clear answers to these questions, the code almost writes itself.
+
+## The Data Structure
+
+\`\`\`javascript
+const questions = [
+  {
+    text: "What keyword do you use to declare a variable that cannot be reassigned?",
+    options: ["var", "let", "const", "set"],
+    correct: 2
+  },
+  {
+    text: "Which method adds an element to the end of an array?",
+    options: ["append()", "push()", "add()", "insert()"],
+    correct: 1
+  },
+  {
+    text: "What does === check in JavaScript?",
+    options: [
+      "Value only, ignoring type",
+      "Type only, ignoring value",
+      "Both value and type, with no coercion",
+      "Whether two objects are the same reference"
+    ],
+    correct: 2
+  },
+  {
+    text: "What does event.preventDefault() do?",
+    options: [
+      "Stops event bubbling to parent elements",
+      "Removes the event listener from the element",
+      "Cancels the browser's default behaviour for that event",
+      "Prevents the event from firing on child elements"
+    ],
+    correct: 2
+  },
+  {
+    text: "Which array method returns a new array of the same length with each element transformed?",
+    options: ["filter()", "reduce()", "forEach()", "map()"],
+    correct: 3
+  }
+]
+\`\`\`
+
+This is the foundation. All the app's logic flows from this data structure. Notice that the correct answer is stored as an index (0–3) matching the options array — this makes comparison straightforward.
+
+## The Application State
+
+State is the data that changes as the user interacts with the app. Track it in clearly named variables:
+
+\`\`\`javascript
+let currentQuestionIndex = 0
+let score = 0
+let answered = false  // prevent multiple answers per question
+\`\`\`
+
+These three variables represent everything the app needs to know about where it is at any moment. Good state design is minimal — store only what you truly need, and derive everything else from it.
+
+## The HTML Structure
+
+Before writing JavaScript, sketch the HTML. Good DOM manipulation starts with well-structured HTML:
+
+\`\`\`javascript
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Quiz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen">
+      <div id="progress">
+        <span id="question-counter">Question 1 of 5</span>
+        <span id="score-display">Score: 0</span>
+      </div>
+
+      <h2 id="question-text">Question goes here</h2>
+
+      <div id="options-container">
+        <!-- Options will be generated by JavaScript -->
+      </div>
+
+      <button id="next-btn" class="hidden">Next Question →</button>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="hidden">
+      <h2>Quiz Complete!</h2>
+      <p id="final-score">You scored X out of 5</p>
+      <p id="result-message">Message here</p>
+      <button id="restart-btn">Try Again</button>
+    </div>
+
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
+\`\`\`
+
+Notice the \`class="hidden"\` on elements that should not be visible initially. In your CSS, \`.hidden { display: none; }\` handles the visibility. JavaScript toggles this class — it does not manage styles directly.
+
+## Selecting DOM Elements
+
+At the top of your \`script.js\`, select all the elements you will need. Doing this once at the top is more efficient than re-selecting inside every function:
+
+\`\`\`javascript
+const quizScreen = document.querySelector("#quiz-screen")
+const resultsScreen = document.querySelector("#results-screen")
+const questionCounter = document.querySelector("#question-counter")
+const scoreDisplay = document.querySelector("#score-display")
+const questionText = document.querySelector("#question-text")
+const optionsContainer = document.querySelector("#options-container")
+const nextBtn = document.querySelector("#next-btn")
+const finalScore = document.querySelector("#final-score")
+const resultMessage = document.querySelector("#result-message")
+const restartBtn = document.querySelector("#restart-btn")
+\`\`\`
+
+## Core Functions
+
+Now the logic. Each function does one thing, named clearly:
+
+**\`showQuestion\`** — display the current question:
+
+\`\`\`javascript
+function showQuestion() {
+  const question = questions[currentQuestionIndex]
+  answered = false
+
+  // Update progress info
+  questionCounter.textContent = \`Question \${currentQuestionIndex + 1} of \${questions.length}\`
+  scoreDisplay.textContent = \`Score: \${score}\`
+
+  // Update question text
+  questionText.textContent = question.text
+
+  // Generate option buttons
+  optionsContainer.innerHTML = ""
+
+  question.options.forEach((optionText, index) => {
+    const button = document.createElement("button")
+    button.textContent = optionText
+    button.classList.add("option-btn")
+    button.dataset.index = index
+    optionsContainer.appendChild(button)
+  })
+
+  // Hide next button until an option is selected
+  nextBtn.classList.add("hidden")
+}
+\`\`\`
+
+**\`handleAnswer\`** — process a user's selection:
+
+\`\`\`javascript
+function handleAnswer(selectedIndex) {
+  if (answered) return  // ignore clicks after already answering
+
+  answered = true
+  const question = questions[currentQuestionIndex]
+  const isCorrect = selectedIndex === question.correct
+
+  if (isCorrect) score++
+
+  // Visual feedback on all options
+  const optionButtons = optionsContainer.querySelectorAll(".option-btn")
+  optionButtons.forEach((btn, index) => {
+    btn.disabled = true  // prevent further clicks
+
+    if (index === question.correct) {
+      btn.classList.add("correct")
+    } else if (index === selectedIndex && !isCorrect) {
+      btn.classList.add("incorrect")
+    }
+  })
+
+  // Update score display
+  scoreDisplay.textContent = \`Score: \${score}\`
+
+  // Show next button (or finish button on last question)
+  nextBtn.textContent = currentQuestionIndex < questions.length - 1
+    ? "Next Question →"
+    : "See Results"
+  nextBtn.classList.remove("hidden")
+}
+\`\`\`
+
+**\`showResults\`** — display the final screen:
+
+\`\`\`javascript
+function showResults() {
+  quizScreen.classList.add("hidden")
+  resultsScreen.classList.remove("hidden")
+
+  const percentage = Math.round((score / questions.length) * 100)
+  finalScore.textContent = \`You scored \${score} out of \${questions.length} (\${percentage}%)\`
+
+  let message
+  if (percentage >= 80) {
+    message = "Excellent work! You have a strong grasp of the fundamentals."
+  } else if (percentage >= 60) {
+    message = "Good effort! Review the modules on the topics you missed."
+  } else {
+    message = "Keep practising! Revisit the earlier modules and try again."
+  }
+
+  resultMessage.textContent = message
+}
+\`\`\`
+
+**\`resetQuiz\`** — restart from the beginning:
+
+\`\`\`javascript
+function resetQuiz() {
+  currentQuestionIndex = 0
+  score = 0
+  answered = false
+
+  resultsScreen.classList.add("hidden")
+  quizScreen.classList.remove("hidden")
+
+  showQuestion()
+}
+\`\`\`
+
+## Event Listeners — Wiring It All Together
+
+With the functions defined, event listeners connect user actions to the logic:
+
+\`\`\`javascript
+// Event delegation on the options container
+optionsContainer.addEventListener("click", event => {
+  if (!event.target.classList.contains("option-btn")) return
+  const selectedIndex = parseInt(event.target.dataset.index)
+  handleAnswer(selectedIndex)
+})
+
+// Next button — advance or finish
+nextBtn.addEventListener("click", () => {
+  currentQuestionIndex++
+
+  if (currentQuestionIndex < questions.length) {
+    showQuestion()
+  } else {
+    showResults()
+  }
+})
+
+// Restart button
+restartBtn.addEventListener("click", resetQuiz)
+
+// Start the quiz
+showQuestion()
+\`\`\`
+
+Notice event delegation on the options container — one listener handles all option buttons, including those created dynamically. The last line, \`showQuestion()\`, bootstraps the app by displaying the first question.
+
+## The Complete script.js
+
+Putting it all together:
+
+\`\`\`javascript
+// ====================================
+// DATA
+// ====================================
+const questions = [
+  {
+    text: "What keyword declares a variable that cannot be reassigned?",
+    options: ["var", "let", "const", "set"],
+    correct: 2
+  },
+  {
+    text: "Which method adds an element to the end of an array?",
+    options: ["append()", "push()", "add()", "insert()"],
+    correct: 1
+  },
+  {
+    text: "What does === check?",
+    options: [
+      "Value only",
+      "Type only",
+      "Both value and type, no coercion",
+      "Object reference equality"
+    ],
+    correct: 2
+  },
+  {
+    text: "What does event.preventDefault() do?",
+    options: [
+      "Stops event bubbling",
+      "Removes the listener",
+      "Cancels the browser's default behaviour",
+      "Prevents child events"
+    ],
+    correct: 2
+  },
+  {
+    text: "Which array method transforms each element and returns a new array?",
+    options: ["filter()", "reduce()", "forEach()", "map()"],
+    correct: 3
+  }
+]
+
+// ====================================
+// STATE
+// ====================================
+let currentQuestionIndex = 0
+let score = 0
+let answered = false
+
+// ====================================
+// DOM REFERENCES
+// ====================================
+const quizScreen = document.querySelector("#quiz-screen")
+const resultsScreen = document.querySelector("#results-screen")
+const questionCounter = document.querySelector("#question-counter")
+const scoreDisplay = document.querySelector("#score-display")
+const questionText = document.querySelector("#question-text")
+const optionsContainer = document.querySelector("#options-container")
+const nextBtn = document.querySelector("#next-btn")
+const finalScore = document.querySelector("#final-score")
+const resultMessage = document.querySelector("#result-message")
+const restartBtn = document.querySelector("#restart-btn")
+
+// ====================================
+// FUNCTIONS
+// ====================================
+function showQuestion() {
+  const question = questions[currentQuestionIndex]
+  answered = false
+
+  questionCounter.textContent = \`Question \${currentQuestionIndex + 1} of \${questions.length}\`
+  scoreDisplay.textContent = \`Score: \${score}\`
+  questionText.textContent = question.text
+  optionsContainer.innerHTML = ""
+  nextBtn.classList.add("hidden")
+
+  question.options.forEach((optionText, index) => {
+    const btn = document.createElement("button")
+    btn.textContent = optionText
+    btn.classList.add("option-btn")
+    btn.dataset.index = index
+    optionsContainer.appendChild(btn)
+  })
+}
+
+function handleAnswer(selectedIndex) {
+  if (answered) return
+  answered = true
+
+  const question = questions[currentQuestionIndex]
+  const isCorrect = selectedIndex === question.correct
+  if (isCorrect) score++
+
+  optionsContainer.querySelectorAll(".option-btn").forEach((btn, index) => {
+    btn.disabled = true
+    if (index === question.correct) btn.classList.add("correct")
+    else if (index === selectedIndex) btn.classList.add("incorrect")
+  })
+
+  scoreDisplay.textContent = \`Score: \${score}\`
+  nextBtn.textContent = currentQuestionIndex < questions.length - 1
+    ? "Next Question →"
+    : "See Results"
+  nextBtn.classList.remove("hidden")
+}
+
+function showResults() {
+  quizScreen.classList.add("hidden")
+  resultsScreen.classList.remove("hidden")
+
+  const pct = Math.round((score / questions.length) * 100)
+  finalScore.textContent = \`You scored \${score} out of \${questions.length} (\${pct}%)\`
+  resultMessage.textContent =
+    pct >= 80 ? "Excellent! Strong grasp of the fundamentals." :
+    pct >= 60 ? "Good effort! Review the topics you missed." :
+    "Keep practising — revisit the earlier modules."
+}
+
+function resetQuiz() {
+  currentQuestionIndex = 0
+  score = 0
+  answered = false
+  resultsScreen.classList.add("hidden")
+  quizScreen.classList.remove("hidden")
+  showQuestion()
+}
+
+// ====================================
+// EVENT LISTENERS
+// ====================================
+optionsContainer.addEventListener("click", event => {
+  if (!event.target.classList.contains("option-btn")) return
+  handleAnswer(parseInt(event.target.dataset.index))
+})
+
+nextBtn.addEventListener("click", () => {
+  currentQuestionIndex++
+  currentQuestionIndex < questions.length ? showQuestion() : showResults()
+})
+
+restartBtn.addEventListener("click", resetQuiz)
+
+// ====================================
+// INITIALISE
+// ====================================
+showQuestion()
+\`\`\`
+
+## What Each Module Contributed
+
+Look at the complete application and trace each concept back to where you learned it:
+
+**Variables and data types** — \`currentQuestionIndex\`, \`score\`, \`answered\`, template literals throughout.
+
+**Functions** — \`showQuestion\`, \`handleAnswer\`, \`showResults\`, \`resetQuiz\`. Each does one thing. They call each other. They are the backbone of the app.
+
+**Control flow** — the \`if\` in \`handleAnswer\` checking \`answered\`. The ternary for \`nextBtn.textContent\`. The chained ternary for \`resultMessage\`.
+
+**Arrays and objects** — the \`questions\` array of objects. \`forEach\` for rendering options. \`querySelectorAll\` returning a NodeList iterated with \`forEach\`.
+
+**DOM manipulation** — selecting elements at the top. \`createElement\` for option buttons. \`classList\` for showing/hiding screens. \`textContent\` for updates. \`innerHTML = ""\` for clearing options.
+
+**Events** — event delegation on the options container. \`addEventListener\` on the next and restart buttons. \`event.target\` to identify which option was clicked.
+
+## The Pattern Behind Every JavaScript App
+
+What you have built follows a pattern that scales to applications of any complexity:
+
+1. **Data** — define your data structures
+2. **State** — identify what changes over time
+3. **Render functions** — functions that update the DOM to reflect current state
+4. **Event handlers** — functions that update state and call render functions
+5. **Initialise** — call the first render function to bootstrap the app
+
+This is the fundamental architecture of interactive JavaScript. Modern frameworks like React are built on this same pattern — they add tooling and conventions, but the core loop is identical: state changes, the UI re-renders to reflect the new state.
+
+## Where You Go From Here
+
+You have completed the foundational layer of JavaScript. You understand the language, the browser environment, and the pattern for building interactive applications. The concepts in this track are not a starting point that you leave behind — they are the permanent foundation that everything else is built on.
+
+From here, the natural next steps are:
+
+**Asynchronous JavaScript** — \`fetch\`, \`Promises\`, and \`async/await\` for loading data from APIs. This is how real applications get their data.
+
+**Modern tooling** — npm, build tools, and module systems that allow you to structure large applications across multiple files.
+
+**A JavaScript framework** — React, Vue, or Svelte. These are libraries built on the exact concepts you have learned, providing tools for managing complex state and building component-based user interfaces.
+
+**Node.js** — JavaScript on the server, enabling you to build APIs, command-line tools, and full-stack applications.
+
+Each of these directions extends from exactly the foundation you have now. The language is the same. The concepts are the same. The problems are larger and the tools are more sophisticated, but the thinking is what you have been practising throughout this track.
+
+You are not a JavaScript beginner anymore.`,
+  quizzes: [
+    {
+      question: 'In the quiz application, why is state stored in separate variables (currentQuestionIndex, score, answered) rather than read from the DOM when needed?',
+      options: [
+        'Because reading from the DOM is not possible once event listeners are attached',
+        'Because DOM elements cannot store numeric values — only strings',
+        'Because keeping state in JavaScript variables makes it the single source of truth — the DOM reflects the state, not the other way around, making the app easier to reason about and modify',
+        'Because DOM reads are asynchronous and would cause timing issues inside event handlers'
+      ],
+      correct: 2,
+      explanation: 'The principle of a single source of truth means state lives in JavaScript, and the DOM is just a reflection of it — this prevents bugs where the displayed state and the actual state get out of sync, and makes operations like resetting the quiz straightforward.'
+    },
+    {
+      question: 'Why is event delegation used on the options container rather than adding individual listeners to each option button?',
+      options: [
+        'Because option buttons have a different event model than other elements and require a parent listener',
+        'Because the option buttons are created dynamically by JavaScript — they do not exist when the page loads, so per-element listeners set up at load time would miss them',
+        'Because event delegation is required when buttons are inside a form element',
+        'Because individual listeners on buttons cause memory leaks in modern browsers'
+      ],
+      correct: 1,
+      explanation: 'Option buttons are created dynamically by showQuestion() each time a new question loads — event listeners set up at page load time on specific elements that do not yet exist would fail, but a listener on the stable parent container catches events from all dynamically created children via bubbling.'
+    },
+    {
+      question: 'What architectural pattern does this application follow, and why does it scale to larger applications?',
+      options: [
+        'Model-View-Controller (MVC) — separating data into a model class, display into a view class, and interaction into a controller class',
+        'Data → State → Render functions → Event handlers → Initialise — render functions update the DOM to reflect state, and event handlers update state then re-render',
+        'Publish-Subscribe — components subscribe to events published by other components without direct dependencies',
+        'Functional reactive programming — all state changes are expressed as streams of events processed by pure functions'
+      ],
+      correct: 1,
+      explanation: 'The pattern — define data, track state separately, write render functions that update the DOM to reflect state, write event handlers that update state and trigger re-renders — is the foundational architecture of interactive JavaScript and the same pattern modern frameworks like React formalise and extend.'
+    },
+    {
+      question: 'In the handleAnswer function, why is btn.disabled = true set on all option buttons after an answer is selected?',
+      options: [
+        'To improve performance by reducing the number of active event listeners',
+        'Because the "answered" guard variable alone is not sufficient — disabled buttons cannot be clicked at all, providing a more reliable second layer of protection against double-answering',
+        'Because disabled buttons are automatically styled differently by browsers, providing visual feedback without CSS',
+        'It is required by the event delegation pattern — parent listeners ignore events from disabled children'
+      ],
+      correct: 1,
+      explanation: 'The "answered" flag is a logical guard, but disabled buttons cannot be clicked at all — combining both provides defence in depth. It also gives the user a clear visual signal that the question has been answered and options are no longer interactive.'
+    },
+    {
+      question: 'What is the significance of calling showQuestion() at the end of the script, after all functions and event listeners are defined?',
+      options: [
+        'It is required syntax — JavaScript will throw an error if functions are defined but not called',
+        'It pre-renders the quiz so it is cached before the user interacts with it',
+        'It bootstraps the application — triggering the first render to display the initial question, starting the app running after everything it depends on is set up',
+        'It registers the showQuestion function with the browser\'s rendering engine for optimised scheduling'
+      ],
+      correct: 2,
+      explanation: 'Calling showQuestion() at the end is the initialisation step that starts the app — defining functions and attaching listeners sets everything up, but nothing appears until this first call executes, which displays the first question and makes the app ready to use.'
+    }
+  ]
+})
   // ════════════════════════════════════════════════════════
   // END OF MODULES
   // ════════════════════════════════════════════════════════
