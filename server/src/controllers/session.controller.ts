@@ -57,9 +57,21 @@ export const getMySessionSummary = async (req: Request, res: Response): Promise<
 
     const totalSessions = allSessions.length
 
-    const totalMinutes = Math.round(
-      allSessions.reduce((sum, s) => sum + (s.durationSeconds || 0), 0) / 60
-    )
+    // Calculate duration — use durationSeconds if available,
+    // otherwise estimate from startedAt to now (for open sessions)
+    const totalSeconds = allSessions.reduce((sum, s) => {
+      if (s.durationSeconds) {
+        return sum + s.durationSeconds
+      }
+      // Open session — estimate duration
+      const estimated = Math.floor(
+        (Date.now() - s.startedAt.getTime()) / 1000
+      )
+      // Cap at 2 hours to avoid inflated numbers from forgotten sessions
+      return sum + Math.min(estimated, 7200)
+    }, 0)
+
+    const totalMinutes = Math.round(totalSeconds / 60)
 
     const avgSessionMinutes = totalSessions > 0
       ? Math.round(totalMinutes / totalSessions)
